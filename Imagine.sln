@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unit Tests", "Unit Tests\Un
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Acceptance Tests", "Acceptance Tests\Acceptance Tests.csproj", "{7332284F-8C7D-4C9F-A6D2-744E69F7AF52}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imagine GUI", "Imagine GUI\Imagine GUI.csproj", "{38E4AA38-94F2-4B73-996A-F831AB2D27F2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +27,10 @@ Global
 		{7332284F-8C7D-4C9F-A6D2-744E69F7AF52}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7332284F-8C7D-4C9F-A6D2-744E69F7AF52}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7332284F-8C7D-4C9F-A6D2-744E69F7AF52}.Release|Any CPU.Build.0 = Release|Any CPU
+		{38E4AA38-94F2-4B73-996A-F831AB2D27F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38E4AA38-94F2-4B73-996A-F831AB2D27F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38E4AA38-94F2-4B73-996A-F831AB2D27F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38E4AA38-94F2-4B73-996A-F831AB2D27F2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
