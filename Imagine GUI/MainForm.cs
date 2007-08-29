@@ -17,6 +17,10 @@ namespace Imagine.GUI
         {
             InitializeComponent();
             facade = new ImagineFacade();
+            facade.SourceChanged += new EventHandler(sourceChanged);
+            facade.DestinationChanged += new EventHandler(destinationChanged);
+            lblSourceFile.Text = "";
+            lblDestinationFile.Text = "";
         }
 
         private void openSourceToolStripMenuItem_Click(object sender, EventArgs e)
@@ -41,6 +45,16 @@ namespace Imagine.GUI
         private void doGenerateToolStripMenuItem_Click(object sender, EventArgs e)
         {
             facade.Generate();
+        }
+
+        private void sourceChanged(object sender, EventArgs e)
+        {
+            lblSourceFile.Text = e.ToString();
+        }
+
+        private void destinationChanged(object sender, EventArgs e)
+        {
+            lblDestinationFile.Text = e.ToString();
         }
     }
 }
