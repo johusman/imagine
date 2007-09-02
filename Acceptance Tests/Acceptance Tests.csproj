@@ -7,7 +7,7 @@
     <ProjectGuid>{7332284F-8C7D-4C9F-A6D2-744E69F7AF52}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Acceptance_Tests</RootNamespace>
+    <RootNamespace>Imagine.AcceptanceTests</RootNamespace>
     <AssemblyName>Acceptance Tests</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">

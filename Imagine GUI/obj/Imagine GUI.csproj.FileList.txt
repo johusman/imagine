@@ -3,8 +3,8 @@ bin\Debug\Imagine GUI.pdb
 bin\Debug\Imagine Library.dll
 bin\Debug\Imagine Library.pdb
 obj\Debug\ResolveAssemblyReference.cache
-obj\Debug\Imagine_GUI.Properties.Resources.resources
 obj\Debug\Imagine GUI.csproj.GenerateResource.Cache
 obj\Debug\Imagine GUI.exe
 obj\Debug\Imagine GUI.pdb
 obj\Debug\Imagine.GUI.MainForm.resources
+obj\Debug\Imagine.GUI.Properties.Resources.resources

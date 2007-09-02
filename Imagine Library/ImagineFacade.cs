@@ -6,37 +6,67 @@ namespace Imagine.Library
 {
     public class ImagineFacade
     {
-        private string sourceFileName;
-        private string destinationFileName;
+        private SourceNode sourceNode;
+        private SinkNode destinationNode;
+
+        private Graph<Machine> graph;
+
+        public Graph<Machine> Graph
+        {
+            get { return graph; }
+            set { graph = value; }
+        }
 
         public event System.EventHandler SourceChanged;
         public event System.EventHandler DestinationChanged;
 
-        public void OpenSource(string fileName)
+        public SourceNode SourceNode
         {
-            sourceFileName = fileName;
-            SourceChanged.Invoke(this, new StringEventArg(fileName));
+            get { return sourceNode; }
         }
 
-        public void OpenDestination(string fileName)
+        public SinkNode DestinationNode
         {
-            destinationFileName = fileName;
-            DestinationChanged.Invoke(this, new StringEventArg(fileName));
+            get { return destinationNode; }
+        }
+
+
+        public ImagineFacade()
+        {
+            graph = new Graph<Machine>();
+            sourceNode = new SourceNode();
+            destinationNode = new SinkNode();
+
+            graph.Connect(graph.AddNode(sourceNode), graph.AddNode(destinationNode));
+        }
+
+        public void OpenSource(string filename)
+        {
+            sourceNode.Filename = filename;
+            if(SourceChanged != null)
+                SourceChanged.Invoke(this, new StringEventArg(filename));
+        }
+
+        public void OpenDestination(string filename)
+        {
+            destinationNode.Filename = filename;
+            if(DestinationChanged != null)
+                DestinationChanged.Invoke(this, new StringEventArg(filename));
         }
 
         public void Generate()
         {
-            System.IO.File.Copy(sourceFileName, destinationFileName, true);
+            System.IO.File.Copy(sourceNode.Filename, destinationNode.Filename, true);
         }
 
         public string GetSourceFilename()
         {
-            return sourceFileName;
+            return sourceNode.Filename;
         }
 
         public string GetDestinationFilename()
         {
-            return destinationFileName;
+            return destinationNode.Filename;
         }
     }
 

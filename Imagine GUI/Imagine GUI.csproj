@@ -7,7 +7,7 @@
     <ProjectGuid>{38E4AA38-94F2-4B73-996A-F831AB2D27F2}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Imagine_GUI</RootNamespace>
+    <RootNamespace>Imagine.GUI</RootNamespace>
     <AssemblyName>Imagine GUI</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">

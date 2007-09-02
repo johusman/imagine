@@ -48,7 +48,7 @@ namespace Imagine.GUI
             // 
             // panel1
             // 
-            this.panel1.BackgroundImage = global::Imagine_GUI.Properties.Resources.gradient;
+            this.panel1.BackgroundImage = global::Imagine.GUI.Properties.Resources.gradient;
             this.panel1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.panel1.Controls.Add(this.lblSourceFile);
             this.panel1.Controls.Add(this.lblDestinationFile);
