@@ -6,8 +6,8 @@ namespace Imagine.Library
 {
     public class ImagineFacade
     {
-        private SourceNode sourceNode;
-        private SinkNode destinationNode;
+        private SourceMachine sourceMachine;
+        private SinkMachine destinationMachine;
 
         private Graph<Machine> graph;
 
@@ -20,53 +20,58 @@ namespace Imagine.Library
         public event System.EventHandler SourceChanged;
         public event System.EventHandler DestinationChanged;
 
-        public SourceNode SourceNode
+        public SourceMachine SourceMachine
         {
-            get { return sourceNode; }
+            get { return sourceMachine; }
         }
 
-        public SinkNode DestinationNode
+        public SinkMachine DestinationMachine
         {
-            get { return destinationNode; }
+            get { return destinationMachine; }
         }
 
 
         public ImagineFacade()
         {
             graph = new Graph<Machine>();
-            sourceNode = new SourceNode();
-            destinationNode = new SinkNode();
+            sourceMachine = new SourceMachine();
+            destinationMachine = new SinkMachine();
 
-            graph.Connect(graph.AddNode(sourceNode), graph.AddNode(destinationNode));
+            graph.Connect(graph.AddNode(sourceMachine), graph.AddNode(destinationMachine));
         }
 
         public void OpenSource(string filename)
         {
-            sourceNode.Filename = filename;
+            sourceMachine.Filename = filename;
             if(SourceChanged != null)
                 SourceChanged.Invoke(this, new StringEventArg(filename));
         }
 
         public void OpenDestination(string filename)
         {
-            destinationNode.Filename = filename;
+            destinationMachine.Filename = filename;
             if(DestinationChanged != null)
                 DestinationChanged.Invoke(this, new StringEventArg(filename));
         }
 
         public void Generate()
         {
-            System.IO.File.Copy(sourceNode.Filename, destinationNode.Filename, true);
+            System.IO.File.Copy(sourceMachine.Filename, destinationMachine.Filename, true);
         }
 
         public string GetSourceFilename()
         {
-            return sourceNode.Filename;
+            return sourceMachine.Filename;
         }
 
         public string GetDestinationFilename()
         {
-            return destinationNode.Filename;
+            return destinationMachine.Filename;
+        }
+
+        public void Disconnect(Machine machine1, Machine machine2)
+        {
+            graph.Disconnect(graph.GetNodeFor(machine1), graph.GetNodeFor(machine2));
         }
     }
 

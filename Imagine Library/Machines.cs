@@ -8,7 +8,7 @@ namespace Imagine.Library
     {
     }
 
-    public class SourceNode : Machine
+    public class SourceMachine : Machine
     {
         private string filename;
 
@@ -17,9 +17,14 @@ namespace Imagine.Library
             get { return filename; }
             set { filename = value; }
         }
+
+        public override string ToString()
+        {
+            return String.Format("Source [{0}]", filename);
+        }
     }
 
-    public class SinkNode : Machine
+    public class SinkMachine : Machine
     {
         private string filename;
 
@@ -27,6 +32,11 @@ namespace Imagine.Library
         {
             get { return filename; }
             set { filename = value; }
+        }
+
+        public override string ToString()
+        {
+            return String.Format("Destination [{0}]", filename);
         }
     }
 }

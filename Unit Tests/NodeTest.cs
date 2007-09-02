@@ -9,23 +9,23 @@ namespace Imagine.Library
     public class NodeTest
     {
         [Test]
-        public void that_source_nodes_can_be_instantiated_and_configured()
+        public void that_source_machines_can_be_instantiated_and_configured()
         {
-            SourceNode node = new SourceNode();
-            node.Filename = "Hejhopp";
+            SourceMachine machine = new SourceMachine();
+            machine.Filename = "Hejhopp";
 
-            Assert.AreEqual("Hejhopp", node.Filename);
-            Assert.IsNotNull(node as Machine);
+            Assert.AreEqual("Hejhopp", machine.Filename);
+            Assert.IsNotNull(machine as Machine);
         }
 
         [Test]
-        public void that_destination_nodes_can_be_instantiated_and_configured()
+        public void that_destination_machines_can_be_instantiated_and_configured()
         {
-            SinkNode node = new SinkNode();
-            node.Filename = "Hejhopp";
+            SinkMachine machine = new SinkMachine();
+            machine.Filename = "Hejhopp";
 
-            Assert.AreEqual("Hejhopp", node.Filename);
-            Assert.IsNotNull(node as Machine);
+            Assert.AreEqual("Hejhopp", machine.Filename);
+            Assert.IsNotNull(machine as Machine);
         }
     }
 }

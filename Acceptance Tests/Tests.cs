@@ -9,7 +9,7 @@ namespace Imagine.AcceptanceTests
     [TestFixture]
     public class Tests
     {
-        private ImagineFacade facade = new ImagineFacade();
+        private ImagineFacade facade;
 
         string SRC_FILE = System.IO.Directory.GetCurrentDirectory() + "\\Leighton_Idyll.jpg";
         string DEST_FILE = System.IO.Directory.GetCurrentDirectory() + "\\test.jpg";
@@ -20,6 +20,7 @@ namespace Imagine.AcceptanceTests
         [SetUp]
         public void Init()
         {
+            facade = new ImagineFacade();
             facade.OpenSource(SRC_FILE);
             facade.OpenDestination(DEST_FILE);
         }
@@ -68,25 +69,38 @@ namespace Imagine.AcceptanceTests
         }
 
         [Test]
-        public void that_source_and_destination_are_represented_as_nodes()
+        public void that_source_and_destination_are_represented_as_machines()
         {
-            Machine sourceNode = facade.SourceNode;
-            Machine destinationNode = facade.DestinationNode;
+            Machine source = facade.SourceMachine;
+            Machine destination = facade.DestinationMachine;
 
-            Assert.IsNotNull(sourceNode);
-            Assert.IsNotNull(destinationNode);
-            Assert.AreEqual(SRC_FILE, ((SourceNode)sourceNode).Filename);
-            Assert.AreEqual(DEST_FILE, ((SinkNode)destinationNode).Filename);
+            Assert.IsNotNull(source);
+            Assert.IsNotNull(destination);
+            Assert.AreEqual(SRC_FILE, ((SourceMachine)source).Filename);
+            Assert.AreEqual(DEST_FILE, ((SinkMachine)destination).Filename);
         }
 
         [Test]
         public void that_source_and_destination_are_connected()
         {
-            GraphNode<Machine> source = facade.Graph.GetNodeFor(facade.SourceNode);
-            GraphNode<Machine> destination = facade.Graph.GetNodeFor(facade.DestinationNode);
+            GraphNode<Machine> source = facade.Graph.GetNodeFor(facade.SourceMachine);
+            GraphNode<Machine> destination = facade.Graph.GetNodeFor(facade.DestinationMachine);
 
-            Assert.That(source.Outputs.Contains(destination));
-            Assert.That(destination.Inputs.Contains(source));
+            Assert.That(source.Outputs.Contains(destination), "Source knows destination");
+            Assert.That(destination.Inputs.Contains(source), "Destination knows source");
         }
+
+        [Test]
+        public void that_nodes_are_disconnectable()
+        {
+            GraphNode<Machine> source = facade.Graph.GetNodeFor(facade.SourceMachine);
+            GraphNode<Machine> destination = facade.Graph.GetNodeFor(facade.DestinationMachine);
+
+            facade.Disconnect(facade.SourceMachine, facade.DestinationMachine);
+
+            Assert.IsTrue(!source.Outputs.Contains(destination));
+            Assert.IsTrue(!destination.Inputs.Contains(source));
+        }
+
     }
 }

@@ -24,21 +24,45 @@ namespace Imagine.Library
 
         public GraphNode<T> AddNode(T machine)
         {
+            if(machine == null)
+                throw new ArgumentNullException();
             GraphNode<T> node = new GraphNode<T>(machine);
             nodeMap.Add(machine, node);
             return node;
         }
 
-        public void Connect(GraphNode<T> node1, GraphNode<T> node2)
+        public void Connect(GraphNode<T> fromNode, GraphNode<T> toNode)
         {
-            node1.Outputs.Add(node2);
-            node2.Inputs.Add(node1);
+            if(fromNode == null || toNode == null)
+                throw new ArgumentNullException();
+
+            if(!nodeMap.ContainsValue(fromNode))
+                throw new ArgumentException(String.Format("Attempting to connect nodes, but the 'from' node was not a node from this graph! (From=({0}), To=({1}))", fromNode, toNode));
+            if(!nodeMap.ContainsValue(toNode))
+                throw new ArgumentException(String.Format("Attempting to connect nodes, but the 'to' node was not a node from this graph! (From=({0}), To=({1}))", fromNode, toNode));
+
+            fromNode.Outputs.Add(toNode);
+            toNode.Inputs.Add(fromNode);
             connectionCount++;
         }
 
         public GraphNode<T> GetNodeFor(T machine)
         {
-            return nodeMap[machine];
+            GraphNode<T> node = null;
+            nodeMap.TryGetValue(machine, out node);
+            return node;
+        }
+
+        public void Disconnect(GraphNode<T> fromNode, GraphNode<T> toNode)
+        {
+            if(!nodeMap.ContainsValue(fromNode))
+                throw new ArgumentException(String.Format("Attempting to disconnect nodes, but the 'from' node was not a node from this graph! (From=({0}), To=({1}))", fromNode, toNode));
+            if(!nodeMap.ContainsValue(toNode))
+                throw new ArgumentException(String.Format("Attempting to disconnect nodes, but the 'to' node was not a node from this graph! (From=({0}), To=({1}))", fromNode, toNode));
+
+            if(fromNode.Outputs.Remove(toNode))
+                if(toNode.Inputs.Remove(fromNode))
+                    connectionCount--;
         }
     }
 }

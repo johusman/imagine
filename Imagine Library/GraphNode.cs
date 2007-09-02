@@ -18,16 +18,6 @@ namespace Imagine.Library
             set { machine = value; }
         }
 
-        public int InputCount
-        {
-            get { return inputs.Count; }
-        }
-
-        public int OutputCount
-        {
-            get { return outputs.Count; }
-        }
-
         private List<GraphNode<T>> inputs = new List<GraphNode<T>>();
         public List<GraphNode<T>> Inputs
         {
@@ -40,6 +30,22 @@ namespace Imagine.Library
         {
             get { return outputs; }
             set { outputs = value; }
+        }
+        
+
+        public int InputCount
+        {
+            get { return inputs.Count; }
+        }
+
+        public int OutputCount
+        {
+            get { return outputs.Count; }
+        }
+
+        public override string ToString()
+        {
+            return String.Format("GraphNode ({0})", machine.ToString());
         }
     }
 }

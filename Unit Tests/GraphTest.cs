@@ -9,6 +9,7 @@ namespace Imagine.Library
     public class GraphTest
     {
         private Graph<String> graph;
+        String[] machines = { "machine1", "machine2", "machine3" };
 
         [SetUp]
         public void init()
@@ -26,37 +27,31 @@ namespace Imagine.Library
         [Test]
         public void that_we_can_add_a_node()
         {
-            GraphNode<String> node = graph.AddNode("Dummy");
+            GraphNode<String> node = graph.AddNode(machines[0]);
 
             Assert.AreEqual(1, graph.NodeCount, "NodeCount");
             Assert.AreEqual(0, graph.ConnectionCount, "ConnectionCount");
-            Assert.AreEqual("Dummy", node.Machine, "Machine");
+            Assert.AreSame(machines[0], node.Machine, "Machine");
             Assert.AreEqual(0, node.InputCount, "InputCount");
             Assert.AreEqual(0, node.OutputCount, "OutputCount");
         }
 
-        [Test]
-        public void that_we_can_add_a_real_machine()
+        [Test, ExpectedExceptionAttribute(typeof(ArgumentNullException))]
+        public void that_adding_null_is_an_error()
         {
-            String machine = "machine";
-            GraphNode<String> node = graph.AddNode(machine);
-
-            Assert.AreSame(machine, node.Machine, "Machine");
+            graph.AddNode(null);
         }
 
         [Test]
         public void that_we_can_connect_two_nodes()
         {
-            String machine1 = "machine1";
-            String machine2 = "machine2";
-
-            GraphNode<String> node1 = graph.AddNode(machine1);
-            GraphNode<String> node2 = graph.AddNode(machine2);
+            GraphNode<String> node1 = graph.AddNode(machines[0]);
+            GraphNode<String> node2 = graph.AddNode(machines[1]);
 
             Assert.AreEqual(2, graph.NodeCount, "NodeCount");
             Assert.AreEqual(0, graph.ConnectionCount, "ConnectionCount");
-            Assert.AreSame(machine1, node1.Machine, "node1.Machine");
-            Assert.AreSame(machine2, node2.Machine, "node2.Machine");
+            Assert.AreSame(machines[0], node1.Machine, "node1.Machine");
+            Assert.AreSame(machines[1], node2.Machine, "node2.Machine");
             Assert.AreEqual(0, node1.InputCount, "node1.InputCount");
             Assert.AreEqual(0, node1.OutputCount, "node1.OutputCount");
             Assert.AreEqual(0, node2.InputCount, "node2.InputCount");
@@ -75,16 +70,140 @@ namespace Imagine.Library
         }
 
         [Test]
+        public void that_connection_involving_null_is_an_error()
+        {
+            GraphNode<String> node1 = graph.AddNode(machines[0]);
+            GraphNode<String> node2 = graph.AddNode(machines[1]);
+
+            try
+            {
+                graph.Connect(node1, null);
+                Assert.Fail("Expected ArgumentNullException");
+            } catch(ArgumentNullException) {}
+
+            try
+            {
+                graph.Connect(null, node2);
+                Assert.Fail("Expected ArgumentNullException");
+            } catch(ArgumentNullException) {}
+
+            try
+            {
+                graph.Connect(null, null);
+                Assert.Fail("Expected ArgumentNullException");
+            } catch(ArgumentNullException) { }
+        }
+
+        [Test]
+        public void that_we_cannot_connect_nodes_from_outside_the_graph()
+        {
+            GraphNode<String> node = graph.AddNode(machines[0]);
+            GraphNode<String> externalNode = new GraphNode<string>("external");
+
+            try
+            {
+                graph.Connect(node, externalNode);
+                Assert.Fail("Expected ArgumentException");
+            }
+            catch(ArgumentException) { }
+
+            try
+            {
+                graph.Connect(externalNode, node);
+                Assert.Fail("Expected ArgumentException");
+            }
+            catch(ArgumentException) { }
+        }
+
+        [Test]
         public void that_we_can_retrieve_the_node_corresponding_to_a_particular_machine()
         {
-            String machine1 = "machine1";
-            String machine2 = "machine2";
+            GraphNode<String> node1 = graph.AddNode(machines[0]);
+            GraphNode<String> node2 = graph.AddNode(machines[1]);
+            
+            Assert.AreSame(node1, graph.GetNodeFor(machines[0]));
+            Assert.AreSame(node2, graph.GetNodeFor(machines[1]));
+        }
 
-            GraphNode<String> node1 = graph.AddNode(machine1);
-            GraphNode<String> node2 = graph.AddNode(machine2);
+        [Test]
+        public void various_GetNodeFor_error_conditions()
+        {
+            // Null
+            try
+            {
+                graph.GetNodeFor(null);
+                Assert.Fail("Expected ArgumentNullException");
+            } catch(ArgumentNullException) {}
 
-            Assert.AreSame(node1, graph.GetNodeFor(machine1));
-            Assert.AreSame(node2, graph.GetNodeFor(machine2));
+            // Nonexistent node
+            Assert.IsNull(graph.GetNodeFor("unregistered"));
+        }
+
+        [Test]
+        public void that_we_can_disconnect_nodes()
+        {
+            GraphNode<String> node1 = graph.AddNode(machines[0]);
+            GraphNode<String> node2 = graph.AddNode(machines[1]);
+
+            graph.Connect(node1, node2);
+            graph.Disconnect(node1, node2);
+            
+            Assert.AreEqual(2, graph.NodeCount, "NodeCount");
+            Assert.AreEqual(0, graph.ConnectionCount, "ConnectionCount");
+            Assert.AreSame(machines[0], node1.Machine, "node1.Machine");
+            Assert.AreSame(machines[1], node2.Machine, "node2.Machine");
+            Assert.AreEqual(0, node1.InputCount, "node1.InputCount");
+            Assert.AreEqual(0, node1.OutputCount, "node1.OutputCount");
+            Assert.AreEqual(0, node2.InputCount, "node2.InputCount");
+            Assert.AreEqual(0, node2.OutputCount, "node2.OutputCount");
+        }
+
+        [Test]
+        public void that_disconnecting_unconnected_nodes_does_nothing()
+        {
+            GraphNode<String> node1 = graph.AddNode(machines[0]);
+            GraphNode<String> node2 = graph.AddNode(machines[1]);
+
+            graph.Disconnect(node1, node2);
+
+            Assert.AreEqual(2, graph.NodeCount, "NodeCount");
+            Assert.AreEqual(0, graph.ConnectionCount, "ConnectionCount");
+            Assert.AreSame(machines[0], node1.Machine, "node1.Machine");
+            Assert.AreSame(machines[1], node2.Machine, "node2.Machine");
+            Assert.AreEqual(0, node1.InputCount, "node1.InputCount");
+            Assert.AreEqual(0, node1.OutputCount, "node1.OutputCount");
+            Assert.AreEqual(0, node2.InputCount, "node2.InputCount");
+            Assert.AreEqual(0, node2.OutputCount, "node2.OutputCount");
+        }
+
+        [Test]
+        public void that_we_cannot_disconnect_nodes_from_outside_the_graph()
+        {
+            GraphNode<String> node = graph.AddNode(machines[0]);
+            
+            Graph<String> graph2 = new Graph<string>();
+            GraphNode<String> externalNode1 = graph2.AddNode("external1");
+            GraphNode<String> externalNode2 = graph2.AddNode("external2");
+            graph2.Connect(externalNode1, externalNode2);
+
+            try
+            {
+                graph.Disconnect(node, externalNode1);
+                Assert.Fail("Expected ArgumentException");
+            } catch(ArgumentException) { }
+
+            try
+            {
+                graph.Disconnect(externalNode1, node);
+                Assert.Fail("Expected ArgumentException");
+            } catch(ArgumentException) { }
+
+            try
+            {
+                graph.Disconnect(externalNode1, externalNode2);
+                Assert.Fail("Expected ArgumentException");
+            }
+            catch(ArgumentException) { }
         }
     }
 }
