@@ -17,10 +17,18 @@ namespace Imagine.GUI
         {
             InitializeComponent();
             facade = new ImagineFacade();
+
+            facade.Disconnect(facade.SourceMachine, facade.DestinationMachine);
+
+            Machine inverter = facade.NewMachine("Imagine.Inverter");
+            //facade.Connect(facade.SourceMachine, inverter);
+            facade.Connect(inverter, facade.DestinationMachine);
+
             facade.SourceChanged += new EventHandler(sourceChanged);
             facade.DestinationChanged += new EventHandler(destinationChanged);
             lblSourceFile.Text = "";
             lblDestinationFile.Text = "";
+            graphArea1.Graph = facade.Graph;
         }
 
         private void openSourceToolStripMenuItem_Click(object sender, EventArgs e)

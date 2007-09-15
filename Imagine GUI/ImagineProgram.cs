@@ -4,7 +4,7 @@ using System.Windows.Forms;
 
 namespace Imagine.GUI
 {
-    static class Imagine
+    static class ImagineProgram
     {
         /// <summary>
         /// The main entry point for the application.

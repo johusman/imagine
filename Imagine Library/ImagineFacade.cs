@@ -101,8 +101,6 @@ namespace Imagine.Library
 
                 resultMap[node] = node.Machine.Process(inputs);
             }
-
-            //destinationMachine.Process(new Bitmap[] { sourceMachine.Process(null) });
         }
     }
 

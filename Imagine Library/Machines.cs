@@ -23,7 +23,7 @@ namespace Imagine.Library
 
         public override string ToString()
         {
-            return String.Format("Source [{0}]", filename);
+            return "Source";
         }
 
         public Bitmap Load()
@@ -49,7 +49,7 @@ namespace Imagine.Library
 
         public override string ToString()
         {
-            return String.Format("Destination [{0}]", filename);
+            return "Destination";
         }
 
         public override Bitmap Process(Bitmap[] inputs)

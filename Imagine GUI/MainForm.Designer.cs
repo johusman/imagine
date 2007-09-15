@@ -31,6 +31,10 @@ namespace Imagine.GUI
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.lblSourceFile = new System.Windows.Forms.Label();
+            this.lblDestinationFile = new System.Windows.Forms.Label();
+            this.lblDestination = new System.Windows.Forms.Label();
+            this.lblSource = new System.Windows.Forms.Label();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openSourceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -38,10 +42,7 @@ namespace Imagine.GUI
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.generateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.doGenerateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.lblSource = new System.Windows.Forms.Label();
-            this.lblDestination = new System.Windows.Forms.Label();
-            this.lblDestinationFile = new System.Windows.Forms.Label();
-            this.lblSourceFile = new System.Windows.Forms.Label();
+            this.graphArea1 = new Imagine.GUI.GraphArea();
             this.panel1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -60,6 +61,48 @@ namespace Imagine.GUI
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(714, 35);
             this.panel1.TabIndex = 0;
+            // 
+            // lblSourceFile
+            // 
+            this.lblSourceFile.AutoSize = true;
+            this.lblSourceFile.BackColor = System.Drawing.Color.Transparent;
+            this.lblSourceFile.Location = new System.Drawing.Point(107, 4);
+            this.lblSourceFile.Name = "lblSourceFile";
+            this.lblSourceFile.Size = new System.Drawing.Size(67, 13);
+            this.lblSourceFile.TabIndex = 3;
+            this.lblSourceFile.Text = "lblSourceFile";
+            // 
+            // lblDestinationFile
+            // 
+            this.lblDestinationFile.AutoSize = true;
+            this.lblDestinationFile.BackColor = System.Drawing.Color.Transparent;
+            this.lblDestinationFile.Location = new System.Drawing.Point(107, 17);
+            this.lblDestinationFile.Name = "lblDestinationFile";
+            this.lblDestinationFile.Size = new System.Drawing.Size(86, 13);
+            this.lblDestinationFile.TabIndex = 2;
+            this.lblDestinationFile.Text = "lblDestinationFile";
+            // 
+            // lblDestination
+            // 
+            this.lblDestination.AutoSize = true;
+            this.lblDestination.BackColor = System.Drawing.Color.Transparent;
+            this.lblDestination.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblDestination.Location = new System.Drawing.Point(4, 17);
+            this.lblDestination.Name = "lblDestination";
+            this.lblDestination.Size = new System.Drawing.Size(96, 13);
+            this.lblDestination.TabIndex = 1;
+            this.lblDestination.Text = "Destination file:";
+            // 
+            // lblSource
+            // 
+            this.lblSource.AutoSize = true;
+            this.lblSource.BackColor = System.Drawing.Color.Transparent;
+            this.lblSource.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblSource.Location = new System.Drawing.Point(4, 4);
+            this.lblSource.Name = "lblSource";
+            this.lblSource.Size = new System.Drawing.Size(72, 13);
+            this.lblSource.TabIndex = 0;
+            this.lblSource.Text = "Source file:";
             // 
             // menuStrip1
             // 
@@ -114,57 +157,25 @@ namespace Imagine.GUI
             // doGenerateToolStripMenuItem
             // 
             this.doGenerateToolStripMenuItem.Name = "doGenerateToolStripMenuItem";
-            this.doGenerateToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.doGenerateToolStripMenuItem.Size = new System.Drawing.Size(123, 22);
             this.doGenerateToolStripMenuItem.Text = "Generate!";
             this.doGenerateToolStripMenuItem.Click += new System.EventHandler(this.doGenerateToolStripMenuItem_Click);
             // 
-            // lblSource
+            // graphArea1
             // 
-            this.lblSource.AutoSize = true;
-            this.lblSource.BackColor = System.Drawing.Color.Transparent;
-            this.lblSource.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblSource.Location = new System.Drawing.Point(4, 4);
-            this.lblSource.Name = "lblSource";
-            this.lblSource.Size = new System.Drawing.Size(72, 13);
-            this.lblSource.TabIndex = 0;
-            this.lblSource.Text = "Source file:";
-            // 
-            // lblDestination
-            // 
-            this.lblDestination.AutoSize = true;
-            this.lblDestination.BackColor = System.Drawing.Color.Transparent;
-            this.lblDestination.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblDestination.Location = new System.Drawing.Point(4, 17);
-            this.lblDestination.Name = "lblDestination";
-            this.lblDestination.Size = new System.Drawing.Size(96, 13);
-            this.lblDestination.TabIndex = 1;
-            this.lblDestination.Text = "Destination file:";
-            // 
-            // lblDestinationFile
-            // 
-            this.lblDestinationFile.AutoSize = true;
-            this.lblDestinationFile.BackColor = System.Drawing.Color.Transparent;
-            this.lblDestinationFile.Location = new System.Drawing.Point(107, 17);
-            this.lblDestinationFile.Name = "lblDestinationFile";
-            this.lblDestinationFile.Size = new System.Drawing.Size(86, 13);
-            this.lblDestinationFile.TabIndex = 2;
-            this.lblDestinationFile.Text = "lblDestinationFile";
-            // 
-            // lblSourceFile
-            // 
-            this.lblSourceFile.AutoSize = true;
-            this.lblSourceFile.BackColor = System.Drawing.Color.Transparent;
-            this.lblSourceFile.Location = new System.Drawing.Point(107, 4);
-            this.lblSourceFile.Name = "lblSourceFile";
-            this.lblSourceFile.Size = new System.Drawing.Size(67, 13);
-            this.lblSourceFile.TabIndex = 3;
-            this.lblSourceFile.Text = "lblSourceFile";
+            this.graphArea1.BackColor = System.Drawing.Color.OldLace;
+            this.graphArea1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.graphArea1.Location = new System.Drawing.Point(0, 24);
+            this.graphArea1.Name = "graphArea1";
+            this.graphArea1.Size = new System.Drawing.Size(714, 426);
+            this.graphArea1.TabIndex = 2;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(714, 485);
+            this.Controls.Add(this.graphArea1);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.menuStrip1);
             this.Name = "MainForm";
@@ -194,6 +205,7 @@ namespace Imagine.GUI
         private System.Windows.Forms.Label lblDestinationFile;
         private System.Windows.Forms.Label lblDestination;
         private System.Windows.Forms.Label lblSourceFile;
+        private GraphArea graphArea1;
     }
 }
 
