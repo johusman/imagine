@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using NUnit.Framework;
 using Imagine.Library;
+using System.Drawing;
 
 namespace Imagine.AcceptanceTests
 {
@@ -11,8 +12,10 @@ namespace Imagine.AcceptanceTests
     {
         private ImagineFacade facade;
 
-        string SRC_FILE = System.IO.Directory.GetCurrentDirectory() + "\\Leighton_Idyll.jpg";
-        string DEST_FILE = System.IO.Directory.GetCurrentDirectory() + "\\test.jpg";
+        string SRC_FILE = System.IO.Directory.GetCurrentDirectory() + "\\nausicaa.png";
+        string DEST_FILE = System.IO.Directory.GetCurrentDirectory() + "\\test.png";
+        string COMP_FILE = System.IO.Directory.GetCurrentDirectory() + "\\nausicaa.png";
+        string INV_FILE = System.IO.Directory.GetCurrentDirectory() + "\\nausicaa_inverted.png";
 
         string callbackSourceFilename;
         string callbackDestinationFilename;
@@ -31,7 +34,7 @@ namespace Imagine.AcceptanceTests
             try
             {
                 facade.Generate();
-                FileAssert.AreEqual(SRC_FILE, DEST_FILE);
+                AssertBitmapFilesAreEqual(COMP_FILE, DEST_FILE);
             }
             finally
             {
@@ -102,5 +105,42 @@ namespace Imagine.AcceptanceTests
             Assert.IsTrue(!destination.Inputs.Contains(source));
         }
 
+        [Test]
+        public void that_we_can_put_an_image_inverter_between_source_and_destination()
+        {
+            facade.Disconnect(facade.SourceMachine, facade.DestinationMachine);
+
+            Machine inverter = facade.NewMachine("Imagine.Inverter");
+            facade.Connect(facade.SourceMachine, inverter);
+            facade.Connect(inverter, facade.DestinationMachine);
+
+            try
+            {
+                facade.Generate();
+                AssertBitmapFilesAreEqual(INV_FILE, DEST_FILE);
+            }
+            finally
+            {
+                System.IO.File.Delete(DEST_FILE);
+            }
+        }
+
+
+        private void AssertBitmapsAreEqual(Bitmap bitmap1, Bitmap bitmap2)
+        {
+            Assert.AreEqual(bitmap1.Width, bitmap2.Width, "Width");
+            Assert.AreEqual(bitmap1.Height, bitmap2.Height, "Height");
+
+            for(int x = 0; x < bitmap1.Width; x++)
+                for(int y = 0; y < bitmap1.Height; y++)
+                    Assert.AreEqual(bitmap1.GetPixel(x, y), bitmap2.GetPixel(x, y), "Pixel at (" + x + ", " + y + ")");
+        }
+
+        private void AssertBitmapFilesAreEqual(string filename1, string filename2)
+        {
+            using(Bitmap bitmap1 = (Bitmap)Image.FromFile(filename1))
+            using(Bitmap bitmap2 = (Bitmap)Image.FromFile(filename2))
+                AssertBitmapsAreEqual(bitmap1, bitmap2);
+        }
     }
 }

@@ -64,5 +64,102 @@ namespace Imagine.Library
                 if(toNode.Inputs.Remove(fromNode))
                     connectionCount--;
         }
+
+        public List<GraphNode<T>> GetTopologicalOrdering()
+        {
+            List<GraphNode<T>> ordering = new List<GraphNode<T>>();
+
+            SortContext context = BuildContext(nodeMap);
+            while(context.HasMoreNodesWithOnlyVisitedEdges())
+            {
+                GraphNode<T> topNode = context.ExtractNodeWithOnlyVisitedEdges();
+                ordering.Add(topNode);
+
+                foreach(GraphNode<T> node in topNode.Outputs)
+                    context.DecreaseUnvisitedEdgeCount(node);
+            }
+
+            if(context.UnvisitedInputsRemaining())
+                throw new GraphCycleException();
+
+            return ordering;
+        }
+
+        private SortContext BuildContext(Dictionary<T, GraphNode<T>> nodeMap)
+        {
+            SortContext context = new SortContext();
+
+            foreach(GraphNode<T> node in nodeMap.Values)
+                context.AddNode(node);
+
+            return context;
+        }
+
+
+        private class SortContext
+        {
+            // Synchronized indexes of unvisited input node count,
+            // from the view of count and node, respectively.
+
+            Dictionary<int, List<GraphNode<T>>> nodesByUnvisitedInputCount;
+            Dictionary<GraphNode<T>, int> unvisitedInputCountByNode;
+            
+            internal SortContext()
+            {
+                nodesByUnvisitedInputCount = new Dictionary<int, List<GraphNode<T>>>();
+                nodesByUnvisitedInputCount.Add(0, new List<GraphNode<T>>());
+
+                unvisitedInputCountByNode = new Dictionary<GraphNode<T>, int>();
+            }
+
+            internal void AddNode(GraphNode<T> node)
+            {
+                RegisterNodeWithCount(node, node.InputCount);
+            }
+
+            private void RegisterNodeWithCount(GraphNode<T> node, int count)
+            {
+                if(!nodesByUnvisitedInputCount.ContainsKey(count))
+                    nodesByUnvisitedInputCount.Add(count, new List<GraphNode<T>>());
+
+                nodesByUnvisitedInputCount[count].Add(node);
+
+                unvisitedInputCountByNode[node] = count;
+            }
+
+            internal bool HasMoreNodesWithOnlyVisitedEdges()
+            {
+                return nodesByUnvisitedInputCount[0].Count > 0;
+            }
+
+            internal GraphNode<T> ExtractNodeWithOnlyVisitedEdges()
+            {
+                GraphNode<T> node = nodesByUnvisitedInputCount[0][0];
+                nodesByUnvisitedInputCount[0].RemoveAt(0);
+
+                return node;
+            }
+
+            internal void DecreaseUnvisitedEdgeCount(GraphNode<T> node)
+            {
+                int count = unvisitedInputCountByNode[node];
+                nodesByUnvisitedInputCount[count].Remove(node);
+                
+                RegisterNodeWithCount(node, count - 1);
+            }
+
+            internal bool UnvisitedInputsRemaining()
+            {
+                foreach(List<GraphNode<T>> list in nodesByUnvisitedInputCount.Values)
+                    if(list.Count > 0)
+                        return true;
+
+                return false;
+            }
+        }
+    }
+
+    public class GraphCycleException : Exception
+    {
     }
 }

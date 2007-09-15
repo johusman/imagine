@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Reflection;
 
 namespace Imagine.Library
 {
@@ -8,6 +11,7 @@ namespace Imagine.Library
     {
         private SourceMachine sourceMachine;
         private SinkMachine destinationMachine;
+        private Dictionary<string, Type> machineTypes;
 
         private Graph<Machine> graph;
 
@@ -33,6 +37,9 @@ namespace Imagine.Library
 
         public ImagineFacade()
         {
+            machineTypes = new Dictionary<string, Type>();
+            machineTypes["Imagine.Inverter"] = typeof(InverterMachine);
+
             graph = new Graph<Machine>();
             sourceMachine = new SourceMachine();
             destinationMachine = new SinkMachine();
@@ -54,11 +61,6 @@ namespace Imagine.Library
                 DestinationChanged.Invoke(this, new StringEventArg(filename));
         }
 
-        public void Generate()
-        {
-            System.IO.File.Copy(sourceMachine.Filename, destinationMachine.Filename, true);
-        }
-
         public string GetSourceFilename()
         {
             return sourceMachine.Filename;
@@ -69,9 +71,38 @@ namespace Imagine.Library
             return destinationMachine.Filename;
         }
 
+        public Machine NewMachine(string type)
+        {
+            Machine machine = (Machine)Activator.CreateInstance(machineTypes[type]);
+            graph.AddNode(machine);
+            return machine;
+        }
+
+        public void Connect(Machine machine1, Machine machine2)
+        {
+            graph.Connect(graph.GetNodeFor(machine1), graph.GetNodeFor(machine2));
+        }
+
         public void Disconnect(Machine machine1, Machine machine2)
         {
             graph.Disconnect(graph.GetNodeFor(machine1), graph.GetNodeFor(machine2));
+        }
+
+        public void Generate()
+        {
+            Dictionary<GraphNode<Machine>, Bitmap> resultMap = new Dictionary<GraphNode<Machine>, Bitmap>();
+
+            List<GraphNode<Machine>> ordering = graph.GetTopologicalOrdering();
+            foreach(GraphNode<Machine> node in ordering)
+            {
+                Bitmap[] inputs = new Bitmap[node.InputCount];
+                for(int i = 0; i < node.InputCount; i++)
+                    inputs[i] = resultMap[node.Inputs[i]];
+
+                resultMap[node] = node.Machine.Process(inputs);
+            }
+
+            //destinationMachine.Process(new Bitmap[] { sourceMachine.Process(null) });
         }
     }
 

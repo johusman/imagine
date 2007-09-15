@@ -205,5 +205,109 @@ namespace Imagine.Library
             }
             catch(ArgumentException) { }
         }
+
+        [Test]
+        public void that_we_can_generate_a_simple_topological_ordering()
+        {
+            GraphNode<String> node1 = graph.AddNode(machines[0]);
+            GraphNode<String> node2 = graph.AddNode(machines[1]);
+            GraphNode<String> node3 = graph.AddNode(machines[2]);
+
+            graph.Connect(node1, node2);
+            graph.Connect(node2, node3);
+
+            List<GraphNode<String>> order = graph.GetTopologicalOrdering();
+
+            Assert.AreEqual(node1, order[0]);
+            Assert.AreEqual(node2, order[1]);
+            Assert.AreEqual(node3, order[2]);
+        }
+
+        [Test]
+        public void that_we_can_generate_a_more_complex_topological_ordering()
+        {
+            GraphNode<String> node1 = graph.AddNode(machines[0]);
+            GraphNode<String> node2 = graph.AddNode(machines[1]);
+            GraphNode<String> node3 = graph.AddNode(machines[2]);
+            GraphNode<String> node4 = graph.AddNode("machine4");
+            GraphNode<String> node5 = graph.AddNode("machine5");
+
+            graph.Connect(node1, node2);
+            graph.Connect(node1, node3);
+            graph.Connect(node1, node4);
+            graph.Connect(node2, node3);
+            graph.Connect(node4, node5);
+            graph.Connect(node3, node5);
+
+            List<GraphNode<String>> order = graph.GetTopologicalOrdering();
+
+            Assert.AreEqual(node1, order[0]);
+            Assert.That(order[1] == node2 || order[1] == node4);
+            Assert.That(order[2] == node2 || order[2] == node4);
+            Assert.AreEqual(node3, order[3]);
+            Assert.AreEqual(node5, order[4]);
+        }
+
+        [Test]
+        public void that_we_can_generate_a_very_complex_topological_ordering()
+        {
+            GraphNode<String> node1 = graph.AddNode(machines[0]);
+            GraphNode<String> node2 = graph.AddNode(machines[1]);
+            GraphNode<String> node3 = graph.AddNode(machines[2]);
+            GraphNode<String> node4 = graph.AddNode("machine4");
+            GraphNode<String> node5 = graph.AddNode("machine5");
+            GraphNode<String> node6 = graph.AddNode("machine6");
+
+            graph.Connect(node1, node2);
+            graph.Connect(node1, node3);
+            graph.Connect(node1, node4);
+            graph.Connect(node1, node5);
+            graph.Connect(node2, node3);
+            graph.Connect(node2, node4);
+            graph.Connect(node3, node4);
+            graph.Connect(node3, node5);
+            graph.Connect(node6, node3);
+
+            List<GraphNode<String>> order = graph.GetTopologicalOrdering();
+
+            Assert.That(order[0] == node1 || order[0] == node6);
+            Assert.That(order[1] == node1 || order[1] == node6);
+            Assert.AreEqual(node2, order[2]);
+            Assert.AreEqual(node3, order[3]);
+            Assert.That(order[4] == node4 || order[4] == node5);
+            Assert.That(order[5] == node4 || order[5] == node5);
+        }
+
+        [Test, ExpectedExceptionAttribute(typeof(GraphCycleException))]
+        public void that_topological_ordering_generates_exception_if_cycles_are_found()
+        {
+            GraphNode<String> node1 = graph.AddNode(machines[0]);
+            GraphNode<String> node2 = graph.AddNode(machines[1]);
+            GraphNode<String> node3 = graph.AddNode(machines[2]);
+            GraphNode<String> node4 = graph.AddNode("machine4");
+            GraphNode<String> node5 = graph.AddNode("machine5");
+            GraphNode<String> node6 = graph.AddNode("machine6");
+
+            graph.Connect(node1, node2);
+            graph.Connect(node1, node3);
+            graph.Connect(node1, node4);
+            graph.Connect(node1, node5);
+            graph.Connect(node2, node3);
+            graph.Connect(node2, node4);
+            graph.Connect(node3, node4);
+            graph.Connect(node3, node5);
+            graph.Connect(node6, node3);
+            graph.Connect(node4, node6); // <- This closes a cycle
+
+            List<GraphNode<String>> order = graph.GetTopologicalOrdering();
+
+            Assert.That(order[0] == node1 || order[0] == node6);
+            Assert.That(order[1] == node1 || order[1] == node6);
+            Assert.AreEqual(node2, order[2]);
+            Assert.AreEqual(node3, order[3]);
+            Assert.That(order[4] == node4 || order[4] == node5);
+            Assert.That(order[5] == node4 || order[5] == node5);
+
+        }
     }
 }
