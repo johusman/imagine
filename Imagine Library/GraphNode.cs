@@ -18,34 +18,48 @@ namespace Imagine.Library
             set { machine = value; }
         }
 
-        private List<GraphNode<T>> inputs = new List<GraphNode<T>>();
-        public List<GraphNode<T>> Inputs
+        private Dictionary<int, GraphPort<T>> inports = new Dictionary<int, GraphPort<T>>();
+        public Dictionary<int, GraphPort<T>> Inports
         {
-            get { return inputs; }
-            set { inputs = value; }
+            get { return inports; }
+            set { inports = value; }
         }
 
-        private List<GraphNode<T>> outputs = new List<GraphNode<T>>();
-        public List<GraphNode<T>> Outputs
+        private Dictionary<int, GraphPort<T>> outports = new Dictionary<int, GraphPort<T>>();
+        public Dictionary<int, GraphPort<T>> Outports
         {
-            get { return outputs; }
-            set { outputs = value; }
+            get { return outports; }
+            set { outports = value; }
         }
         
 
         public int InputCount
         {
-            get { return inputs.Count; }
+            get { return inports.Count; }
         }
 
         public int OutputCount
         {
-            get { return outputs.Count; }
+            get { return outports.Count; }
         }
 
         public override string ToString()
         {
             return String.Format("GraphNode ({0})", machine.ToString());
+        }
+
+        internal GraphPort<T> CreateInport(int portNumber)
+        {
+            GraphPort<T> port = new GraphPort<T>(this, portNumber);
+            inports[portNumber] = port;
+            return port;
+        }
+
+        internal GraphPort<T> CreateOutport(int portNumber)
+        {
+            GraphPort<T> port = new GraphPort<T>(this, portNumber);
+            outports[portNumber] = port;
+            return port;
         }
     }
 }

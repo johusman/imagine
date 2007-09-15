@@ -35,6 +35,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GraphConnectivityTest.cs" />
+    <Compile Include="GraphOrderingTest.cs" />
     <Compile Include="GraphTest.cs" />
     <Compile Include="MachineTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

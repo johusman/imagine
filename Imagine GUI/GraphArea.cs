@@ -51,8 +51,8 @@ namespace Imagine.GUI
             graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             foreach(GraphNode<Machine> node in graph.GetTopologicalOrdering())
             {
-                foreach(GraphNode<Machine> outputNode in node.Outputs)
-                    DrawOutgoingConnection(graphics, node, outputNode);
+                foreach(GraphPort<Machine> outputPort in node.Outports.Values)
+                    DrawOutgoingConnection(graphics, node, outputPort.RemotePort.Node);
 
                 DrawMachine(graphics, node);
             }

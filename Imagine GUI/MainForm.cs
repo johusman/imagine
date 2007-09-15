@@ -18,11 +18,11 @@ namespace Imagine.GUI
             InitializeComponent();
             facade = new ImagineFacade();
 
-            facade.Disconnect(facade.SourceMachine, facade.DestinationMachine);
+            facade.Disconnect(facade.SourceMachine, 0, facade.DestinationMachine, 0);
 
             Machine inverter = facade.NewMachine("Imagine.Inverter");
-            //facade.Connect(facade.SourceMachine, inverter);
-            facade.Connect(inverter, facade.DestinationMachine);
+            facade.Connect(facade.SourceMachine, 0, inverter, 0);
+            facade.Connect(inverter, 0, facade.DestinationMachine, 0);
 
             facade.SourceChanged += new EventHandler(sourceChanged);
             facade.DestinationChanged += new EventHandler(destinationChanged);

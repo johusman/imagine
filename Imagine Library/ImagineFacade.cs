@@ -44,7 +44,7 @@ namespace Imagine.Library
             sourceMachine = new SourceMachine();
             destinationMachine = new SinkMachine();
 
-            graph.Connect(graph.AddNode(sourceMachine), graph.AddNode(destinationMachine));
+            graph.Connect(graph.AddNode(sourceMachine), 0, graph.AddNode(destinationMachine), 0);
         }
 
         public void OpenSource(string filename)
@@ -78,14 +78,14 @@ namespace Imagine.Library
             return machine;
         }
 
-        public void Connect(Machine machine1, Machine machine2)
+        public void Connect(Machine machine1, int port1, Machine machine2, int port2)
         {
-            graph.Connect(graph.GetNodeFor(machine1), graph.GetNodeFor(machine2));
+            graph.Connect(graph.GetNodeFor(machine1), port1, graph.GetNodeFor(machine2), port2);
         }
 
-        public void Disconnect(Machine machine1, Machine machine2)
+        public void Disconnect(Machine machine1, int port1, Machine machine2, int port2)
         {
-            graph.Disconnect(graph.GetNodeFor(machine1), graph.GetNodeFor(machine2));
+            graph.Disconnect(graph.GetNodeFor(machine1), port1, graph.GetNodeFor(machine2), port2);
         }
 
         public void Generate()
@@ -97,7 +97,7 @@ namespace Imagine.Library
             {
                 Bitmap[] inputs = new Bitmap[node.InputCount];
                 for(int i = 0; i < node.InputCount; i++)
-                    inputs[i] = resultMap[node.Inputs[i]];
+                    inputs[i] = resultMap[node.Inports[i].RemotePort.Node];
 
                 resultMap[node] = node.Machine.Process(inputs);
             }

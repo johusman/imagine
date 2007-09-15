@@ -89,8 +89,8 @@ namespace Imagine.AcceptanceTests
             GraphNode<Machine> source = facade.Graph.GetNodeFor(facade.SourceMachine);
             GraphNode<Machine> destination = facade.Graph.GetNodeFor(facade.DestinationMachine);
 
-            Assert.That(source.Outputs.Contains(destination), "Source knows destination");
-            Assert.That(destination.Inputs.Contains(source), "Destination knows source");
+            Assert.AreSame(destination, source.Outports[0].RemotePort.Node, "Source knows destination");
+            Assert.AreSame(source, destination.Inports[0].RemotePort.Node, "Destination knows source");
         }
 
         [Test]
@@ -99,20 +99,20 @@ namespace Imagine.AcceptanceTests
             GraphNode<Machine> source = facade.Graph.GetNodeFor(facade.SourceMachine);
             GraphNode<Machine> destination = facade.Graph.GetNodeFor(facade.DestinationMachine);
 
-            facade.Disconnect(facade.SourceMachine, facade.DestinationMachine);
+            facade.Disconnect(facade.SourceMachine, 0, facade.DestinationMachine, 0);
 
-            Assert.IsTrue(!source.Outputs.Contains(destination));
-            Assert.IsTrue(!destination.Inputs.Contains(source));
+            Assert.AreEqual(0, source.Outports.Count);
+            Assert.AreEqual(0, destination.Inports.Count);
         }
 
         [Test]
         public void that_we_can_put_an_image_inverter_between_source_and_destination()
         {
-            facade.Disconnect(facade.SourceMachine, facade.DestinationMachine);
+            facade.Disconnect(facade.SourceMachine, 0, facade.DestinationMachine, 0);
 
             Machine inverter = facade.NewMachine("Imagine.Inverter");
-            facade.Connect(facade.SourceMachine, inverter);
-            facade.Connect(inverter, facade.DestinationMachine);
+            facade.Connect(facade.SourceMachine, 0, inverter, 0);
+            facade.Connect(inverter, 0, facade.DestinationMachine, 0);
 
             try
             {

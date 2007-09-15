@@ -36,6 +36,7 @@
   <ItemGroup>
     <Compile Include="Graph.cs" />
     <Compile Include="GraphNode.cs" />
+    <Compile Include="GraphPort.cs" />
     <Compile Include="ImagineFacade.cs" />
     <Compile Include="Machines.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

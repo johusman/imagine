@@ -31,7 +31,7 @@ namespace Imagine.Library
             return node;
         }
 
-        public void Connect(GraphNode<T> fromNode, GraphNode<T> toNode)
+        public void Connect(GraphNode<T> fromNode, int fromPortNumber, GraphNode<T> toNode, int toPortNumber)
         {
             if(fromNode == null || toNode == null)
                 throw new ArgumentNullException();
@@ -41,8 +41,17 @@ namespace Imagine.Library
             if(!nodeMap.ContainsValue(toNode))
                 throw new ArgumentException(String.Format("Attempting to connect nodes, but the 'to' node was not a node from this graph! (From=({0}), To=({1}))", fromNode, toNode));
 
-            fromNode.Outputs.Add(toNode);
-            toNode.Inputs.Add(fromNode);
+            if(fromNode.Outports.ContainsKey(fromPortNumber))
+                throw new PortAlreadyConnectedException();
+            if(toNode.Inports.ContainsKey(toPortNumber))
+                throw new PortAlreadyConnectedException();
+
+            GraphPort<T> sourcePort = fromNode.CreateOutport(fromPortNumber);
+            GraphPort<T> destinationPort = toNode.CreateInport(toPortNumber);
+
+            sourcePort.RemotePort = destinationPort;
+            destinationPort.RemotePort = sourcePort;
+
             connectionCount++;
         }
 
@@ -53,16 +62,21 @@ namespace Imagine.Library
             return node;
         }
 
-        public void Disconnect(GraphNode<T> fromNode, GraphNode<T> toNode)
+        public void Disconnect(GraphNode<T> fromNode, int fromPortNumber, GraphNode<T> toNode, int toPortNumber)
         {
             if(!nodeMap.ContainsValue(fromNode))
                 throw new ArgumentException(String.Format("Attempting to disconnect nodes, but the 'from' node was not a node from this graph! (From=({0}), To=({1}))", fromNode, toNode));
             if(!nodeMap.ContainsValue(toNode))
                 throw new ArgumentException(String.Format("Attempting to disconnect nodes, but the 'to' node was not a node from this graph! (From=({0}), To=({1}))", fromNode, toNode));
 
-            if(fromNode.Outputs.Remove(toNode))
-                if(toNode.Inputs.Remove(fromNode))
-                    connectionCount--;
+            if(fromNode.Outports.ContainsKey(fromPortNumber) && toNode.Inports.ContainsKey(toPortNumber))
+                if(fromNode.Outports[fromPortNumber].RemotePort == toNode.Inports[toPortNumber])
+                    if(toNode.Inports[toPortNumber].RemotePort == fromNode.Outports[fromPortNumber])
+                    {
+                        fromNode.Outports.Remove(fromPortNumber);
+                        toNode.Inports.Remove(toPortNumber);
+                        connectionCount--;
+                    }
         }
 
         public List<GraphNode<T>> GetTopologicalOrdering()
@@ -75,8 +89,8 @@ namespace Imagine.Library
                 GraphNode<T> topNode = context.ExtractNodeWithOnlyVisitedEdges();
                 ordering.Add(topNode);
 
-                foreach(GraphNode<T> node in topNode.Outputs)
-                    context.DecreaseUnvisitedEdgeCount(node);
+                foreach(GraphPort<T> port in topNode.Outports.Values)
+                    context.DecreaseUnvisitedEdgeCount(port.RemotePort.Node);
             }
 
             if(context.UnvisitedInputsRemaining())
@@ -160,6 +174,10 @@ namespace Imagine.Library
     }
 
     public class GraphCycleException : Exception
+    {
+    }
+
+    public class PortAlreadyConnectedException : Exception
     {
     }
 }
