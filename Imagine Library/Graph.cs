@@ -31,6 +31,24 @@ namespace Imagine.Library
             return node;
         }
 
+        public void RemoveNode(GraphNode<T> node)
+        {
+            Dictionary<int, GraphPort<T>> ports;
+
+            if(!nodeMap.ContainsValue(node))
+                return;
+
+            ports = new Dictionary<int, GraphPort<T>>(node.Inports);
+            foreach(GraphPort<T> port in ports.Values)
+                Disconnect(port.RemotePort.Node, port.RemotePort.PortNumber, node, port.PortNumber);
+
+            ports = new Dictionary<int, GraphPort<T>>(node.Outports);
+            foreach(GraphPort<T> port in ports.Values)
+                Disconnect(node, port.PortNumber, port.RemotePort.Node, port.RemotePort.PortNumber);
+
+            nodeMap.Remove(node.Machine);
+        }
+
         public void Connect(GraphNode<T> fromNode, int fromPortNumber, GraphNode<T> toNode, int toPortNumber)
         {
             if(fromNode == null || toNode == null)

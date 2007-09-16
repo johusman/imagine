@@ -8,7 +8,41 @@ namespace Imagine.Library
 {
     public abstract class Machine
     {
-        public abstract Bitmap Process(Bitmap[] inputs);
+        public abstract Bitmap[] Process(Bitmap[] inputs);
+        protected string[] inputNames;
+        protected string[] outputNames;
+        protected char[] inputCodes;
+        protected char[] outputCodes;
+
+        public int InputCount
+        {
+            get { return inputNames.Length; }
+        }
+
+        public int OutputCount
+        {
+            get { return outputNames.Length; }
+        }
+
+        public string[] InputNames
+        {
+            get { return inputNames; }
+        }
+
+        public string[] OutputNames
+        {
+            get { return outputNames; }
+        }
+
+        public char[] InputCodes
+        {
+            get { return inputCodes; }
+        }
+
+        public char[] OutputCodes
+        {
+            get { return outputCodes; }
+        }
     }
 
     public class SourceMachine : Machine
@@ -21,6 +55,14 @@ namespace Imagine.Library
             set { filename = value; }
         }
 
+        public SourceMachine()
+        {
+            inputNames = new string[0];
+            outputNames = new string[] { "output" };
+            inputCodes = new char[0];
+            outputCodes = new char[] { ' ' };
+        }
+
         public override string ToString()
         {
             return "Source";
@@ -31,9 +73,9 @@ namespace Imagine.Library
             return (Bitmap)Image.FromFile(filename);
         }
 
-        public override Bitmap Process(Bitmap[] inputs)
+        public override Bitmap[] Process(Bitmap[] inputs)
         {
-            return Load();
+            return new Bitmap[] { Load() };
         }
     }
 
@@ -52,13 +94,21 @@ namespace Imagine.Library
             return "Destination";
         }
 
-        public override Bitmap Process(Bitmap[] inputs)
+        public SinkMachine()
+        {
+            inputNames = new string[] { "input" };
+            outputNames = new string[0];
+            inputCodes = new char[] { ' ' };
+            outputCodes = new char[0];
+        }
+
+        public override Bitmap[] Process(Bitmap[] inputs)
         {
             ImageCodecInfo codec = FindPngCodec();
             EncoderParameters parameters = new EncoderParameters(0);
             inputs[0].Save(filename, codec, parameters);
 
-            return null;
+            return new Bitmap[0];
         }
 
         private ImageCodecInfo FindPngCodec()
@@ -80,7 +130,15 @@ namespace Imagine.Library
             return "Inverter";
         }
 
-        public override Bitmap Process(Bitmap[] inputs)
+        public InverterMachine()
+        {
+            inputNames = new string[] { "input" };
+            outputNames = new string[] { "output" };
+            inputCodes = new char[] { ' ' };
+            outputCodes = new char[] { ' ' };
+        }
+
+        public override Bitmap[] Process(Bitmap[] inputs)
         {
             Bitmap bitmap = (Bitmap) inputs[0].Clone();
             for(int x = 0; x < bitmap.Width; x++)
@@ -91,7 +149,42 @@ namespace Imagine.Library
                     bitmap.SetPixel(x, y, newColor);
                 }
 
-            return bitmap;
+            return new Bitmap[] { bitmap };
+        }
+    }
+
+    public class RGBSplitterMachine : Machine
+    {
+        public override string ToString()
+        {
+            return "RGB Split";
+        }
+
+        public RGBSplitterMachine()
+        {
+            inputNames = new string[] { "input" };
+            outputNames = new string[] { "red", "green", "blue" };
+            inputCodes = new char[] { ' ' };
+            outputCodes = new char[] { 'R', 'G', 'B' };
+        }
+
+        public override Bitmap[] Process(Bitmap[] inputs)
+        {
+            Bitmap original = inputs[0];
+            Bitmap[] bitmaps = { (Bitmap)original.Clone(), (Bitmap)original.Clone(), (Bitmap)original.Clone() };
+            for(int x = 0; x < original.Width; x++)
+                for(int y = 0; y < original.Height; y++)
+                {
+                    Color color = original.GetPixel(x, y);
+                    Color rColor = Color.FromArgb(color.A, color.R, 0, 0);
+                    Color gColor = Color.FromArgb(color.A, 0, color.G, 0);
+                    Color bColor = Color.FromArgb(color.A, 0, 0, color.B);
+                    bitmaps[0].SetPixel(x, y, rColor);
+                    bitmaps[1].SetPixel(x, y, gColor);
+                    bitmaps[2].SetPixel(x, y, bColor);
+                }
+
+            return bitmaps;
         }
     }
 }

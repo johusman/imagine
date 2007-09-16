@@ -16,6 +16,8 @@ namespace Imagine.AcceptanceTests
         string DEST_FILE = System.IO.Directory.GetCurrentDirectory() + "\\test.png";
         string COMP_FILE = System.IO.Directory.GetCurrentDirectory() + "\\nausicaa.png";
         string INV_FILE = System.IO.Directory.GetCurrentDirectory() + "\\nausicaa_inverted.png";
+        string BLUE_FILE = System.IO.Directory.GetCurrentDirectory() + "\\nausicaa_blue.png";
+        string RED_FILE = System.IO.Directory.GetCurrentDirectory() + "\\nausicaa_red.png";
 
         string callbackSourceFilename;
         string callbackDestinationFilename;
@@ -123,6 +125,40 @@ namespace Imagine.AcceptanceTests
             {
                 System.IO.File.Delete(DEST_FILE);
             }
+        }
+
+        [Test]
+        public void that_we_can_connect_to_different_ports()
+        {
+            facade.Disconnect(facade.SourceMachine, 0, facade.DestinationMachine, 0);
+
+            Machine splitter = facade.NewMachine("Imagine.RGBSplitter");
+            facade.Connect(facade.SourceMachine, 0, splitter, 0);
+            facade.Connect(splitter, 2, facade.DestinationMachine, 0);
+
+            try
+            {
+                facade.Generate();
+                AssertBitmapFilesAreEqual(BLUE_FILE, DEST_FILE);
+            }
+            finally
+            {
+                System.IO.File.Delete(DEST_FILE);
+            }
+
+            facade.Disconnect(splitter, 2, facade.DestinationMachine, 0);
+            facade.Connect(splitter, 0, facade.DestinationMachine, 0);
+            
+            try
+            {
+                facade.Generate();
+                AssertBitmapFilesAreEqual(RED_FILE, DEST_FILE);
+            }
+            finally
+            {
+                System.IO.File.Delete(DEST_FILE);
+            }
+
         }
 
 

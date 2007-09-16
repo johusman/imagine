@@ -7,7 +7,7 @@ using System.Drawing;
 namespace Imagine.Library
 {
     [TestFixture]
-    public class NodeTest
+    public class MachineTest
     {
         string SRC_FILE = System.IO.Directory.GetCurrentDirectory() + "\\berry.png";
         string DEST_FILE = System.IO.Directory.GetCurrentDirectory() + "\\test.png";
@@ -32,8 +32,8 @@ namespace Imagine.Library
             Assert.IsNotNull(bitmapByLoad);
 
             // It should also be available by the general "Process" method
-            Bitmap bitmapByProcess = machine.Process(null);
-            AssertBitmapsAreEqual(bitmapByLoad, bitmapByProcess);
+            Bitmap bitmapByProcess = machine.Process(null)[0];
+            TestUtil.AssertBitmapsAreEqual(bitmapByLoad, bitmapByProcess);
         }
 
         [Test]
@@ -56,9 +56,9 @@ namespace Imagine.Library
 
             try
             {
-                Bitmap bitmap = machine.Process(inputs);
-                Assert.IsNull(bitmap);
-                AssertBitmapFilesAreEqual(SRC_FILE, DEST_FILE);
+                Bitmap[] bitmaps = machine.Process(inputs);
+                Assert.AreEqual(0, bitmaps.Length);
+                TestUtil.AssertBitmapFilesAreEqual(SRC_FILE, DEST_FILE);
             }
             finally
             {
@@ -67,22 +67,42 @@ namespace Imagine.Library
             }
         }
 
-
-        private void AssertBitmapsAreEqual(Bitmap bitmap1, Bitmap bitmap2)
+        [Test]
+        public void that_we_can_ask_what_inputs_and_outputs_a_machine_works_with()
         {
-            Assert.AreEqual(bitmap1.Width, bitmap2.Width, "Width");
-            Assert.AreEqual(bitmap1.Height, bitmap2.Height, "Height");
+            Machine machine;
+            
+            machine = new SourceMachine();
+            Assert.AreEqual(0, machine.InputCount);
+            Assert.AreEqual(1, machine.OutputCount);
+            Assert.AreEqual("output", machine.OutputNames[0]);
+            Assert.AreEqual(' ', machine.OutputCodes[0]);
 
-            for(int x = 0; x < bitmap1.Width; x++)
-                for(int y = 0; y < bitmap1.Height; y++)
-                    Assert.AreEqual(bitmap1.GetPixel(x, y), bitmap2.GetPixel(x, y), "Pixel at (" + x + ", " + y + ")");
-        }
+            machine = new SinkMachine();
+            Assert.AreEqual(1, machine.InputCount);
+            Assert.AreEqual(0, machine.OutputCount);
+            Assert.AreEqual("input", machine.InputNames[0]);
+            Assert.AreEqual(' ', machine.InputCodes[0]);
 
-        private void AssertBitmapFilesAreEqual(string filename1, string filename2)
-        {
-            using(Bitmap bitmap1 = (Bitmap)Image.FromFile(filename1))
-                using(Bitmap bitmap2 = (Bitmap)Image.FromFile(filename2))
-                    AssertBitmapsAreEqual(bitmap1, bitmap2);
+            machine = new InverterMachine();
+            Assert.AreEqual(1, machine.InputCount);
+            Assert.AreEqual(1, machine.OutputCount);
+            Assert.AreEqual("input", machine.InputNames[0]);
+            Assert.AreEqual(' ', machine.InputCodes[0]);
+            Assert.AreEqual("output", machine.OutputNames[0]);
+            Assert.AreEqual(' ', machine.OutputCodes[0]);
+
+            machine = new RGBSplitterMachine();
+            Assert.AreEqual(1, machine.InputCount);
+            Assert.AreEqual(3, machine.OutputCount);
+            Assert.AreEqual("input", machine.InputNames[0]);
+            Assert.AreEqual(' ', machine.InputCodes[0]);
+            Assert.AreEqual("red", machine.OutputNames[0]);
+            Assert.AreEqual('R', machine.OutputCodes[0]);
+            Assert.AreEqual("green", machine.OutputNames[1]);
+            Assert.AreEqual('G', machine.OutputCodes[1]);
+            Assert.AreEqual("blue", machine.OutputNames[2]);
+            Assert.AreEqual('B', machine.OutputCodes[2]);
         }
     }
 }

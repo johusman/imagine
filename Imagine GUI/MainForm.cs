@@ -20,9 +20,17 @@ namespace Imagine.GUI
 
             facade.Disconnect(facade.SourceMachine, 0, facade.DestinationMachine, 0);
 
+            Machine splitter = facade.NewMachine("Imagine.RGBSplitter");
+            facade.Connect(facade.SourceMachine, 0, splitter, 0);
+
             Machine inverter = facade.NewMachine("Imagine.Inverter");
-            facade.Connect(facade.SourceMachine, 0, inverter, 0);
+            facade.Connect(splitter, 1, inverter, 0);
             facade.Connect(inverter, 0, facade.DestinationMachine, 0);
+
+            SinkMachine newOutput = new SinkMachine();
+            newOutput.Filename = "c:\\temp\\blue.png";
+            facade.AddMachine(newOutput);
+            facade.Connect(splitter, 2, newOutput, 0);
 
             facade.SourceChanged += new EventHandler(sourceChanged);
             facade.DestinationChanged += new EventHandler(destinationChanged);

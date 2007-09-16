@@ -65,5 +65,38 @@ namespace Imagine.Library
             // Nonexistent node
             Assert.IsNull(graph.GetNodeFor("unregistered"));
         }
+
+        [Test]
+        public void that_we_can_delete_a_node()
+        {
+            GraphNode<String> node1 = graph.AddNode(machines[0]);
+            GraphNode<String> node2 = graph.AddNode(machines[1]);
+
+            graph.Connect(node1, 0, node2, 0);
+
+            graph.RemoveNode(node1);
+
+            Assert.AreEqual(1, graph.NodeCount, "NodeCount");
+            Assert.AreEqual(0, graph.ConnectionCount, "ConnectionCount");
+            Assert.AreEqual(0, node2.InputCount, "node2.InputCount");
+            Assert.AreEqual(0, node1.OutputCount, "node1.OutputCount");
+        }
+
+        [Test]
+        public void that_deleting_an_external_node_has_no_effect()
+        {
+            GraphNode<String> node1 = graph.AddNode(machines[0]);
+            GraphNode<String> node2 = graph.AddNode(machines[1]);
+            GraphNode<String> node3 = new GraphNode<string>(machines[2]); // External node
+
+            graph.Connect(node1, 0, node2, 0);
+
+            graph.RemoveNode(node3);
+
+            Assert.AreEqual(2, graph.NodeCount, "NodeCount");
+            Assert.AreEqual(1, graph.ConnectionCount, "ConnectionCount");
+            Assert.AreEqual(1, node2.InputCount, "node2.InputCount");
+            Assert.AreEqual(1, node1.OutputCount, "node1.OutputCount");
+        }
     }
 }

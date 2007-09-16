@@ -39,6 +39,7 @@ namespace Imagine.Library
         {
             machineTypes = new Dictionary<string, Type>();
             machineTypes["Imagine.Inverter"] = typeof(InverterMachine);
+            machineTypes["Imagine.RGBSplitter"] = typeof(RGBSplitterMachine);
 
             graph = new Graph<Machine>();
             sourceMachine = new SourceMachine();
@@ -71,6 +72,18 @@ namespace Imagine.Library
             return destinationMachine.Filename;
         }
 
+        public void OverrideDestination(SinkMachine machine)
+        {
+            destinationMachine = machine;
+            graph.AddNode(machine);
+        }
+
+        public void OverrideSource(SourceMachine machine)
+        {
+            sourceMachine = machine;
+            graph.AddNode(machine);
+        }
+
         public Machine NewMachine(string type)
         {
             Machine machine = (Machine)Activator.CreateInstance(machineTypes[type]);
@@ -78,8 +91,23 @@ namespace Imagine.Library
             return machine;
         }
 
+        public void AddMachine(Machine machine)
+        {
+            graph.AddNode(machine);
+        }
+
+        public void RemoveMachine(Machine machine)
+        {
+            graph.RemoveNode(graph.GetNodeFor(machine));
+        }
+
         public void Connect(Machine machine1, int port1, Machine machine2, int port2)
         {
+            if(port1 >= machine1.OutputCount)
+                throw new MachineOutputIndexOutOfRangeException();
+            if(port2 >= machine2.InputCount)
+                throw new MachineInputIndexOutOfRangeException();
+
             graph.Connect(graph.GetNodeFor(machine1), port1, graph.GetNodeFor(machine2), port2);
         }
 
@@ -90,16 +118,19 @@ namespace Imagine.Library
 
         public void Generate()
         {
-            Dictionary<GraphNode<Machine>, Bitmap> resultMap = new Dictionary<GraphNode<Machine>, Bitmap>();
+            Dictionary<GraphPort<Machine>, Bitmap> resultMap = new Dictionary<GraphPort<Machine>, Bitmap>();
 
             List<GraphNode<Machine>> ordering = graph.GetTopologicalOrdering();
             foreach(GraphNode<Machine> node in ordering)
             {
-                Bitmap[] inputs = new Bitmap[node.InputCount];
-                for(int i = 0; i < node.InputCount; i++)
-                    inputs[i] = resultMap[node.Inports[i].RemotePort.Node];
+                Bitmap[] inputs = new Bitmap[node.Machine.InputCount];
+                for(int i = 0; i < node.Machine.InputCount; i++)
+                    inputs[i] = resultMap[node.Inports[i].RemotePort];
 
-                resultMap[node] = node.Machine.Process(inputs);
+                Bitmap[] results = node.Machine.Process(inputs);
+                for(int i = 0; i < node.Machine.OutputCount; i++)
+                    if(node.Outports.ContainsKey(i))
+                        resultMap[node.Outports[i]] = results[i];
             }
         }
     }
@@ -118,4 +149,7 @@ namespace Imagine.Library
             return _string;
         }
     }
+
+    public class MachineInputIndexOutOfRangeException : Exception { }
+    public class MachineOutputIndexOutOfRangeException : Exception { }
 }
