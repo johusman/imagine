@@ -28,6 +28,11 @@ namespace Imagine.GUI
         private Brush arrowbrush = Brushes.Black;
         private Brush machinebrush = Brushes.Bisque;
 
+        private enum ManipulationState { None, Dragging };
+        private ManipulationState manipulationState = ManipulationState.None;
+        private GraphNode<Machine> dragged = null;
+        private Point dragOffset;
+
         public Graph<Machine> Graph
         {
             get { return graph; }
@@ -115,5 +120,49 @@ namespace Imagine.GUI
                 DrawGraph(e.Graphics);
         }
 
+        private void GraphArea_MouseDown(object sender, MouseEventArgs e)
+        {
+            dragged = GetMachineAtCoordinate(e.Location);
+            if(dragged != null)
+            {
+                manipulationState = ManipulationState.Dragging;
+                dragOffset = Point.Subtract(e.Location, new Size(positions[dragged]));
+            }
+        }
+
+        private void GraphArea_MouseUp(object sender, MouseEventArgs e)
+        {
+            dragged = null;
+            manipulationState = ManipulationState.None;
+        }
+
+        private void GraphArea_MouseMove(object sender, MouseEventArgs e)
+        {
+            if(manipulationState == ManipulationState.Dragging)
+            {
+                positions[dragged] = Point.Subtract(e.Location, new Size(dragOffset));
+                this.Invalidate();
+            }
+        }
+
+        private GraphNode<Machine> GetMachineAtCoordinate(Point point)
+        {
+            foreach(GraphNode<Machine> node in graph.GetTopologicalOrdering())
+            {
+                Point machinePoint = positions[node];
+                if(pointDistance(point, machinePoint) < MACHINE_W / 2.0)
+                    return node;
+            }
+
+            return null;
+        }
+
+        private float pointDistance(Point p1, Point p2)
+        {
+            float x = p1.X - p2.X;
+            float y = p1.Y - p2.Y;
+
+            return (float) Math.Sqrt(x * x + y * y);
+        }
     }
 }
