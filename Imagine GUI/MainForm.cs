@@ -36,7 +36,7 @@ namespace Imagine.GUI
             facade.DestinationChanged += new EventHandler(destinationChanged);
             lblSourceFile.Text = "";
             lblDestinationFile.Text = "";
-            graphArea1.Graph = facade.Graph;
+            graphArea1.Facade = facade;
         }
 
         private void openSourceToolStripMenuItem_Click(object sender, EventArgs e)

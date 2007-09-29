@@ -28,7 +28,65 @@ namespace Imagine.GUI
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
+            this.contextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.sourceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.destinationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.inverterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.rgbSplitterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.contextMenu.SuspendLayout();
             this.SuspendLayout();
+            // 
+            // contextMenu
+            // 
+            this.contextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.newToolStripMenuItem});
+            this.contextMenu.Name = "contextMenu";
+            this.contextMenu.Size = new System.Drawing.Size(153, 48);
+            // 
+            // newToolStripMenuItem
+            // 
+            this.newToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.sourceToolStripMenuItem,
+            this.destinationToolStripMenuItem,
+            this.inverterToolStripMenuItem,
+            this.rgbSplitterToolStripMenuItem});
+            this.newToolStripMenuItem.Name = "newToolStripMenuItem";
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.newToolStripMenuItem.Text = "New";
+            // 
+            // sourceToolStripMenuItem
+            // 
+            this.sourceToolStripMenuItem.Name = "sourceToolStripMenuItem";
+            this.sourceToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.sourceToolStripMenuItem.Tag = "Imagine.Source";
+            this.sourceToolStripMenuItem.Text = "Source";
+            this.sourceToolStripMenuItem.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
+            // 
+            // destinationToolStripMenuItem
+            // 
+            this.destinationToolStripMenuItem.Name = "destinationToolStripMenuItem";
+            this.destinationToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.destinationToolStripMenuItem.Tag = "Imagine.Destination";
+            this.destinationToolStripMenuItem.Text = "Destination";
+            this.destinationToolStripMenuItem.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
+            // 
+            // inverterToolStripMenuItem
+            // 
+            this.inverterToolStripMenuItem.Name = "inverterToolStripMenuItem";
+            this.inverterToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.inverterToolStripMenuItem.Tag = "Imagine.Inverter";
+            this.inverterToolStripMenuItem.Text = "Inverter";
+            this.inverterToolStripMenuItem.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
+            // 
+            // rgbSplitterToolStripMenuItem
+            // 
+            this.rgbSplitterToolStripMenuItem.Name = "rgbSplitterToolStripMenuItem";
+            this.rgbSplitterToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.rgbSplitterToolStripMenuItem.Tag = "Imagine.RGBSplitter";
+            this.rgbSplitterToolStripMenuItem.Text = "RGB Splitter";
+            this.rgbSplitterToolStripMenuItem.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
             // 
             // GraphArea
             // 
@@ -44,10 +102,18 @@ namespace Imagine.GUI
             this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.GraphArea_MouseMove);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.GraphArea_Paint);
             this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.GraphArea_MouseUp);
+            this.contextMenu.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
 
         #endregion
+
+        private System.Windows.Forms.ContextMenuStrip contextMenu;
+        private System.Windows.Forms.ToolStripMenuItem newToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem sourceToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem destinationToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem inverterToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem rgbSplitterToolStripMenuItem;
     }
 }

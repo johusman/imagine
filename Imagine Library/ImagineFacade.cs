@@ -38,6 +38,8 @@ namespace Imagine.Library
         public ImagineFacade()
         {
             machineTypes = new Dictionary<string, Type>();
+            machineTypes["Imagine.Source"] = typeof(SourceMachine);
+            machineTypes["Imagine.Destination"] = typeof(SinkMachine);
             machineTypes["Imagine.Inverter"] = typeof(InverterMachine);
             machineTypes["Imagine.RGBSplitter"] = typeof(RGBSplitterMachine);
 

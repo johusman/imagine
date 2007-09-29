@@ -23,15 +23,16 @@ namespace Imagine.GUI
 
         private Dictionary<GraphNode<Machine>, Point> positions;
         private Graph<Machine> graph;
+        private ImagineFacade facade;
         private Pen machinepen = new Pen(Color.Gray, 1);
         private Pen arrowpen = new Pen(Color.Black, 1);
         private Brush arrowbrush = Brushes.Black;
         private Brush machinebrush = Brushes.Bisque;
 
-        private enum ManipulationState { None, Dragging };
+        private enum ManipulationState { None, Dragging, Inserting };
         private ManipulationState manipulationState = ManipulationState.None;
         private GraphNode<Machine> dragged = null;
-        private Point dragOffset;
+        private Point manipulationOffset;
 
         public Graph<Machine> Graph
         {
@@ -48,6 +49,16 @@ namespace Imagine.GUI
                     Point p = new Point(random.Next(this.Width - MACHINE_W * 2) + MACHINE_W, random.Next(this.Height - MACHINE_W * 2) + MACHINE_W);
                     positions[node] = p;
                 }
+            }
+        }
+
+        public ImagineFacade Facade
+        {
+            get { return facade; }
+            set
+            {
+                facade = value;
+                Graph = facade.Graph;
             }
         }
 
@@ -122,25 +133,37 @@ namespace Imagine.GUI
 
         private void GraphArea_MouseDown(object sender, MouseEventArgs e)
         {
-            dragged = GetMachineAtCoordinate(e.Location);
-            if(dragged != null)
+            GraphNode<Machine> targetedNode = GetMachineAtCoordinate(e.Location);
+            if(targetedNode != null)
             {
+                dragged = targetedNode;
                 manipulationState = ManipulationState.Dragging;
-                dragOffset = Point.Subtract(e.Location, new Size(positions[dragged]));
+                manipulationOffset = Point.Subtract(e.Location, new Size(positions[dragged]));
+            }
+            else
+            {
+                if(e.Button == MouseButtons.Right)
+                {
+                    manipulationState = ManipulationState.Inserting;
+                    manipulationOffset = e.Location;
+                    contextMenu.Show(this, Point.Subtract(e.Location, new Size(10, 10)));
+                }
+                    
             }
         }
 
         private void GraphArea_MouseUp(object sender, MouseEventArgs e)
         {
             dragged = null;
-            manipulationState = ManipulationState.None;
+            if(manipulationState != ManipulationState.Inserting)
+                manipulationState = ManipulationState.None;
         }
 
         private void GraphArea_MouseMove(object sender, MouseEventArgs e)
         {
             if(manipulationState == ManipulationState.Dragging)
             {
-                positions[dragged] = Point.Subtract(e.Location, new Size(dragOffset));
+                positions[dragged] = Point.Subtract(e.Location, new Size(manipulationOffset));
                 this.Invalidate();
             }
         }
@@ -163,6 +186,18 @@ namespace Imagine.GUI
             float y = p1.Y - p2.Y;
 
             return (float) Math.Sqrt(x * x + y * y);
+        }
+
+        private void insertToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if(manipulationState == ManipulationState.Inserting)
+            {
+                Machine machine = facade.NewMachine((string) ((ToolStripItem)sender).Tag);
+                GraphNode<Machine> node = graph.GetNodeFor(machine);
+                positions[node] = manipulationOffset;
+                manipulationState = ManipulationState.None;
+                this.Invalidate();
+            }
         }
     }
 }
