@@ -42,6 +42,7 @@ namespace Imagine.Library
             machineTypes["Imagine.Destination"] = typeof(SinkMachine);
             machineTypes["Imagine.Inverter"] = typeof(InverterMachine);
             machineTypes["Imagine.RGBSplitter"] = typeof(RGBSplitterMachine);
+            machineTypes["Imagine.Adder"] = typeof(AdderMachine);
 
             graph = new Graph<Machine>();
             sourceMachine = new SourceMachine();

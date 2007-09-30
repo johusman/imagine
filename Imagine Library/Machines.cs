@@ -187,4 +187,34 @@ namespace Imagine.Library
             return bitmaps;
         }
     }
+
+    public class AdderMachine : Machine
+    {
+        public override string ToString()
+        {
+            return "Adder";
+        }
+
+        public AdderMachine()
+        {
+            inputNames = new string[] { "input 1", "input 2" };
+            outputNames = new string[] { "output" };
+            inputCodes = new char[] { '1', '2' };
+            outputCodes = new char[] { ' ' };
+        }
+
+        public override Bitmap[] Process(Bitmap[] inputs)
+        {
+            Bitmap[] bitmaps = { (Bitmap)inputs[0].Clone() };
+            for(int x = 0; x < inputs[0].Width; x++)
+                for(int y = 0; y < inputs[0].Height; y++)
+                {
+                    Color color1 = inputs[0].GetPixel(x, y);
+                    Color color2 = inputs[1].GetPixel(x, y);
+                    bitmaps[0].SetPixel(x, y, Color.FromArgb(color1.A + color2.A, color1.R + color2.R, color1.G + color2.G, color1.B + color2.B));
+                }
+
+            return bitmaps;
+        }
+    }
 }

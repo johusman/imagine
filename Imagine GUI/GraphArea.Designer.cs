@@ -35,6 +35,7 @@ namespace Imagine.GUI
             this.destinationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.inverterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.rgbSplitterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.adderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -51,7 +52,8 @@ namespace Imagine.GUI
             this.sourceToolStripMenuItem,
             this.destinationToolStripMenuItem,
             this.inverterToolStripMenuItem,
-            this.rgbSplitterToolStripMenuItem});
+            this.rgbSplitterToolStripMenuItem,
+            this.adderToolStripMenuItem});
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
             this.newToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.newToolStripMenuItem.Text = "New";
@@ -88,6 +90,14 @@ namespace Imagine.GUI
             this.rgbSplitterToolStripMenuItem.Text = "RGB Splitter";
             this.rgbSplitterToolStripMenuItem.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
             // 
+            // adderToolStripMenuItem
+            // 
+            this.adderToolStripMenuItem.Name = "adderToolStripMenuItem";
+            this.adderToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.adderToolStripMenuItem.Tag = "Imagine.Adder";
+            this.adderToolStripMenuItem.Text = "Adder";
+            this.adderToolStripMenuItem.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
+            // 
             // GraphArea
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -115,5 +125,6 @@ namespace Imagine.GUI
         private System.Windows.Forms.ToolStripMenuItem destinationToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem inverterToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem rgbSplitterToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem adderToolStripMenuItem;
     }
 }
