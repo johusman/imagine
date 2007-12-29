@@ -211,7 +211,7 @@ namespace Imagine.Library
                 {
                     Color color1 = inputs[0].GetPixel(x, y);
                     Color color2 = inputs[1].GetPixel(x, y);
-                    bitmaps[0].SetPixel(x, y, Color.FromArgb(color1.A + color2.A, color1.R + color2.R, color1.G + color2.G, color1.B + color2.B));
+                    bitmaps[0].SetPixel(x, y, Color.FromArgb((int) Math.Min(color1.A + color2.A, 255), (int) Math.Min(color1.R + color2.R, 255), (int) Math.Min(color1.G + color2.G, 255), (int) Math.Min(color1.B + color2.B, 255)));
                 }
 
             return bitmaps;
