@@ -21,7 +21,9 @@ namespace Imagine.GUI
             InitializeComponent();
         }
 
-        private Dictionary<GraphNode<Machine>, Point> positions;
+        private Dictionary<GraphNode<Machine>, Point> machinePositions;
+        private Dictionary<GraphPort<Machine>, Point?> outportPositions;
+        private Dictionary<GraphPort<Machine>, Point?> inportPositions;
         private Graph<Machine> graph;
         private ImagineFacade facade;
 
@@ -47,13 +49,15 @@ namespace Imagine.GUI
             { 
                 graph = value;
 
+                inportPositions = new Dictionary<GraphPort<Machine>, Point?>();
+                outportPositions = new Dictionary<GraphPort<Machine>, Point?>();
+                machinePositions = new Dictionary<GraphNode<Machine>, Point>();
                 Random random = new Random();
-                positions = new Dictionary<GraphNode<Machine>, Point>();
                 List<GraphNode<Machine>> nodes = graph.GetTopologicalOrdering();
                 foreach(GraphNode<Machine> node in nodes)
                 {
                     Point p = new Point(random.Next(this.Width - MACHINE_R * 4) + MACHINE_R * 2, random.Next(this.Height - MACHINE_R * 4) + MACHINE_R * 2);
-                    positions[node] = p;
+                    machinePositions[node] = p;
                 }
             }
         }
@@ -71,10 +75,14 @@ namespace Imagine.GUI
         public void DrawGraph(Graphics graphics)
         {
             graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+
+            CalculatePortPositions();
+
             foreach(GraphNode<Machine> node in graph.GetTopologicalOrdering())
             {
+                //DrawOutgoingConnections(graphics, node);
                 foreach(GraphPort<Machine> outputPort in node.Outports.Values)
-                    DrawOutgoingConnection(graphics, outputPort, outputPort.RemotePort, false);
+                    DrawOutgoingConnection(graphics, outputPort, outputPort.RemotePort);
 
                 DrawMachine(graphics, node);
             }
@@ -82,34 +90,113 @@ namespace Imagine.GUI
                 DrawConnector(graphics);
         }
 
+        private void CalculatePortPositions()
+        {
+            int radiusToBubbleCenter = MACHINE_R + BUBBLE_R;
+            float bubbleAngle = (float)(2.0 * Math.Atan2(BUBBLE_R, radiusToBubbleCenter));
+
+            foreach (GraphNode<Machine> node in graph.GetTopologicalOrdering())
+            {
+                CirkularGeometricDistributor<GraphPort<Machine>> distributor = new CirkularGeometricDistributor<GraphPort<Machine>>(2.0 * Math.PI, bubbleAngle);
+                foreach (GraphPort<Machine> fromPort in node.Outports.Values)
+                {
+                    GraphPort<Machine> toPort = fromPort.RemotePort;
+                    Point from = machinePositions[fromPort.Node];
+                    Point to = machinePositions[toPort.Node];
+                    if (from == to)
+                        outportPositions[fromPort] = null;
+                    else
+                    {
+                        PointF unitVector = CalculateUnitVector(from, to);
+                        double angle = Math.Atan2(unitVector.Y, unitVector.X);
+                        distributor.AddUnit(fromPort, angle);
+                    }
+                }
+                foreach (GraphPort<Machine> toPort in node.Inports.Values)
+                {
+                    GraphPort<Machine> fromPort = toPort.RemotePort;
+                    Point from = machinePositions[fromPort.Node];
+                    Point to = machinePositions[toPort.Node];
+                    if (from == to)
+                        inportPositions[toPort] = null;
+                    else
+                    {
+                        PointF unitVector = CalculateUnitVector(to, from);
+                        double angle = Math.Atan2(unitVector.Y, unitVector.X);
+                        distributor.AddUnit(toPort, angle);
+                    }
+                }
+
+                Dictionary<GraphPort<Machine>, double> portPositions = distributor.getPositions();
+                foreach (KeyValuePair<GraphPort<Machine>, double> pair in portPositions)
+                {
+                    GraphPort<Machine> port = pair.Key;
+                    Point nodePos = machinePositions[node];
+                    float angle = (float)pair.Value;
+                    Point point = new Point(nodePos.X + (int)(radiusToBubbleCenter * Math.Cos(angle)),
+                                            nodePos.Y + (int)(radiusToBubbleCenter * Math.Sin(angle)));
+
+                    if (node.Outports.ContainsValue(port))
+                        outportPositions[port] = point;
+                    else
+                        inportPositions[port] = point;
+                }
+            }
+        }
+
         private void DrawMachine(Graphics graphics, GraphNode<Machine> node)
         {
-            Point p = positions[node];
+            Point p = machinePositions[node];
             graphics.FillEllipse(machinebrush, p.X - MACHINE_R, p.Y - MACHINE_R, MACHINE_R * 2, MACHINE_R * 2);
             graphics.DrawEllipse(machinepen, p.X - MACHINE_R, p.Y - MACHINE_R, MACHINE_R * 2, MACHINE_R * 2);
             SizeF textSize = graphics.MeasureString(node.Machine.ToString(), Font);
             graphics.DrawString(node.Machine.ToString(), Font, arrowbrush, p.X - textSize.Width/2 + 1, p.Y - textSize.Height/2);
         }
 
-        private void DrawOutgoingConnection(Graphics graphics, GraphPort<Machine> fromPort, GraphPort<Machine> toPort, bool potential)
+        private void DrawOutgoingConnection(Graphics graphics, GraphPort<Machine> port, GraphPort<Machine> remotePort)
         {
-            Point from = positions[fromPort.Node];
-            Point to = positions[toPort.Node];
+            if (outportPositions[port] == null)
+                return;
 
-            Pen arrowpenLocal = arrowpen;
-            Pen machinepenLocal = machinepen;
-            Brush arrowbrushLocal = arrowbrush;
-            if(potential)
+            Point portPos = outportPositions[port].Value;
+            GraphNode<Machine> node = port.Node;
+            GraphNode<Machine> remoteNode = remotePort.Node;
+            Point remotePortPos = inportPositions[remotePort].Value;
+
+            DrawCenteredCircle(graphics, machinepen, Brushes.Black, Brushes.White,
+                    new PointF(portPos.X, portPos.Y),
+                    BUBBLE_R, node.Machine.OutputCodes[port.PortNumber].ToString());
+
+            DrawCenteredCircle(graphics, machinepen, Brushes.White, Brushes.Black,
+                    new PointF(remotePortPos.X, remotePortPos.Y),
+                    BUBBLE_R, remoteNode.Machine.InputCodes[remotePort.PortNumber].ToString());
+
+            PointF unitVector = CalculateUnitVector(portPos, remotePortPos);
+            if (PointDistance(portPos, remotePortPos) > BUBBLE_R * 2.0)
             {
-                arrowpenLocal = arrowPenPotential;
-                machinepenLocal = machinePenPotential;
-                arrowbrushLocal = arrowBrushPotential;
+                Point lineFromPoint = new Point((int)(portPos.X + unitVector.X * BUBBLE_R), (int)(portPos.Y + unitVector.Y * BUBBLE_R));
+                Point lineToPoint = new Point((int)(remotePortPos.X - unitVector.X * BUBBLE_R), (int)(remotePortPos.Y - unitVector.Y * BUBBLE_R));
+                graphics.DrawLine(arrowpen, lineFromPoint, lineToPoint);
+
+                Point[] arrowpoints = {
+                    lineToPoint,
+                    new Point(remotePortPos.X - (int) (unitVector.X * (ARROW_L + BUBBLE_R) + unitVector.Y * ARROW_W), remotePortPos.Y - (int) (unitVector.Y * (ARROW_L + BUBBLE_R) - unitVector.X * ARROW_W)),
+                    new Point(remotePortPos.X - (int) (unitVector.X * (ARROW_L + BUBBLE_R) - unitVector.Y * ARROW_W), remotePortPos.Y - (int) (unitVector.Y * (ARROW_L + BUBBLE_R) + unitVector.X * ARROW_W))
+                };
+
+                graphics.FillPolygon(arrowbrush, arrowpoints);
             }
+        }
+
+        private void DrawPotentialConnection(Graphics graphics, GraphPort<Machine> fromPort, GraphPort<Machine> toPort)
+        {
+            Point from = machinePositions[fromPort.Node];
+            Point to = machinePositions[toPort.Node];
 
             PointF unitVector = CalculateUnitVector(from, to);
             int arrow_offset = MACHINE_R + BUBBLE_R * 2;
 
-            graphics.DrawLine(arrowpenLocal,
+            graphics.DrawLine(arrowPenPotential,
                 from.X + unitVector.X * arrow_offset, from.Y + unitVector.Y * arrow_offset,
                 to.X - unitVector.X * arrow_offset, to.Y - unitVector.Y * arrow_offset);
 
@@ -119,17 +206,17 @@ namespace Imagine.GUI
                 new Point(to.X - (int) (unitVector.X * (ARROW_L + arrow_offset) - unitVector.Y * ARROW_W), to.Y - (int) (unitVector.Y * (ARROW_L + arrow_offset) + unitVector.X * ARROW_W))
             };
 
-            graphics.FillPolygon(arrowbrushLocal, arrowpoints);
+            graphics.FillPolygon(arrowBrushPotential, arrowpoints);
 
-            DrawCenteredCircle(graphics, machinepenLocal, potential ? Brushes.Transparent : Brushes.White, Brushes.Black, new PointF(
+            DrawCenteredCircle(graphics, machinePenPotential, Brushes.Transparent, Brushes.Black, new PointF(
                 to.X - (unitVector.X * (MACHINE_R + BUBBLE_R)),
                 to.Y - (unitVector.Y * (MACHINE_R + BUBBLE_R))),
-                BUBBLE_R, potential ? "" : toPort.Node.Machine.InputCodes[toPort.PortNumber].ToString());
+                BUBBLE_R, "");
 
-            DrawCenteredCircle(graphics, machinepenLocal, potential ? Brushes.Transparent : Brushes.Black, Brushes.White, new PointF(
+            DrawCenteredCircle(graphics, machinePenPotential, Brushes.Transparent, Brushes.White, new PointF(
                 from.X + (unitVector.X * (MACHINE_R + BUBBLE_R)),
                 from.Y + (unitVector.Y * (MACHINE_R + BUBBLE_R))),
-                BUBBLE_R, potential ? "" : fromPort.Node.Machine.OutputCodes[fromPort.PortNumber].ToString());
+                BUBBLE_R, "");
         }
 
         private static PointF CalculateUnitVector(Point from, Point to)
@@ -155,7 +242,7 @@ namespace Imagine.GUI
             GraphNode<Machine> destinationNode = GetMachineAtCoordinate(manipulationOffset);
             if(destinationNode == null)
             {
-                Point origin = positions[manipulatedNode];
+                Point origin = machinePositions[manipulatedNode];
                 PointF unitVector = CalculateUnitVector(origin, manipulationOffset);
                 origin.Offset((int)(unitVector.X * MACHINE_R), (int)(unitVector.Y * MACHINE_R));
 
@@ -163,7 +250,7 @@ namespace Imagine.GUI
                 g.DrawEllipse(arrowPenPotential, manipulationOffset.X - BUBBLE_R, manipulationOffset.Y - BUBBLE_R, BUBBLE_R * 2, BUBBLE_R * 2);
             }
             else
-                DrawOutgoingConnection(g, new GraphPort<Machine>(manipulatedNode, -1), new GraphPort<Machine>(destinationNode, -1), true);
+                DrawPotentialConnection(g, new GraphPort<Machine>(manipulatedNode, -1), new GraphPort<Machine>(destinationNode, -1));
         }
 
         private void GraphArea_Paint(object sender, PaintEventArgs e)
@@ -180,7 +267,7 @@ namespace Imagine.GUI
                 if(e.Button == MouseButtons.Left)
                 {
                     manipulationState = ManipulationState.Dragging;
-                    manipulationOffset = Point.Subtract(e.Location, new Size(positions[manipulatedNode]));
+                    manipulationOffset = Point.Subtract(e.Location, new Size(machinePositions[manipulatedNode]));
                 }
                 else if(e.Button == MouseButtons.Right)
                 {
@@ -227,7 +314,7 @@ namespace Imagine.GUI
         {
             if(manipulationState == ManipulationState.Dragging)
             {
-                positions[manipulatedNode] = Point.Subtract(e.Location, new Size(manipulationOffset));
+                machinePositions[manipulatedNode] = Point.Subtract(e.Location, new Size(manipulationOffset));
                 this.Invalidate();
             }
             else if(manipulationState == ManipulationState.Connecting)
@@ -241,15 +328,15 @@ namespace Imagine.GUI
         {
             foreach(GraphNode<Machine> node in graph.GetTopologicalOrdering())
             {
-                Point machinePoint = positions[node];
-                if(pointDistance(point, machinePoint) < MACHINE_R)
+                Point machinePoint = machinePositions[node];
+                if(PointDistance(point, machinePoint) < MACHINE_R)
                     return node;
             }
 
             return null;
         }
 
-        private float pointDistance(Point p1, Point p2)
+        private float PointDistance(Point p1, Point p2)
         {
             float x = p1.X - p2.X;
             float y = p1.Y - p2.Y;
@@ -263,7 +350,7 @@ namespace Imagine.GUI
             {
                 Machine machine = facade.NewMachine((string) ((ToolStripItem)sender).Tag);
                 GraphNode<Machine> node = graph.GetNodeFor(machine);
-                positions[node] = manipulationOffset;
+                machinePositions[node] = manipulationOffset;
                 manipulationState = ManipulationState.None;
                 this.Invalidate();
             }

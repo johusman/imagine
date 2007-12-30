@@ -49,6 +49,7 @@
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="ImagineProgram.cs" />
+    <Compile Include="CirkularlGeometricDistributor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="GraphArea.resx">
       <SubType>Designer</SubType>

@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Acceptance Tests", "Accepta
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imagine GUI", "Imagine GUI\Imagine GUI.csproj", "{38E4AA38-94F2-4B73-996A-F831AB2D27F2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GUI Unit Tests", "GUI Unit Tests\GUI Unit Tests.csproj", "{89B9DA8A-50AC-481B-8017-D0C88CE5C645}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +33,10 @@ Global
 		{38E4AA38-94F2-4B73-996A-F831AB2D27F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{38E4AA38-94F2-4B73-996A-F831AB2D27F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{38E4AA38-94F2-4B73-996A-F831AB2D27F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{89B9DA8A-50AC-481B-8017-D0C88CE5C645}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89B9DA8A-50AC-481B-8017-D0C88CE5C645}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89B9DA8A-50AC-481B-8017-D0C88CE5C645}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89B9DA8A-50AC-481B-8017-D0C88CE5C645}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
