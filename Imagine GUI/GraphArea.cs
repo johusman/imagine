@@ -358,9 +358,10 @@ namespace Imagine.GUI
 
         private void chooseOutputToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            string chosenText = ((ToolStripMenuItem)sender).Text.Substring(4);
             string[] outputNames = manipulatedNode.Machine.OutputNames;
             for(int i = 0; i < outputNames.Length; i++)
-                if(outputNames[i] == ((ToolStripMenuItem)sender).Text)
+                if(outputNames[i] == chosenText)
                 {
                     choosenPort = i;
                     ShowInputChooser(manipulationOffset);
@@ -370,9 +371,10 @@ namespace Imagine.GUI
 
         private void chooseInputToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            string chosenText = ((ToolStripMenuItem)sender).Text.Substring(4);
             string[] inputNames = manipulationDestination.Machine.InputNames;
             for(int i = 0; i < inputNames.Length; i++)
-                if(inputNames[i] == ((ToolStripMenuItem)sender).Text)
+                if(inputNames[i] == chosenText)
                 {
                     facade.Connect(manipulatedNode.Machine, choosenPort, manipulationDestination.Machine, i);
                     
@@ -387,7 +389,8 @@ namespace Imagine.GUI
 
         private void ShowOutputChooser(Point location)
         {
-            if(manipulatedNode.Machine.OutputCount > 1)
+            int remainingOutputs = manipulatedNode.Machine.OutputCount - manipulatedNode.OutputCount;
+            if(remainingOutputs > 1)
             {
                 ContextMenuStrip contextMenu = new ContextMenuStrip();
                 contextMenu.ShowImageMargin = false;
@@ -397,20 +400,34 @@ namespace Imagine.GUI
                 header.Enabled = false;
                 contextMenu.Items.Add(header);
 
-                foreach(string outputName in manipulatedNode.Machine.OutputNames)
-                    contextMenu.Items.Add(new ToolStripMenuItem(outputName, null, new System.EventHandler(this.chooseOutputToolStripMenuItem_Click)));
+                for(int i = 0; i < manipulatedNode.Machine.OutputCount; i++)
+                    if (!manipulatedNode.Outports.ContainsKey(i))
+                    {
+                        String text = String.Format("({1}) {0}", manipulatedNode.Machine.OutputNames[i], manipulatedNode.Machine.OutputCodes[i]);
+                        contextMenu.Items.Add(new ToolStripMenuItem(text, null, new System.EventHandler(this.chooseOutputToolStripMenuItem_Click)));
+                    }
                 contextMenu.Show(this, Point.Subtract(location, new Size(10, 10)));
+            }
+            else if (remainingOutputs == 1)
+            {
+                for (int i = 0; i < manipulatedNode.Machine.OutputCount; i++)
+                    if (!manipulatedNode.Outports.ContainsKey(i))
+                    {
+                        choosenPort = i;
+                        ShowInputChooser(manipulationOffset);
+                        return;
+                    }
             }
             else
             {
-                choosenPort = 0;
-                ShowInputChooser(manipulationOffset);
+                MessageBox.Show(this.ParentForm, "There are no free outputs on the first machine", "No free outputs", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
         private void ShowInputChooser(Point location)
         {
-            if(manipulationDestination.Machine.InputCount > 1)
+            int remainingInputs = manipulationDestination.Machine.InputCount - manipulationDestination.InputCount;
+            if(remainingInputs > 1)
             {
                 ContextMenuStrip contextMenu = new ContextMenuStrip();
                 contextMenu.ShowImageMargin = false;
@@ -420,19 +437,33 @@ namespace Imagine.GUI
                 header.Enabled = false;
                 contextMenu.Items.Add(header);
 
-                foreach(string inputName in manipulationDestination.Machine.InputNames)
-                    contextMenu.Items.Add(new ToolStripMenuItem(inputName, null, new System.EventHandler(this.chooseInputToolStripMenuItem_Click)));
+                for (int i = 0; i < manipulationDestination.Machine.InputCount; i++)
+                    if (!manipulationDestination.Inports.ContainsKey(i))
+                    {
+                        String text = String.Format("({1}) {0}", manipulationDestination.Machine.InputNames[i], manipulationDestination.Machine.InputCodes[i]);
+                        contextMenu.Items.Add(new ToolStripMenuItem(text, null, new System.EventHandler(this.chooseInputToolStripMenuItem_Click)));
+                    }
+
                 contextMenu.Show(this, Point.Subtract(location, new Size(10, 10)));
+            }
+            else if (remainingInputs == 1)
+            {
+                for (int i = 0; i < manipulationDestination.Machine.InputCount; i++)
+                    if (!manipulationDestination.Inports.ContainsKey(i))
+                    {
+                        facade.Connect(manipulatedNode.Machine, choosenPort, manipulationDestination.Machine, i);
+
+                        this.Invalidate();
+                        manipulatedNode = null;
+                        manipulationDestination = null;
+                        manipulationOffset = Point.Empty;
+                        choosenPort = -1;
+                        return;
+                    }
             }
             else
             {
-                facade.Connect(manipulatedNode.Machine, choosenPort, manipulationDestination.Machine, 0);
-
-                this.Invalidate();
-                manipulatedNode = null;
-                manipulationDestination = null;
-                manipulationOffset = Point.Empty;
-                choosenPort = -1;
+                MessageBox.Show(this.ParentForm, "There are no free inputs on the second machine", "No free inputs", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
