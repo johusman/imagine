@@ -34,6 +34,7 @@ namespace Imagine.GUI
         private Brush arrowbrush = Brushes.Black;
         private Brush arrowBrushPotential = Brushes.Gray;
         private Brush machinebrush = Brushes.Bisque;
+        private Color tooltipColor = Color.OldLace;
 
         private enum ManipulationState { None, Dragging, Inserting, Connecting };
         private ManipulationState manipulationState = ManipulationState.None;
@@ -41,6 +42,9 @@ namespace Imagine.GUI
         private Point manipulationOffset;
         private GraphNode<Machine> manipulationDestination = null;
         private int choosenPort = -1;
+
+        private ToolTip tooltip = null;
+        private Object tooltipObject = null;
 
         public Graph<Machine> Graph
         {
@@ -80,7 +84,6 @@ namespace Imagine.GUI
 
             foreach(GraphNode<Machine> node in graph.GetTopologicalOrdering())
             {
-                //DrawOutgoingConnections(graphics, node);
                 foreach(GraphPort<Machine> outputPort in node.Outports.Values)
                     DrawOutgoingConnection(graphics, outputPort, outputPort.RemotePort);
 
@@ -314,23 +317,127 @@ namespace Imagine.GUI
         {
             if(manipulationState == ManipulationState.Dragging)
             {
+                KillToolTip();
                 machinePositions[manipulatedNode] = Point.Subtract(e.Location, new Size(manipulationOffset));
                 this.Invalidate();
             }
-            else if(manipulationState == ManipulationState.Connecting)
+            else if (manipulationState == ManipulationState.Connecting)
             {
+                ManageToolTip(e.Location);
                 manipulationOffset = e.Location;
                 this.Invalidate();
+            }
+            else
+            {
+                ManageToolTip(e.Location);
+            }
+        }
+
+        private void ManageToolTip(Point location)
+        {
+            GraphNode<Machine> node = GetMachineAtCoordinate(location);
+            if (node != null)
+            {
+                if (tooltip == null || tooltipObject != node)
+                {
+                    KillToolTip();
+                    tooltipObject = node;
+                    tooltip = new ToolTip();
+                    tooltip.BackColor = tooltipColor;
+                    tooltip.ToolTipTitle = node.Machine.ToString();
+                    
+                    string inputs = "";
+                    string outputs = "";
+                    for (int i = 0; i < node.Machine.InputCount; i++)
+                        inputs = inputs + String.Format(" [{1}] {0},", node.Machine.InputNames[i], node.Machine.InputCodes[i]);
+                    if (inputs == "")
+                        inputs = " (None)";
+                    else
+                        inputs = inputs.Remove(inputs.Length - 1);
+
+                    for (int i = 0; i < node.Machine.OutputCount; i++)
+                        outputs = outputs + String.Format(" [{1}] {0},", node.Machine.OutputNames[i], node.Machine.OutputCodes[i]);
+                    if (outputs == "")
+                        outputs = " (None)";
+                    else
+                        outputs = outputs.Remove(outputs.Length - 1);
+
+                    string text = String.Format("Inputs:\n {0}\nOutputs:\n {1}", inputs, outputs);
+                    tooltip.Show(text, this.ParentForm, new Point(machinePositions[node].X + 50, machinePositions[node].Y));
+                }
+            }
+            else
+            {
+                GraphPort<Machine> port = GetPortAtCoordinate(location);
+                if (port != null)
+                {
+                    if (tooltip == null || tooltipObject != port)
+                    {
+                        KillToolTip();
+                        tooltipObject = port;
+                        tooltip = new ToolTip();
+                        tooltip.BackColor = tooltipColor;
+
+                        GraphNode<Machine> portNode = port.Node;
+                        GraphNode<Machine> remoteNode = port.RemotePort.Node;
+                        int index = port.PortNumber;
+                        int remoteIndex = port.RemotePort.PortNumber;
+                        string text = null;
+                        if (outportPositions.ContainsKey(port))
+                        {
+                            tooltip.ToolTipTitle = portNode.Machine.OutputNames[index];
+                            text = String.Format(" (--> {0})", remoteNode.Machine.InputNames[remoteIndex]);
+                            tooltip.Show(text, this.ParentForm, new Point(outportPositions[port].Value.X + 25, outportPositions[port].Value.Y + 50));
+                        }
+                        else
+                        {
+                            tooltip.ToolTipTitle = portNode.Machine.InputNames[index];
+                            text = String.Format(" (<-- {0})", remoteNode.Machine.OutputNames[remoteIndex]);
+                            tooltip.Show(text, this.ParentForm, new Point(inportPositions[port].Value.X + 25, inportPositions[port].Value.Y + 50));
+                        }
+                        
+                    }
+                }
+                else
+                    KillToolTip();
+            }
+        }
+
+        private void KillToolTip()
+        {
+            if (tooltip != null)
+            {
+                tooltip.Hide(this.ParentForm);
+                tooltip = null;
+                tooltipObject = null;
             }
         }
 
         private GraphNode<Machine> GetMachineAtCoordinate(Point point)
         {
-            foreach(GraphNode<Machine> node in graph.GetTopologicalOrdering())
+            List<GraphNode<Machine>> list = graph.GetTopologicalOrdering();
+            list.Reverse();
+            foreach(GraphNode<Machine> node in list)
             {
                 Point machinePoint = machinePositions[node];
                 if(PointDistance(point, machinePoint) < MACHINE_R)
                     return node;
+            }
+
+            return null;
+        }
+
+        private GraphPort<Machine> GetPortAtCoordinate(Point point)
+        {
+            foreach(KeyValuePair<GraphPort<Machine>, Point?> pair in outportPositions)
+            {
+                if (PointDistance(point, pair.Value.Value) < BUBBLE_R)
+                    return pair.Key;
+            }
+            foreach (KeyValuePair<GraphPort<Machine>, Point?> pair in inportPositions)
+            {
+                if (PointDistance(point, pair.Value.Value) < BUBBLE_R)
+                    return pair.Key;
             }
 
             return null;
