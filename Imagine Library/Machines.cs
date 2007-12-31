@@ -239,7 +239,7 @@ namespace Imagine.Library
             foreach(Bitmap input in inputs)
                 if (input != null)
                 {
-                    bitmaps[0] = (Bitmap)inputs[0].Clone();
+                    bitmaps[0] = (Bitmap)input.Clone();
                     break;
                 }
 
@@ -310,7 +310,7 @@ namespace Imagine.Library
             foreach(Bitmap input in inputs)
                 if (input != null)
                 {
-                    bitmaps[0] = (Bitmap)inputs[0].Clone();
+                    bitmaps[0] = (Bitmap)input.Clone();
                     break;
                 }
 
