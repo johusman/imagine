@@ -272,21 +272,74 @@ namespace Imagine.GUI
                     manipulationState = ManipulationState.Dragging;
                     manipulationOffset = Point.Subtract(e.Location, new Size(machinePositions[manipulatedNode]));
                 }
-                else if(e.Button == MouseButtons.Right)
+                else if(e.Button == MouseButtons.Right && e.Clicks == 1)
                 {
                     manipulationState = ManipulationState.Connecting;
                     manipulationOffset = e.Location;
                 }
+                else if (e.Button == MouseButtons.Right && e.Clicks == 2)
+                {
+                    if (Control.ModifierKeys != Keys.Shift)
+                    {
+                        DialogResult result = MessageBox.Show(this.ParentForm, "Do you wish to break delete this machine?", "Delete machine?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                        if (result == DialogResult.No)
+                            return;
+                    }
+
+                    machinePositions.Remove(manipulatedNode);
+                    foreach (GraphPort<Machine> outPort in manipulatedNode.Outports.Values)
+                    {
+                        outportPositions.Remove(outPort);
+                        inportPositions.Remove(outPort.RemotePort);
+                    }
+                    foreach (GraphPort<Machine> inPort in manipulatedNode.Inports.Values)
+                    {
+                        inportPositions.Remove(inPort);
+                        outportPositions.Remove(inPort.RemotePort);
+                    }
+                    facade.RemoveMachine(manipulatedNode.Machine);
+
+                    this.Invalidate();
+                }
             }
             else
             {
-                if(e.Button == MouseButtons.Right)
+                GraphPort<Machine> port = GetPortAtCoordinate(e.Location);
+                if (port != null)
                 {
-                    manipulationState = ManipulationState.Inserting;
-                    manipulationOffset = e.Location;
-                    contextMenu.Show(this, Point.Subtract(e.Location, new Size(10, 10)));
+                    if (e.Button == MouseButtons.Right && e.Clicks == 2)
+                    {
+                        if(Control.ModifierKeys != Keys.Shift)
+                        {
+                            DialogResult result = MessageBox.Show(this.ParentForm, "Do you wish to break this connection?", "Break connection?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                            if (result == DialogResult.No)
+                                return;
+                        }
+
+                        if (outportPositions.ContainsKey(port))
+                        {
+                            outportPositions.Remove(port);
+                            inportPositions.Remove(port.RemotePort);
+                            facade.Disconnect(port.Node.Machine, port.PortNumber, port.RemotePort.Node.Machine, port.RemotePort.PortNumber);
+                        }
+                        else
+                        {
+                            outportPositions.Remove(port.RemotePort);
+                            inportPositions.Remove(port);
+                            facade.Disconnect(port.RemotePort.Node.Machine, port.RemotePort.PortNumber, port.Node.Machine, port.PortNumber);
+                        }
+                        this.Invalidate();
+                    }
                 }
-                    
+                else
+                {
+                    if (e.Button == MouseButtons.Right)
+                    {
+                        manipulationState = ManipulationState.Inserting;
+                        manipulationOffset = e.Location;
+                        contextMenu.Show(this, Point.Subtract(e.Location, new Size(10, 10)));
+                    }
+                }                    
             }
         }
 
