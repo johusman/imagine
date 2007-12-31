@@ -43,6 +43,9 @@ namespace Imagine.Library
             machineTypes["Imagine.Inverter"] = typeof(InverterMachine);
             machineTypes["Imagine.RGBSplitter"] = typeof(RGBSplitterMachine);
             machineTypes["Imagine.Adder"] = typeof(AdderMachine);
+            machineTypes["Imagine.Adder4"] = typeof(Adder4Machine);
+            machineTypes["Imagine.Fork"] = typeof(ForkMachine);
+            machineTypes["Imagine.Composer"] = typeof(ComposerMachine);
 
             graph = new Graph<Machine>();
             sourceMachine = new SourceMachine();
@@ -127,8 +130,12 @@ namespace Imagine.Library
             foreach(GraphNode<Machine> node in ordering)
             {
                 Bitmap[] inputs = new Bitmap[node.Machine.InputCount];
-                for(int i = 0; i < node.Machine.InputCount; i++)
-                    inputs[i] = resultMap[node.Inports[i].RemotePort];
+                for (int i = 0; i < node.Machine.InputCount; i++)
+                {
+                    GraphPort<Machine> inPort = null;
+                    if(node.Inports.TryGetValue(i, out inPort))
+                        inputs[i] = resultMap[inPort.RemotePort];
+                }
 
                 Bitmap[] results = node.Machine.Process(inputs);
                 for(int i = 0; i < node.Machine.OutputCount; i++)

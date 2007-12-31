@@ -36,6 +36,9 @@ namespace Imagine.GUI
             this.inverterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.rgbSplitterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.adderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.adder4ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.forkToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.composerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -53,7 +56,10 @@ namespace Imagine.GUI
             this.destinationToolStripMenuItem,
             this.inverterToolStripMenuItem,
             this.rgbSplitterToolStripMenuItem,
-            this.adderToolStripMenuItem});
+            this.adderToolStripMenuItem,
+            this.adder4ToolStripMenuItem,
+            this.forkToolStripMenuItem,
+            this.composerToolStripMenuItem});
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
             this.newToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.newToolStripMenuItem.Text = "New";
@@ -98,6 +104,30 @@ namespace Imagine.GUI
             this.adderToolStripMenuItem.Text = "Adder";
             this.adderToolStripMenuItem.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
             // 
+            // adder4ToolStripMenuItem
+            // 
+            this.adder4ToolStripMenuItem.Name = "adder4ToolStripMenuItem";
+            this.adder4ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.adder4ToolStripMenuItem.Tag = "Imagine.Adder4";
+            this.adder4ToolStripMenuItem.Text = "Adder4";
+            this.adder4ToolStripMenuItem.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
+            // 
+            // forkToolStripMenuItem
+            // 
+            this.forkToolStripMenuItem.Name = "forkToolStripMenuItem";
+            this.forkToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.forkToolStripMenuItem.Tag = "Imagine.Fork";
+            this.forkToolStripMenuItem.Text = "Fork";
+            this.forkToolStripMenuItem.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
+            // 
+            // composerToolStripMenuItem
+            // 
+            this.composerToolStripMenuItem.Name = "composerToolStripMenuItem";
+            this.composerToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.composerToolStripMenuItem.Tag = "Imagine.Composer";
+            this.composerToolStripMenuItem.Text = "Composer";
+            this.composerToolStripMenuItem.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
+            // 
             // GraphArea
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -108,9 +138,9 @@ namespace Imagine.GUI
             this.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.Name = "GraphArea";
             this.Size = new System.Drawing.Size(150, 139);
-            this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.GraphArea_MouseDown);
-            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.GraphArea_MouseMove);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.GraphArea_Paint);
+            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.GraphArea_MouseMove);
+            this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.GraphArea_MouseDown);
             this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.GraphArea_MouseUp);
             this.contextMenu.ResumeLayout(false);
             this.ResumeLayout(false);
@@ -126,5 +156,8 @@ namespace Imagine.GUI
         private System.Windows.Forms.ToolStripMenuItem inverterToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem rgbSplitterToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem adderToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem adder4ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem forkToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem composerToolStripMenuItem;
     }
 }

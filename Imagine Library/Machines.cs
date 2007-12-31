@@ -217,4 +217,121 @@ namespace Imagine.Library
             return bitmaps;
         }
     }
+
+    public class Adder4Machine : Machine
+    {
+        public override string ToString()
+        {
+            return "Adder4";
+        }
+
+        public Adder4Machine()
+        {
+            inputNames = new string[] { "input 1", "input 2", "input 3", "input 4" };
+            outputNames = new string[] { "output" };
+            inputCodes = new char[] { '1', '2', '3', '4' };
+            outputCodes = new char[] { ' ' };
+        }
+
+        public override Bitmap[] Process(Bitmap[] inputs)
+        {
+            Bitmap[] bitmaps = new Bitmap[1];
+            foreach(Bitmap input in inputs)
+                if (input != null)
+                {
+                    bitmaps[0] = (Bitmap)inputs[0].Clone();
+                    break;
+                }
+
+            if (bitmaps[0] == null)
+                return bitmaps;
+
+            for(int x = 0; x < bitmaps[0].Width; x++)
+                for(int y = 0; y < bitmaps[0].Height; y++)
+                {
+                    int a = 0, r = 0, g = 0, b = 0;
+                    for (int i = 0; i < inputs.Length; i++)
+                    {
+                        if (inputs[i] != null)
+                        {
+                            Color color = inputs[i].GetPixel(x, y);
+                            a += color.A;
+                            r += color.R;
+                            g += color.G;
+                            b += color.B;
+                        }
+                    }
+                    bitmaps[0].SetPixel(x, y, Color.FromArgb((int) Math.Min(a, 255), (int) Math.Min(r, 255), (int) Math.Min(g, 255), (int) Math.Min(b, 255)));
+                }
+
+            return bitmaps;
+        }
+    }
+
+    public class ForkMachine : Machine
+    {
+        public override string ToString()
+        {
+            return "Fork";
+        }
+
+        public ForkMachine()
+        {
+            inputNames = new string[] { "input" };
+            outputNames = new string[] { "output1", "output2" };
+            inputCodes = new char[] { ' ' };
+            outputCodes = new char[] { '1', '2' };
+        }
+
+        public override Bitmap[] Process(Bitmap[] inputs)
+        {
+            return new Bitmap[] { (Bitmap)inputs[0].Clone(), (Bitmap)inputs[0].Clone() };
+        }
+    }
+
+    public class ComposerMachine : Machine
+    {
+        public override string ToString()
+        {
+            return "Composer";
+        }
+
+        public ComposerMachine()
+        {
+            inputNames = new string[] { "red", "green", "blue" };
+            outputNames = new string[] { "output" };
+            inputCodes = new char[] { 'R', 'G', 'B' };
+            outputCodes = new char[] { ' ' };
+        }
+
+        public override Bitmap[] Process(Bitmap[] inputs)
+        {
+            Bitmap[] bitmaps = new Bitmap[1];
+            foreach(Bitmap input in inputs)
+                if (input != null)
+                {
+                    bitmaps[0] = (Bitmap)inputs[0].Clone();
+                    break;
+                }
+
+            if (bitmaps[0] == null)
+                return bitmaps;
+
+            for(int x = 0; x < bitmaps[0].Width; x++)
+                for(int y = 0; y < bitmaps[0].Height; y++)
+                {
+                    int r = 0, g = 0, b = 0;
+                    if (inputs[0] != null)
+                        r = (int) (inputs[0].GetPixel(x, y).GetBrightness() * 255);
+                    if (inputs[1] != null)
+                        g = (int) (inputs[1].GetPixel(x, y).GetBrightness() * 255);
+                    if (inputs[2] != null)
+                        b = (int) (inputs[2].GetPixel(x, y).GetBrightness() * 255);
+
+                    bitmaps[0].SetPixel(x, y, Color.FromArgb(255, r, g, b));
+                }
+
+            return bitmaps;
+        }
+    }
 }
