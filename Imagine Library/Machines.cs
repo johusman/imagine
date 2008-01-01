@@ -521,4 +521,64 @@ namespace Imagine.Library
             return new ImagineImage[] { result };
         }
     }
+
+    [UniqueName("Imagine.DynamicBlurMachine")]
+    public class DynamicBlurMachine : Machine
+    {
+        public DynamicBlurMachine()
+        {
+            inputNames = new string[] { "image", "control" };
+            outputNames = new string[] { "output" };
+            inputCodes = new char[] { 'I', 'c' };
+            outputCodes = new char[] { ' ' };
+            description = "Blurs the image. The amount of blur at each pixel is determined by alpha channel of the control input.";
+        }
+
+        public override string Caption
+        {
+            get { return "Dyn Blur"; }
+        }
+
+        public override ImagineImage[] Process(ImagineImage[] inputs)
+        {
+            FullImage result = NewFull(inputs[0]);
+            if (inputs[0] == null)
+                return new ImagineImage[1];
+            if (inputs[1] == null)
+                return new ImagineImage[] { inputs[0].Copy() };
+            ImagineImage source = inputs[0];
+
+            for (int i = 0; i < 20; i++)
+            {
+                result = NewFull(inputs[0]);
+                
+                for (int x = 1; x < result.Width - 1; x++)
+                    for (int y = 1; y < result.Height - 1; y++)
+                    {
+                        int r, g, b;
+                        
+                        ImagineColor c, n, w, s, e;
+                        c = source.GetPixel(x, y);
+                        n = source.GetPixel(x, y - 1);
+                        e = source.GetPixel(x + 1, y);
+                        w = source.GetPixel(x - 1, y);
+                        s = source.GetPixel(x, y + 1);
+
+                        double a = ((double) inputs[1].GetPixel(x, y).A) / ImagineColor.MAX;
+                        double cA = 1.0 - a * 0.8; 
+                        double vA = (1.0 - cA) / 4.0;
+
+                        r = (int) (c.R * cA + n.R * vA + w.R * vA + s.R * vA + e.R * vA);
+                        g = (int) (c.G * cA + n.G * vA + w.G * vA + s.G * vA + e.G * vA);
+                        b = (int) (c.B * cA + n.B * vA + w.B * vA + s.B * vA + e.B * vA);
+
+                        result.SetPixel(x, y, ImagineColor.MAX, r, g, b);
+                    }
+
+                source = result;
+            }
+
+            return new ImagineImage[] { result };
+        }
+    }
 }
