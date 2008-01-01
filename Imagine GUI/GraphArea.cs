@@ -281,7 +281,7 @@ namespace Imagine.GUI
                 {
                     if (Control.ModifierKeys != Keys.Shift)
                     {
-                        DialogResult result = MessageBox.Show(this.ParentForm, "Do you wish to break delete this machine?", "Delete machine?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                        DialogResult result = MessageBox.Show(this.ParentForm, "Do you wish to delete this machine?", "Delete machine?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                         if (result == DialogResult.No)
                             return;
                     }
