@@ -406,7 +406,8 @@ namespace Imagine.GUI
                     tooltip = new ToolTip();
                     tooltip.BackColor = tooltipColor;
                     tooltip.ToolTipTitle = node.Machine.ToString();
-                    
+
+                    string description = node.Machine.Description;
                     string inputs = "";
                     string outputs = "";
                     for (int i = 0; i < node.Machine.InputCount; i++)
@@ -423,7 +424,7 @@ namespace Imagine.GUI
                     else
                         outputs = outputs.Remove(outputs.Length - 1);
 
-                    string text = String.Format("Inputs:\n {0}\nOutputs:\n {1}", inputs, outputs);
+                    string text = String.Format("{0}\n\nInputs:\n {1}\nOutputs:\n {2}", description, inputs, outputs);
                     tooltip.Show(text, this.ParentForm, new Point(machinePositions[node].X + 50, machinePositions[node].Y));
                 }
             }
