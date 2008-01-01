@@ -4,6 +4,7 @@ using System.Text;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Reflection;
+using System.IO;
 
 namespace Imagine.Library
 {
@@ -12,6 +13,11 @@ namespace Imagine.Library
         private SourceMachine sourceMachine;
         private SinkMachine destinationMachine;
         private Dictionary<string, Type> machineTypes;
+
+        public Dictionary<string, Type> MachineTypes
+        {
+            get { return machineTypes; }
+        }
 
         private Graph<Machine> graph;
 
@@ -38,17 +44,18 @@ namespace Imagine.Library
         public ImagineFacade()
         {
             machineTypes = new Dictionary<string, Type>();
-            machineTypes["Imagine.Source"] = typeof(SourceMachine);
-            machineTypes["Imagine.Destination"] = typeof(SinkMachine);
-            machineTypes["Imagine.Branch4"] = typeof(Branch4Machine);
-            machineTypes["Imagine.Adder4"] = typeof(Adder4Machine);
-            machineTypes["Imagine.AlphaMultiplier4"] = typeof(AlphaMultiply4Machine);
-            machineTypes["Imagine.Inverter"] = typeof(InverterMachine);
-            machineTypes["Imagine.RGBSplitter"] = typeof(RGBSplitterMachine);
-            machineTypes["Imagine.RGBJoiner"] = typeof(RGBJoinerMachine);
-            machineTypes["Imagine.Halver"] = typeof(HalverMachine);
-            machineTypes["Imagine.HSLSplitter"] = typeof(HSLSplitterMachine);
-            machineTypes["Imagine.HSLJoiner"] = typeof(HSLJoinerMachine);
+            
+            String path = Directory.GetParent(Assembly.GetExecutingAssembly().Location).FullName;
+            foreach(String fileName in Directory.GetFiles(path, "*.dll", SearchOption.AllDirectories))
+                foreach(Type type in Assembly.LoadFile(fileName).GetTypes())
+                    if(type.IsSubclassOf(typeof(Machine)))
+                    {
+                        if(type.GetCustomAttributes(typeof(UniqueName), false).Length == 1)
+                        {
+                            string name = ((UniqueName) type.GetCustomAttributes(typeof(UniqueName), false)[0]).Value;
+                            machineTypes[name] = type;
+                        }
+                    }
 
             graph = new Graph<Machine>();
             sourceMachine = new SourceMachine();

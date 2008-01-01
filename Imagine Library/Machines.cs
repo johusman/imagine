@@ -50,6 +50,16 @@ namespace Imagine.Library
             get { return description; }
         }
 
+        public abstract string Caption
+        {
+            get;
+        }
+
+        public override string ToString()
+        {
+            return ((UniqueName) GetType().GetCustomAttributes(typeof(UniqueName), false)[0]).Value;
+        }
+
         protected ImagineImage FindFirstImage(ImagineImage[] images)
         {
             foreach (ImagineImage image in images)
@@ -70,6 +80,22 @@ namespace Imagine.Library
         }
     }
 
+    [AttributeUsage(AttributeTargets.Class)]
+    public class UniqueName : Attribute
+    {
+        private string value;
+        public UniqueName(string value)
+        {
+            this.value = value;
+        }
+
+        public string Value
+        {
+            get { return value; }
+        }
+    }
+
+    [UniqueName("Imagine.Source")]
     public class SourceMachine : Machine
     {
         private string filename;
@@ -89,9 +115,9 @@ namespace Imagine.Library
             description = "Provides a source image from file.";
         }
 
-        public override string ToString()
+        public override string Caption
         {
-            return "Source";
+            get { return "Source"; }
         }
 
         public ImagineImage Load()
@@ -107,7 +133,8 @@ namespace Imagine.Library
             return new ImagineImage[] { Load() };
         }
     }
-
+    
+    [UniqueName("Imagine.Destination")]
     public class SinkMachine : Machine
     {
         private string filename;
@@ -118,9 +145,9 @@ namespace Imagine.Library
             set { filename = value; }
         }
 
-        public override string ToString()
+        public override string Caption
         {
-            return "Destination";
+            get { return "Destination"; }
         }
 
         public SinkMachine()
@@ -155,13 +182,9 @@ namespace Imagine.Library
         }
     }
 
+    [UniqueName("Imagine.Inverter")]
     public class InverterMachine : Machine
     {
-        public override string ToString()
-        {
-            return "Inverter";
-        }
-
         public InverterMachine()
         {
             inputNames = new string[] { "input" };
@@ -169,6 +192,11 @@ namespace Imagine.Library
             inputCodes = new char[] { ' ' };
             outputCodes = new char[] { ' ' };
             description = "Does an RGB invert of the image (leaves Alpha intact).";
+        }
+
+        public override string Caption
+        {
+            get { return "Invert -a"; }
         }
 
         public override ImagineImage[] Process(ImagineImage[] inputs)
@@ -186,13 +214,9 @@ namespace Imagine.Library
         }
     }
 
+    [UniqueName("Imagine.RGBSplitter")]
     public class RGBSplitterMachine : Machine
     {
-        public override string ToString()
-        {
-            return "RGB Split";
-        }
-
         public RGBSplitterMachine()
         {
             inputNames = new string[] { "input" };
@@ -200,6 +224,11 @@ namespace Imagine.Library
             inputCodes = new char[] { ' ' };
             outputCodes = new char[] { 'r', 'g', 'b' };
             description = "Deconstructs the R, G, and B channels of an image into three single-channel (Alpha) images.";
+        }
+
+        public override string Caption
+        {
+            get { return "RGB Split"; }
         }
 
         public override ImagineImage[] Process(ImagineImage[] inputs)
@@ -221,14 +250,10 @@ namespace Imagine.Library
             return new ImagineImage[] { controls[0], controls[1], controls[2] };
         }
     }
-
+    
+    [UniqueName("Imagine.Adder4")]
     public class Adder4Machine : Machine
     {
-        public override string ToString()
-        {
-            return "Adder4";
-        }
-
         public Adder4Machine()
         {
             inputNames = new string[] { "input 1", "input 2", "input 3", "input 4" };
@@ -236,6 +261,11 @@ namespace Imagine.Library
             inputCodes = new char[] { '1', '2', '3', '4' };
             outputCodes = new char[] { ' ' };
             description = "Adds up to four input images by adding and clipping the separate channels.";
+        }
+
+        public override string Caption
+        {
+            get { return "Adder"; }
         }
 
         public override ImagineImage[] Process(ImagineImage[] inputs)
@@ -266,13 +296,9 @@ namespace Imagine.Library
         }
     }
 
+    [UniqueName("Imagine.Branch4")]
     public class Branch4Machine : Machine
     {
-        public override string ToString()
-        {
-            return "Branch4";
-        }
-
         public Branch4Machine()
         {
             inputNames = new string[] { "input" };
@@ -280,6 +306,11 @@ namespace Imagine.Library
             inputCodes = new char[] { ' ' };
             outputCodes = new char[] { '1', '2', '3', '4' };
             description = "Outputs up for four identical copies of the input image.";
+        }
+
+        public override string Caption
+        {
+            get { return "Branch"; }
         }
 
         public override ImagineImage[] Process(ImagineImage[] inputs)
@@ -293,13 +324,9 @@ namespace Imagine.Library
         }
     }
 
+    [UniqueName("Imagine.RGBJoiner")]
     public class RGBJoinerMachine : Machine
     {
-        public override string ToString()
-        {
-            return "RGB Join";
-        }
-
         public RGBJoinerMachine()
         {
             inputNames = new string[] { "red (alpha)", "green (alpha)", "blue (alpha)" };
@@ -307,6 +334,11 @@ namespace Imagine.Library
             inputCodes = new char[] { 'r', 'g', 'b' };
             outputCodes = new char[] { ' ' };
             description = "Constructs an image from red, green and blue channels derived from alpha channel of respective input (alpha of output is fully opaque).";
+        }
+
+        public override string Caption
+        {
+            get { return "RGB Join"; }
         }
 
         public override ImagineImage[] Process(ImagineImage[] inputs)
@@ -333,13 +365,9 @@ namespace Imagine.Library
         }
     }
 
+    [UniqueName("Imagine.Halver")]
     public class HalverMachine : Machine
     {
-        public override string ToString()
-        {
-            return "Halver";
-        }
-
         public HalverMachine()
         {
             inputNames = new string[] { "input" };
@@ -347,6 +375,11 @@ namespace Imagine.Library
             inputCodes = new char[] { ' ' };
             outputCodes = new char[] { ' ' };
             description = "Diminishes R, G and B channel by 50% (leaves alpha intact).";
+        }
+
+        public override string Caption
+        {
+            get { return "Halver -a"; }
         }
 
         public override ImagineImage[] Process(ImagineImage[] inputs)
@@ -366,13 +399,9 @@ namespace Imagine.Library
         }
     }
 
+    [UniqueName("Imagine.HSLSplitter")]
     public class HSLSplitterMachine : Machine
     {
-        public override string ToString()
-        {
-            return "HSL Split";
-        }
-
         public HSLSplitterMachine()
         {
             inputNames = new string[] { "input" };
@@ -380,6 +409,11 @@ namespace Imagine.Library
             inputCodes = new char[] { ' ' };
             outputCodes = new char[] { 'h', 's', 'l' };
             description = "Outputs the HSL (Hue/Saturation/Lightness) of each pixel, encoded in the alpha channel of respective output.";
+        }
+
+        public override string Caption
+        {
+            get { return "HSL Split"; }
         }
 
         public override ImagineImage[] Process(ImagineImage[] inputs)
@@ -402,13 +436,9 @@ namespace Imagine.Library
         }
     }
 
+    [UniqueName("Imagine.HSLJoiner")]
     public class HSLJoinerMachine : Machine
     {
-        public override string ToString()
-        {
-            return "HSL Join";
-        }
-
         public HSLJoinerMachine()
         {
             inputNames = new string[] { "hue (alpha)", "saturation (alpha)", "lightness (alpha)" };
@@ -416,6 +446,11 @@ namespace Imagine.Library
             inputCodes = new char[] { 'h', 's', 'l' };
             outputCodes = new char[] { ' ' };
             description = "Constructs an image from HSL (Hue/Saturation/Lightness) derived from alpha channel of respective input (alpha of output is fully opaque).";
+        }
+
+        public override string Caption
+        {
+            get { return "HSL Join"; }
         }
 
         public override ImagineImage[] Process(ImagineImage[] inputs)
@@ -444,13 +479,9 @@ namespace Imagine.Library
         }
     }
 
+    [UniqueName("Imagine.AlphaMultiplier4")]
     public class AlphaMultiply4Machine : Machine
     {
-        public override string ToString()
-        {
-            return "Alpha X 4";
-        }
-
         public AlphaMultiply4Machine()
         {
             inputNames = new string[] { "input 1", "input 2", "input 3", "input 4" };
@@ -458,6 +489,11 @@ namespace Imagine.Library
             inputCodes = new char[] { '1', '2', '3', '4' };
             outputCodes = new char[] { ' ' };
             description = "Multiplies up to four alpha channels from inputs, clipping as necessary.";
+        }
+
+        public override string Caption
+        {
+            get { return "Multiply -a"; }
         }
 
         public override ImagineImage[] Process(ImagineImage[] inputs)

@@ -73,6 +73,14 @@ namespace Imagine.GUI
             {
                 facade = value;
                 Graph = facade.Graph;
+                foreach(string uniqueName in facade.MachineTypes.Keys)
+                {
+                    ToolStripMenuItem item = new ToolStripMenuItem();
+                    item.Tag = uniqueName;
+                    item.Text = uniqueName;
+                    item.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
+                    this.newToolStripMenuItem.DropDownItems.Add(item);
+                }
             }
         }
 
@@ -152,8 +160,8 @@ namespace Imagine.GUI
             Point p = machinePositions[node];
             graphics.FillEllipse(machinebrush, p.X - MACHINE_R, p.Y - MACHINE_R, MACHINE_R * 2, MACHINE_R * 2);
             graphics.DrawEllipse(machinepen, p.X - MACHINE_R, p.Y - MACHINE_R, MACHINE_R * 2, MACHINE_R * 2);
-            SizeF textSize = graphics.MeasureString(node.Machine.ToString(), Font);
-            graphics.DrawString(node.Machine.ToString(), Font, arrowbrush, p.X - textSize.Width/2 + 1, p.Y - textSize.Height/2);
+            SizeF textSize = graphics.MeasureString(node.Machine.Caption, Font);
+            graphics.DrawString(node.Machine.Caption, Font, arrowbrush, p.X - textSize.Width/2 + 1, p.Y - textSize.Height/2);
         }
 
         private void DrawOutgoingConnection(Graphics graphics, GraphPort<Machine> port, GraphPort<Machine> remotePort)
