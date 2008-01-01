@@ -45,15 +45,16 @@ namespace Imagine.Library
         public void that_we_can_generate_something_simple()
         {
             facade.Connect(facade.SourceMachine, 0, facade.DestinationMachine, 0);
-            sourceMachine.source = new Bitmap(2, 2, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            sourceMachine.source = new FullImage(2, 2);
             facade.Generate();
 
-            TestUtil.AssertBitmapsAreEqual(sourceMachine.source, sinkMachine.destination);
+            TestUtil.AssertImagesAreEqual(sourceMachine.source, sinkMachine.destination);
         }
 
         [Test]
         public void that_we_can_generate_to_multiple_outputs()
         {
+            int MAX = ImagineColor.MAX;
             Machine rgbmachine = facade.NewMachine("Imagine.RGBSplitter");
             InmemorySinkMachine sinkMachine2 = new InmemorySinkMachine();
             facade.AddMachine(sinkMachine2);
@@ -62,15 +63,15 @@ namespace Imagine.Library
             facade.Connect(rgbmachine, 0, sinkMachine, 0);
             facade.Connect(rgbmachine, 1, sinkMachine2, 0);
 
-            sourceMachine.source = new Bitmap(2, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            sourceMachine.source.SetPixel(0, 0, Color.FromArgb(255, 255, 0, 0));
-            sourceMachine.source.SetPixel(1, 0, Color.FromArgb(255, 0, 255, 0));
+            sourceMachine.source = new FullImage(2, 1);
+            sourceMachine.source.SetPixel(0, 0, new ImagineColor(MAX, MAX, 0, 0));
+            sourceMachine.source.SetPixel(1, 0, new ImagineColor(MAX, 0, MAX, 0));
 
             facade.Generate();
-            Assert.AreEqual(Color.FromArgb(255, 255, 0, 0), sinkMachine.destination.GetPixel(0, 0));
-            Assert.AreEqual(Color.FromArgb(255, 0, 0, 0), sinkMachine.destination.GetPixel(1, 0));
-            Assert.AreEqual(Color.FromArgb(255, 0, 0, 0), sinkMachine2.destination.GetPixel(0, 0));
-            Assert.AreEqual(Color.FromArgb(255, 0, 255, 0), sinkMachine2.destination.GetPixel(1, 0));
+            Assert.AreEqual(new ImagineColor(MAX, MAX, 0, 0), sinkMachine.destination.GetPixel(0, 0));
+            Assert.AreEqual(new ImagineColor(MAX, 0, 0, 0), sinkMachine.destination.GetPixel(1, 0));
+            Assert.AreEqual(new ImagineColor(MAX, 0, 0, 0), sinkMachine2.destination.GetPixel(0, 0));
+            Assert.AreEqual(new ImagineColor(MAX, 0, MAX, 0), sinkMachine2.destination.GetPixel(1, 0));
         }
 
         [Test]
@@ -94,22 +95,22 @@ namespace Imagine.Library
 
     public class InmemorySourceMachine : SourceMachine
     {
-        public Bitmap source;
+        public ImagineImage source;
 
-        public override Bitmap[] Process(Bitmap[] inputs)
+        public override ImagineImage[] Process(ImagineImage[] inputs)
         {
-            return new Bitmap[] { source };
+            return new ImagineImage[] { source };
         }
     }
 
     public class InmemorySinkMachine : SinkMachine
     {
-        public Bitmap destination;
+        public ImagineImage destination;
 
-        public override Bitmap[] Process(Bitmap[] inputs)
+        public override ImagineImage[] Process(ImagineImage[] inputs)
         {
             destination = inputs[0];
-            return new Bitmap[0];
+            return new ImagineImage[0];
         }
     }
 

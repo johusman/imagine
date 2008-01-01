@@ -28,12 +28,12 @@ namespace Imagine.Library
             SourceMachine machine = new SourceMachine();
             machine.Filename = SRC_FILE;
 
-            Bitmap bitmapByLoad = machine.Load();
+            ImagineImage bitmapByLoad = machine.Load();
             Assert.IsNotNull(bitmapByLoad);
 
             // It should also be available by the general "Process" method
-            Bitmap bitmapByProcess = machine.Process(null)[0];
-            TestUtil.AssertBitmapsAreEqual(bitmapByLoad, bitmapByProcess);
+            ImagineImage bitmapByProcess = machine.Process(null)[0];
+            TestUtil.AssertImagesAreEqual(bitmapByLoad, bitmapByProcess);
         }
 
         [Test]
@@ -52,17 +52,17 @@ namespace Imagine.Library
             SinkMachine machine = new SinkMachine();
             machine.Filename = DEST_FILE;
 
-            Bitmap[] inputs = { (Bitmap)Image.FromFile(SRC_FILE) };
+            ImagineImage[] inputs = { new FullImage((Bitmap)Image.FromFile(SRC_FILE)) };
 
             try
             {
-                Bitmap[] bitmaps = machine.Process(inputs);
+                ImagineImage[] bitmaps = machine.Process(inputs);
                 Assert.AreEqual(0, bitmaps.Length);
                 TestUtil.AssertBitmapFilesAreEqual(SRC_FILE, DEST_FILE);
             }
             finally
             {
-                inputs[0].Dispose();
+                //inputs[0].Dispose();
                 System.IO.File.Delete(DEST_FILE);
             }
         }

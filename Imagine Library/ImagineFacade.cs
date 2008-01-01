@@ -42,10 +42,13 @@ namespace Imagine.Library
             machineTypes["Imagine.Destination"] = typeof(SinkMachine);
             machineTypes["Imagine.Inverter"] = typeof(InverterMachine);
             machineTypes["Imagine.RGBSplitter"] = typeof(RGBSplitterMachine);
-            machineTypes["Imagine.Adder"] = typeof(AdderMachine);
             machineTypes["Imagine.Adder4"] = typeof(Adder4Machine);
-            machineTypes["Imagine.Fork"] = typeof(ForkMachine);
+            machineTypes["Imagine.Branch4"] = typeof(Branch4Machine);
             machineTypes["Imagine.Composer"] = typeof(ComposerMachine);
+            machineTypes["Imagine.Halver"] = typeof(HalverMachine);
+            machineTypes["Imagine.Brightness"] = typeof(BrightnessMachine);
+            machineTypes["Imagine.Hue"] = typeof(HueMachine);
+            machineTypes["Imagine.Saturation"] = typeof(SaturationMachine);
 
             graph = new Graph<Machine>();
             sourceMachine = new SourceMachine();
@@ -124,12 +127,12 @@ namespace Imagine.Library
 
         public void Generate()
         {
-            Dictionary<GraphPort<Machine>, Bitmap> resultMap = new Dictionary<GraphPort<Machine>, Bitmap>();
+            Dictionary<GraphPort<Machine>, ImagineImage> resultMap = new Dictionary<GraphPort<Machine>, ImagineImage>();
 
             List<GraphNode<Machine>> ordering = graph.GetTopologicalOrdering();
             foreach(GraphNode<Machine> node in ordering)
             {
-                Bitmap[] inputs = new Bitmap[node.Machine.InputCount];
+                ImagineImage[] inputs = new ImagineImage[node.Machine.InputCount];
                 for (int i = 0; i < node.Machine.InputCount; i++)
                 {
                     GraphPort<Machine> inPort = null;
@@ -137,7 +140,7 @@ namespace Imagine.Library
                         inputs[i] = resultMap[inPort.RemotePort];
                 }
 
-                Bitmap[] results = node.Machine.Process(inputs);
+                ImagineImage[] results = node.Machine.Process(inputs);
                 for(int i = 0; i < node.Machine.OutputCount; i++)
                     if(node.Outports.ContainsKey(i))
                         resultMap[node.Outports[i]] = results[i];

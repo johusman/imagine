@@ -8,13 +8,23 @@ namespace Imagine.Library
 {
     public class TestUtil
     {
-        public static void AssertBitmapsAreEqual(Bitmap bitmap1, Bitmap bitmap2)
+        public static void AssertImagesAreEqual(ImagineImage bitmap1, ImagineImage bitmap2)
         {
             Assert.AreEqual(bitmap1.Width, bitmap2.Width, "Width");
             Assert.AreEqual(bitmap1.Height, bitmap2.Height, "Height");
 
             for(int x = 0; x < bitmap1.Width; x++)
                 for(int y = 0; y < bitmap1.Height; y++)
+                    Assert.AreEqual(bitmap1.GetPixel(x, y), bitmap2.GetPixel(x, y), "Pixel at (" + x + ", " + y + ")");
+        }
+
+        public static void AssertBitmapsAreEqual(Bitmap bitmap1, Bitmap bitmap2)
+        {
+            Assert.AreEqual(bitmap1.Width, bitmap2.Width, "Width");
+            Assert.AreEqual(bitmap1.Height, bitmap2.Height, "Height");
+
+            for (int x = 0; x < bitmap1.Width; x++)
+                for (int y = 0; y < bitmap1.Height; y++)
                     Assert.AreEqual(bitmap1.GetPixel(x, y), bitmap2.GetPixel(x, y), "Pixel at (" + x + ", " + y + ")");
         }
 

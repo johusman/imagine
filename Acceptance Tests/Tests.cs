@@ -133,8 +133,11 @@ namespace Imagine.AcceptanceTests
             facade.Disconnect(facade.SourceMachine, 0, facade.DestinationMachine, 0);
 
             Machine splitter = facade.NewMachine("Imagine.RGBSplitter");
+            Machine composer = facade.NewMachine("Imagine.Composer");
             facade.Connect(facade.SourceMachine, 0, splitter, 0);
-            facade.Connect(splitter, 2, facade.DestinationMachine, 0);
+            facade.Connect(splitter, 2, composer, 2);
+            facade.Connect(composer, 0, facade.DestinationMachine, 0);
+            
 
             try
             {
@@ -146,8 +149,8 @@ namespace Imagine.AcceptanceTests
                 System.IO.File.Delete(DEST_FILE);
             }
 
-            facade.Disconnect(splitter, 2, facade.DestinationMachine, 0);
-            facade.Connect(splitter, 0, facade.DestinationMachine, 0);
+            facade.Disconnect(splitter, 2, composer, 2);
+            facade.Connect(splitter, 0, composer, 0);
             
             try
             {

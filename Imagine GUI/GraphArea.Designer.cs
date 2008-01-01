@@ -35,10 +35,13 @@ namespace Imagine.GUI
             this.destinationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.inverterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.rgbSplitterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.adderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.adder4ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.forkToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.composerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.halverToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.brightnessToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.hueToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saturationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -56,10 +59,13 @@ namespace Imagine.GUI
             this.destinationToolStripMenuItem,
             this.inverterToolStripMenuItem,
             this.rgbSplitterToolStripMenuItem,
-            this.adderToolStripMenuItem,
             this.adder4ToolStripMenuItem,
             this.forkToolStripMenuItem,
-            this.composerToolStripMenuItem});
+            this.composerToolStripMenuItem,
+            this.halverToolStripMenuItem,
+            this.brightnessToolStripMenuItem,
+            this.hueToolStripMenuItem,
+            this.saturationToolStripMenuItem});
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
             this.newToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.newToolStripMenuItem.Text = "New";
@@ -96,14 +102,6 @@ namespace Imagine.GUI
             this.rgbSplitterToolStripMenuItem.Text = "RGB Splitter";
             this.rgbSplitterToolStripMenuItem.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
             // 
-            // adderToolStripMenuItem
-            // 
-            this.adderToolStripMenuItem.Name = "adderToolStripMenuItem";
-            this.adderToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.adderToolStripMenuItem.Tag = "Imagine.Adder";
-            this.adderToolStripMenuItem.Text = "Adder";
-            this.adderToolStripMenuItem.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
-            // 
             // adder4ToolStripMenuItem
             // 
             this.adder4ToolStripMenuItem.Name = "adder4ToolStripMenuItem";
@@ -116,8 +114,8 @@ namespace Imagine.GUI
             // 
             this.forkToolStripMenuItem.Name = "forkToolStripMenuItem";
             this.forkToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.forkToolStripMenuItem.Tag = "Imagine.Fork";
-            this.forkToolStripMenuItem.Text = "Fork";
+            this.forkToolStripMenuItem.Tag = "Imagine.Branch4";
+            this.forkToolStripMenuItem.Text = "Branch4";
             this.forkToolStripMenuItem.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
             // 
             // composerToolStripMenuItem
@@ -127,6 +125,38 @@ namespace Imagine.GUI
             this.composerToolStripMenuItem.Tag = "Imagine.Composer";
             this.composerToolStripMenuItem.Text = "Composer";
             this.composerToolStripMenuItem.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
+            // 
+            // halverToolStripMenuItem
+            // 
+            this.halverToolStripMenuItem.Name = "halverToolStripMenuItem";
+            this.halverToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.halverToolStripMenuItem.Tag = "Imagine.Halver";
+            this.halverToolStripMenuItem.Text = "Halver";
+            this.halverToolStripMenuItem.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
+            // 
+            // brightnessToolStripMenuItem
+            // 
+            this.brightnessToolStripMenuItem.Name = "brightnessToolStripMenuItem";
+            this.brightnessToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.brightnessToolStripMenuItem.Tag = "Imagine.Brightness";
+            this.brightnessToolStripMenuItem.Text = "Brightness";
+            this.brightnessToolStripMenuItem.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
+            // 
+            // hueToolStripMenuItem
+            // 
+            this.hueToolStripMenuItem.Name = "hueToolStripMenuItem";
+            this.hueToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.hueToolStripMenuItem.Tag = "Imagine.Hue";
+            this.hueToolStripMenuItem.Text = "Hue";
+            this.hueToolStripMenuItem.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
+            // 
+            // saturationToolStripMenuItem
+            // 
+            this.saturationToolStripMenuItem.Name = "saturationToolStripMenuItem";
+            this.saturationToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.saturationToolStripMenuItem.Tag = "Imagine.Saturation";
+            this.saturationToolStripMenuItem.Text = "Saturation";
+            this.saturationToolStripMenuItem.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
             // 
             // GraphArea
             // 
@@ -155,9 +185,12 @@ namespace Imagine.GUI
         private System.Windows.Forms.ToolStripMenuItem destinationToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem inverterToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem rgbSplitterToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem adderToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem adder4ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem forkToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem composerToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem halverToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem brightnessToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem hueToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saturationToolStripMenuItem;
     }
 }
