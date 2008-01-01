@@ -133,7 +133,7 @@ namespace Imagine.AcceptanceTests
             facade.Disconnect(facade.SourceMachine, 0, facade.DestinationMachine, 0);
 
             Machine splitter = facade.NewMachine("Imagine.RGBSplitter");
-            Machine composer = facade.NewMachine("Imagine.Composer");
+            Machine composer = facade.NewMachine("Imagine.RGBComposer");
             facade.Connect(facade.SourceMachine, 0, splitter, 0);
             facade.Connect(splitter, 2, composer, 2);
             facade.Connect(composer, 0, facade.DestinationMachine, 0);

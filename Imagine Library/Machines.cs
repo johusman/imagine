@@ -293,20 +293,20 @@ namespace Imagine.Library
         }
     }
 
-    public class ComposerMachine : Machine
+    public class RGBJoinerMachine : Machine
     {
         public override string ToString()
         {
-            return "Composer";
+            return "RGB Join";
         }
 
-        public ComposerMachine()
+        public RGBJoinerMachine()
         {
             inputNames = new string[] { "red (alpha)", "green (alpha)", "blue (alpha)" };
             outputNames = new string[] { "output" };
             inputCodes = new char[] { 'r', 'g', 'b' };
             outputCodes = new char[] { ' ' };
-            description = "Constructs an image from red, green and blue channels derives from alpha channel of respective input (alpha of output is fully opaque).";
+            description = "Constructs an image from red, green and blue channels derived from alpha channel of respective input (alpha of output is fully opaque).";
         }
 
         public override ImagineImage[] Process(ImagineImage[] inputs)
@@ -320,11 +320,11 @@ namespace Imagine.Library
                 {
                     int r = 0, g = 0, b = 0;
                     if (inputs[0] != null)
-                        r = (int) (inputs[0].GetPixel(x, y).A);
+                        r = inputs[0].GetPixel(x, y).A;
                     if (inputs[1] != null)
-                        g = (int) (inputs[1].GetPixel(x, y).A);
+                        g = inputs[1].GetPixel(x, y).A;
                     if (inputs[2] != null)
-                        b = (int) (inputs[2].GetPixel(x, y).A);
+                        b = inputs[2].GetPixel(x, y).A;
 
                     result.SetPixel(x, y, ImagineColor.MAX, r, g, b);
                 }
@@ -366,99 +366,120 @@ namespace Imagine.Library
         }
     }
 
-    public class BrightnessMachine : Machine
+    public class HSLSplitterMachine : Machine
     {
         public override string ToString()
         {
-            return "Brightness";
+            return "HSL Split";
         }
 
-        public BrightnessMachine()
+        public HSLSplitterMachine()
         {
             inputNames = new string[] { "input" };
-            outputNames = new string[] { "output" };
+            outputNames = new string[] { "hue (alpha)", "saturation (alpha)", "lightness (alpha)" };
             inputCodes = new char[] { ' ' };
-            outputCodes = new char[] { ' ' };
-            description = "Outputs the brightness of each pixel, encoded in the alpha channel.";
+            outputCodes = new char[] { 'h', 's', 'l' };
+            description = "Outputs the HSL (Hue/Saturation/Lightness) of each pixel, encoded in the alpha channel of respective output.";
         }
 
         public override ImagineImage[] Process(ImagineImage[] inputs)
         {
-            ControlImage result = NewControl(inputs[0]);
+            ControlImage[] results = { NewControl(inputs[0]), NewControl(inputs[0]), NewControl(inputs[0]) };
+            if (inputs[0] == null)
+                return new ImagineImage[3];
+
+            for(int x = 0; x < results[0].Width; x++)
+                for(int y = 0; y < results[0].Height; y++)
+                {
+                    ImagineColor color = inputs[0].GetPixel(x, y);
+                    results[0].SetValue(x, y, (int) (color.Color.GetHue()/360.0 * ImagineColor.MAX));
+                    results[1].SetValue(x, y, (int) (color.Color.GetSaturation() * ImagineColor.MAX));
+                    // This is wrong.. Microsofts model isn't HSB (a.k.a HSV) as claimed, it is actually HSL, which is quite different
+                    results[2].SetValue(x, y, (int) (color.Color.GetBrightness() * ImagineColor.MAX));
+                }
+
+            return new ImagineImage[] { results[0], results[1], results[2] };
+        }
+    }
+
+    public class HSLJoinerMachine : Machine
+    {
+        public override string ToString()
+        {
+            return "HSL Join";
+        }
+
+        public HSLJoinerMachine()
+        {
+            inputNames = new string[] { "hue (alpha)", "saturation (alpha)", "lightness (alpha)" };
+            outputNames = new string[] { "output" };
+            inputCodes = new char[] { 'h', 's', 'l' };
+            outputCodes = new char[] { ' ' };
+            description = "Constructs an image from HSL (Hue/Saturation/Lightness) derived from alpha channel of respective input (alpha of output is fully opaque).";
+        }
+
+        public override ImagineImage[] Process(ImagineImage[] inputs)
+        {
+            int MAX = ImagineColor.MAX;
+
+            ImagineImage result = NewFull(FindFirstImage(inputs));
             if (result == null)
                 return new ImagineImage[1];
 
-            for(int x = 0; x < result.Width; x++)
-                for(int y = 0; y < result.Height; y++)
+            for (int x = 0; x < result.Width; x++)
+                for (int y = 0; y < result.Height; y++)
                 {
-                    ImagineColor color = inputs[0].GetPixel(x, y);
-                    result.SetValue(x, y, (int) (color.Color.GetBrightness() * ImagineColor.MAX));
+                    double h = 0, s = 0, l = 0;
+                    if (inputs[0] != null)
+                        h = (double)(inputs[0].GetPixel(x, y).A);
+                    if (inputs[1] != null)
+                        s = (double)(inputs[1].GetPixel(x, y).A);
+                    if (inputs[2] != null)
+                        l = (double)(inputs[2].GetPixel(x, y).A);
+
+                    result.SetPixel(x, y, ImagineColor.FromHSL(h*360.0/MAX, s/MAX, l/MAX));
                 }
 
             return new ImagineImage[] { result };
         }
     }
 
-    public class HueMachine : Machine
+    public class AlphaMultiply4Machine : Machine
     {
         public override string ToString()
         {
-            return "Hue";
+            return "Alpha X 4";
         }
 
-        public HueMachine()
+        public AlphaMultiply4Machine()
         {
-            inputNames = new string[] { "input" };
+            inputNames = new string[] { "input 1", "input 2", "input 3", "input 4" };
             outputNames = new string[] { "output" };
-            inputCodes = new char[] { ' ' };
+            inputCodes = new char[] { '1', '2', '3', '4' };
             outputCodes = new char[] { ' ' };
-            description = "Outputs the hue of each pixel, encoded in the alpha channel.";
+            description = "Multiplies up to four alpha channels from inputs, clipping as necessary.";
         }
 
         public override ImagineImage[] Process(ImagineImage[] inputs)
         {
-            ControlImage result = NewControl(inputs[0]);
+            ControlImage result = NewControl(FindFirstImage(inputs));
             if (result == null)
                 return new ImagineImage[1];
 
-            for(int x = 0; x < result.Width; x++)
-                for(int y = 0; y < result.Height; y++)
+            for (int x = 0; x < result.Width; x++)
+                for (int y = 0; y < result.Height; y++)
                 {
-                    ImagineColor color = inputs[0].GetPixel(x, y);
-                    result.SetValue(x, y, (int) (color.Color.GetHue() * ImagineColor.MAX));
-                }
-
-            return new ImagineImage[] { result };
-        }
-    }
-
-    public class SaturationMachine : Machine
-    {
-        public override string ToString()
-        {
-            return "Saturation";
-        }
-
-        public SaturationMachine()
-        {
-            inputNames = new string[] { "input" };
-            outputNames = new string[] { "output" };
-            inputCodes = new char[] { ' ' };
-            outputCodes = new char[] { ' ' };
-            description = "Outputs the saturation of each pixel, encoded in the alpha channel.";
-        }
-
-        public override ImagineImage[] Process(ImagineImage[] inputs)
-        {
-            ControlImage result = NewControl(inputs[0]);
-            if (result == null)
-                return new ImagineImage[1];
-
-            for(int x = 0; x < result.Width; x++)
-                for(int y = 0; y < result.Height; y++)
-                {
-                    ImagineColor color = inputs[0].GetPixel(x, y);
-                    result.SetValue(x, y, (int) (color.Color.GetSaturation() * ImagineColor.MAX));
+                    double dividend = 0;
+                    double alpha = 1;
+                    for (int i = 0; i < inputs.Length; i++)
+                    {
+                        if (inputs[i] != null)
+                        {
+                            dividend += 1.0;
+                            alpha *= (((double)inputs[i].GetPixel(x, y).A) / ImagineColor.MAX);
+                        }
+                    }
+                    result.SetValue(x, y, (int) (alpha/dividend * ImagineColor.MAX));
                 }
 
             return new ImagineImage[] { result };

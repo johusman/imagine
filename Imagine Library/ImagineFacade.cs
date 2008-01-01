@@ -40,15 +40,15 @@ namespace Imagine.Library
             machineTypes = new Dictionary<string, Type>();
             machineTypes["Imagine.Source"] = typeof(SourceMachine);
             machineTypes["Imagine.Destination"] = typeof(SinkMachine);
+            machineTypes["Imagine.Branch4"] = typeof(Branch4Machine);
+            machineTypes["Imagine.Adder4"] = typeof(Adder4Machine);
+            machineTypes["Imagine.AlphaMultiplier4"] = typeof(AlphaMultiply4Machine);
             machineTypes["Imagine.Inverter"] = typeof(InverterMachine);
             machineTypes["Imagine.RGBSplitter"] = typeof(RGBSplitterMachine);
-            machineTypes["Imagine.Adder4"] = typeof(Adder4Machine);
-            machineTypes["Imagine.Branch4"] = typeof(Branch4Machine);
-            machineTypes["Imagine.Composer"] = typeof(ComposerMachine);
+            machineTypes["Imagine.RGBJoiner"] = typeof(RGBJoinerMachine);
             machineTypes["Imagine.Halver"] = typeof(HalverMachine);
-            machineTypes["Imagine.Brightness"] = typeof(BrightnessMachine);
-            machineTypes["Imagine.Hue"] = typeof(HueMachine);
-            machineTypes["Imagine.Saturation"] = typeof(SaturationMachine);
+            machineTypes["Imagine.HSLSplitter"] = typeof(HSLSplitterMachine);
+            machineTypes["Imagine.HSLJoiner"] = typeof(HSLJoinerMachine);
 
             graph = new Graph<Machine>();
             sourceMachine = new SourceMachine();

@@ -41,7 +41,7 @@ namespace Imagine.GUI
             this.halverToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.brightnessToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.hueToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saturationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.alphaMultiplier4ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -57,15 +57,15 @@ namespace Imagine.GUI
             this.newToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.sourceToolStripMenuItem,
             this.destinationToolStripMenuItem,
-            this.inverterToolStripMenuItem,
-            this.rgbSplitterToolStripMenuItem,
-            this.adder4ToolStripMenuItem,
             this.forkToolStripMenuItem,
-            this.composerToolStripMenuItem,
+            this.adder4ToolStripMenuItem,
+            this.inverterToolStripMenuItem,
             this.halverToolStripMenuItem,
+            this.rgbSplitterToolStripMenuItem,
+            this.composerToolStripMenuItem,
             this.brightnessToolStripMenuItem,
             this.hueToolStripMenuItem,
-            this.saturationToolStripMenuItem});
+            this.alphaMultiplier4ToolStripMenuItem});
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
             this.newToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.newToolStripMenuItem.Text = "New";
@@ -73,7 +73,7 @@ namespace Imagine.GUI
             // sourceToolStripMenuItem
             // 
             this.sourceToolStripMenuItem.Name = "sourceToolStripMenuItem";
-            this.sourceToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.sourceToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
             this.sourceToolStripMenuItem.Tag = "Imagine.Source";
             this.sourceToolStripMenuItem.Text = "Source";
             this.sourceToolStripMenuItem.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
@@ -81,7 +81,7 @@ namespace Imagine.GUI
             // destinationToolStripMenuItem
             // 
             this.destinationToolStripMenuItem.Name = "destinationToolStripMenuItem";
-            this.destinationToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.destinationToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
             this.destinationToolStripMenuItem.Tag = "Imagine.Destination";
             this.destinationToolStripMenuItem.Text = "Destination";
             this.destinationToolStripMenuItem.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
@@ -89,7 +89,7 @@ namespace Imagine.GUI
             // inverterToolStripMenuItem
             // 
             this.inverterToolStripMenuItem.Name = "inverterToolStripMenuItem";
-            this.inverterToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.inverterToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
             this.inverterToolStripMenuItem.Tag = "Imagine.Inverter";
             this.inverterToolStripMenuItem.Text = "Inverter";
             this.inverterToolStripMenuItem.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
@@ -97,7 +97,7 @@ namespace Imagine.GUI
             // rgbSplitterToolStripMenuItem
             // 
             this.rgbSplitterToolStripMenuItem.Name = "rgbSplitterToolStripMenuItem";
-            this.rgbSplitterToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.rgbSplitterToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
             this.rgbSplitterToolStripMenuItem.Tag = "Imagine.RGBSplitter";
             this.rgbSplitterToolStripMenuItem.Text = "RGB Splitter";
             this.rgbSplitterToolStripMenuItem.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
@@ -105,7 +105,7 @@ namespace Imagine.GUI
             // adder4ToolStripMenuItem
             // 
             this.adder4ToolStripMenuItem.Name = "adder4ToolStripMenuItem";
-            this.adder4ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.adder4ToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
             this.adder4ToolStripMenuItem.Tag = "Imagine.Adder4";
             this.adder4ToolStripMenuItem.Text = "Adder4";
             this.adder4ToolStripMenuItem.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
@@ -113,7 +113,7 @@ namespace Imagine.GUI
             // forkToolStripMenuItem
             // 
             this.forkToolStripMenuItem.Name = "forkToolStripMenuItem";
-            this.forkToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.forkToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
             this.forkToolStripMenuItem.Tag = "Imagine.Branch4";
             this.forkToolStripMenuItem.Text = "Branch4";
             this.forkToolStripMenuItem.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
@@ -122,14 +122,14 @@ namespace Imagine.GUI
             // 
             this.composerToolStripMenuItem.Name = "composerToolStripMenuItem";
             this.composerToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.composerToolStripMenuItem.Tag = "Imagine.Composer";
-            this.composerToolStripMenuItem.Text = "Composer";
+            this.composerToolStripMenuItem.Tag = "Imagine.RGBJoiner";
+            this.composerToolStripMenuItem.Text = "RGB Joiner";
             this.composerToolStripMenuItem.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
             // 
             // halverToolStripMenuItem
             // 
             this.halverToolStripMenuItem.Name = "halverToolStripMenuItem";
-            this.halverToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.halverToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
             this.halverToolStripMenuItem.Tag = "Imagine.Halver";
             this.halverToolStripMenuItem.Text = "Halver";
             this.halverToolStripMenuItem.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
@@ -138,25 +138,25 @@ namespace Imagine.GUI
             // 
             this.brightnessToolStripMenuItem.Name = "brightnessToolStripMenuItem";
             this.brightnessToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.brightnessToolStripMenuItem.Tag = "Imagine.Brightness";
-            this.brightnessToolStripMenuItem.Text = "Brightness";
+            this.brightnessToolStripMenuItem.Tag = "Imagine.HSLSplitter";
+            this.brightnessToolStripMenuItem.Text = "HSL Splitter";
             this.brightnessToolStripMenuItem.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
             // 
             // hueToolStripMenuItem
             // 
             this.hueToolStripMenuItem.Name = "hueToolStripMenuItem";
             this.hueToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.hueToolStripMenuItem.Tag = "Imagine.Hue";
-            this.hueToolStripMenuItem.Text = "Hue";
+            this.hueToolStripMenuItem.Tag = "Imagine.HSLJoiner";
+            this.hueToolStripMenuItem.Text = "HSL Joiner";
             this.hueToolStripMenuItem.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
             // 
-            // saturationToolStripMenuItem
+            // alphaMultiplier4ToolStripMenuItem
             // 
-            this.saturationToolStripMenuItem.Name = "saturationToolStripMenuItem";
-            this.saturationToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.saturationToolStripMenuItem.Tag = "Imagine.Saturation";
-            this.saturationToolStripMenuItem.Text = "Saturation";
-            this.saturationToolStripMenuItem.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
+            this.alphaMultiplier4ToolStripMenuItem.Name = "alphaMultiplier4ToolStripMenuItem";
+            this.alphaMultiplier4ToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
+            this.alphaMultiplier4ToolStripMenuItem.Tag = "Imagine.AlphaMultiplier4";
+            this.alphaMultiplier4ToolStripMenuItem.Text = "Alpha Multiplier4";
+            this.alphaMultiplier4ToolStripMenuItem.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
             // 
             // GraphArea
             // 
@@ -191,6 +191,6 @@ namespace Imagine.GUI
         private System.Windows.Forms.ToolStripMenuItem halverToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem brightnessToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem hueToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem saturationToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem alphaMultiplier4ToolStripMenuItem;
     }
 }

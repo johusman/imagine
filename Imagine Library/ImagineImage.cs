@@ -180,6 +180,81 @@ namespace Imagine.Library
             this.b = b;
         }
 
+        public static ImagineColor FromHSV(double h, double s, double v)
+        {
+            double r = 0, g = 0, b = 0;
+            double temp1, temp2;
+
+            if (v == 0)
+                return new ImagineColor(MAX, 0, 0, 0);
+
+            if (s == 0)
+                return new ImagineColor(MAX, (int) (v*MAX), (int) (v*MAX), (int) (v*MAX));
+
+            temp2 = ((v <= 0.5) ? v * (1.0 + s) : v + s - (v * s));
+            temp1 = 2.0 * v - temp2;
+
+            double[] t3 = new double[] { h + 1.0 / 3.0, h, h - 1.0 / 3.0 };
+            double[] clr = new double[] { 0, 0, 0 };
+
+            for (int i = 0; i < 3; i++)
+            {
+                if (t3[i] < 0)
+                    t3[i] += 1.0;
+                if (t3[i] > 1)
+                    t3[i] -= 1.0;
+
+                if (6.0 * t3[i] < 1.0)
+                    clr[i] = temp1 + (temp2 - temp1) * t3[i] * 6.0;
+                else if (2.0 * t3[i] < 1.0)
+                    clr[i] = temp2;
+                else if (3.0 * t3[i] < 2.0)
+                    clr[i] = (temp1 + (temp2 - temp1) * ((2.0 / 3.0) - t3[i]) * 6.0);
+                else
+                    clr[i] = temp1;
+            }
+
+            r = clr[0];
+            g = clr[1];
+            b = clr[2];
+
+            return new ImagineColor(MAX, (int)(r * MAX), (int)(g * MAX), (int)(b * MAX));
+        }
+
+        public static ImagineColor FromHSL(double h, double s, double l)
+        {
+            double var_1, var_2;
+            double r, g, b;
+
+            if (s == 0)
+                return new ImagineColor(MAX, (int) (l*MAX), (int) (l*MAX), (int) (l*MAX));
+
+            h = h / 360.0;
+            
+            if ( l < 0.5 )
+                var_2 = l * ( 1.0 + s );
+            else
+                var_2 = ( l + s ) - ( s * l );
+
+            var_1 = 2.0 * l - var_2;
+
+            r = Hue_2_RGB( var_1, var_2, h + ( 1.0 / 3.0 ) );
+            g = Hue_2_RGB( var_1, var_2, h );
+            b = Hue_2_RGB( var_1, var_2, h - ( 1.0 / 3.0 ) );
+
+            return new ImagineColor(MAX, (int)(r * MAX), (int)(g * MAX), (int)(b * MAX));
+        }
+
+        private static double Hue_2_RGB( double v1, double v2, double vH )
+        {
+           if (vH < 0.0) vH += 1.0;
+           if (vH > 1.0) vH -= 1.0;
+           if ((6.0 * vH) < 1) return (v1 + (v2 - v1) * 6.0 * vH);
+           if ( 2.0 * vH  < 1) return ( v2 );
+           if ( 3.0 * vH  < 2) return ( v1 + ( v2 - v1 ) * ( 2.0 / 3.0 - vH ) * 6.0 );
+           return v1;
+        }
+
         public Color Color
         {
             get
