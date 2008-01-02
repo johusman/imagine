@@ -43,6 +43,8 @@ namespace Imagine.GUI
             this.generateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.doGenerateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.graphArea1 = new Imagine.GUI.GraphArea();
+            this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.showTooltipsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -108,7 +110,8 @@ namespace Imagine.GUI
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
-            this.generateToolStripMenuItem});
+            this.generateToolStripMenuItem,
+            this.optionsToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(714, 24);
@@ -128,21 +131,21 @@ namespace Imagine.GUI
             // openSourceToolStripMenuItem
             // 
             this.openSourceToolStripMenuItem.Name = "openSourceToolStripMenuItem";
-            this.openSourceToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
+            this.openSourceToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.openSourceToolStripMenuItem.Text = "Open source...";
             this.openSourceToolStripMenuItem.Click += new System.EventHandler(this.openSourceToolStripMenuItem_Click);
             // 
             // openDestinationToolStripMenuItem
             // 
             this.openDestinationToolStripMenuItem.Name = "openDestinationToolStripMenuItem";
-            this.openDestinationToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
+            this.openDestinationToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.openDestinationToolStripMenuItem.Text = "Open destination...";
             this.openDestinationToolStripMenuItem.Click += new System.EventHandler(this.openDestinationToolStripMenuItem_Click);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -157,7 +160,7 @@ namespace Imagine.GUI
             // doGenerateToolStripMenuItem
             // 
             this.doGenerateToolStripMenuItem.Name = "doGenerateToolStripMenuItem";
-            this.doGenerateToolStripMenuItem.Size = new System.Drawing.Size(123, 22);
+            this.doGenerateToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
             this.doGenerateToolStripMenuItem.Text = "Generate!";
             this.doGenerateToolStripMenuItem.Click += new System.EventHandler(this.doGenerateToolStripMenuItem_Click);
             // 
@@ -165,10 +168,29 @@ namespace Imagine.GUI
             // 
             this.graphArea1.BackColor = System.Drawing.Color.OldLace;
             this.graphArea1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.graphArea1.Facade = null;
+            this.graphArea1.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.graphArea1.Graph = null;
             this.graphArea1.Location = new System.Drawing.Point(0, 24);
+            this.graphArea1.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.graphArea1.Name = "graphArea1";
             this.graphArea1.Size = new System.Drawing.Size(714, 426);
             this.graphArea1.TabIndex = 2;
+            // 
+            // optionsToolStripMenuItem
+            // 
+            this.optionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.showTooltipsToolStripMenuItem});
+            this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
+            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(56, 20);
+            this.optionsToolStripMenuItem.Text = "Options";
+            // 
+            // showTooltipsToolStripMenuItem
+            // 
+            this.showTooltipsToolStripMenuItem.Name = "showTooltipsToolStripMenuItem";
+            this.showTooltipsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.showTooltipsToolStripMenuItem.Text = "Show Tooltips";
+            this.showTooltipsToolStripMenuItem.Click += new System.EventHandler(this.showTooltipsToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -206,6 +228,8 @@ namespace Imagine.GUI
         private System.Windows.Forms.Label lblDestination;
         private System.Windows.Forms.Label lblSourceFile;
         private GraphArea graphArea1;
+        private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem showTooltipsToolStripMenuItem;
     }
 }
 

@@ -25,6 +25,8 @@ namespace Imagine.GUI
             lblSourceFile.Text = "";
             lblDestinationFile.Text = "";
             graphArea1.Facade = facade;
+            
+            showTooltipsToolStripMenuItem.Checked = graphArea1.ShowTooltips;
         }
 
         private void openSourceToolStripMenuItem_Click(object sender, EventArgs e)
@@ -59,6 +61,12 @@ namespace Imagine.GUI
         private void destinationChanged(object sender, EventArgs e)
         {
             lblDestinationFile.Text = e.ToString();
+        }
+
+        private void showTooltipsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            showTooltipsToolStripMenuItem.Checked = !showTooltipsToolStripMenuItem.Checked;
+            graphArea1.ShowTooltips = showTooltipsToolStripMenuItem.Checked;
         }
     }
 }

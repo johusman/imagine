@@ -43,6 +43,7 @@ namespace Imagine.GUI
         private GraphNode<Machine> manipulationDestination = null;
         private int choosenPort = -1;
 
+        private bool showTooltips = true;
         private ToolTip tooltip = null;
         private Object tooltipObject = null;
 
@@ -53,15 +54,18 @@ namespace Imagine.GUI
             { 
                 graph = value;
 
-                inportPositions = new Dictionary<GraphPort<Machine>, Point?>();
-                outportPositions = new Dictionary<GraphPort<Machine>, Point?>();
-                machinePositions = new Dictionary<GraphNode<Machine>, Point>();
-                Random random = new Random();
-                List<GraphNode<Machine>> nodes = graph.GetTopologicalOrdering();
-                foreach(GraphNode<Machine> node in nodes)
+                if (graph != null)
                 {
-                    Point p = new Point(random.Next(this.Width - MACHINE_R * 4) + MACHINE_R * 2, random.Next(this.Height - MACHINE_R * 4) + MACHINE_R * 2);
-                    machinePositions[node] = p;
+                    inportPositions = new Dictionary<GraphPort<Machine>, Point?>();
+                    outportPositions = new Dictionary<GraphPort<Machine>, Point?>();
+                    machinePositions = new Dictionary<GraphNode<Machine>, Point>();
+                    Random random = new Random();
+                    List<GraphNode<Machine>> nodes = graph.GetTopologicalOrdering();
+                    foreach (GraphNode<Machine> node in nodes)
+                    {
+                        Point p = new Point(random.Next(this.Width - MACHINE_R * 4) + MACHINE_R * 2, random.Next(this.Height - MACHINE_R * 4) + MACHINE_R * 2);
+                        machinePositions[node] = p;
+                    }
                 }
             }
         }
@@ -72,16 +76,25 @@ namespace Imagine.GUI
             set
             {
                 facade = value;
-                Graph = facade.Graph;
-                foreach(string uniqueName in facade.MachineTypes.Keys)
+                if (facade != null)
                 {
-                    ToolStripMenuItem item = new ToolStripMenuItem();
-                    item.Tag = uniqueName;
-                    item.Text = uniqueName;
-                    item.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
-                    this.newToolStripMenuItem.DropDownItems.Add(item);
+                    Graph = facade.Graph;
+                    foreach (string uniqueName in facade.MachineTypes.Keys)
+                    {
+                        ToolStripMenuItem item = new ToolStripMenuItem();
+                        item.Tag = uniqueName;
+                        item.Text = uniqueName;
+                        item.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
+                        this.newToolStripMenuItem.DropDownItems.Add(item);
+                    }
                 }
             }
+        }
+
+        public bool ShowTooltips
+        {
+            get { return showTooltips; }
+            set { showTooltips = value; }
         }
 
         public void DrawGraph(Graphics graphics)
@@ -396,6 +409,9 @@ namespace Imagine.GUI
 
         private void ManageToolTip(Point location)
         {
+            if (!showTooltips)
+                return;
+
             GraphNode<Machine> node = GetMachineAtCoordinate(location);
             if (node != null)
             {
