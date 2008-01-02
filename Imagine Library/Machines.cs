@@ -8,7 +8,18 @@ namespace Imagine.Library
 {
     public abstract class Machine
     {
-        public abstract ImagineImage[] Process(ImagineImage[] inputs);
+        public virtual ImagineImage[] Process(ImagineImage[] inputs)
+        {
+            if (inputs.Length != InputCount)
+                throw new IncorrectNumberOfMachineInputsException();
+            if (InputCount > 0 && FindFirstImage(inputs) == null)
+                return new ImagineImage[OutputCount];
+
+            return DoProcess(inputs);
+        }
+
+        protected abstract ImagineImage[] DoProcess(ImagineImage[] inputs);
+
         protected string[] inputNames;
         protected string[] outputNames;
         protected char[] inputCodes;
@@ -80,6 +91,13 @@ namespace Imagine.Library
         }
     }
 
+    public class IncorrectNumberOfMachineInputsException : Exception
+    {
+        public IncorrectNumberOfMachineInputsException() : base() { }
+        public IncorrectNumberOfMachineInputsException(string message) : base(message) { }
+        public IncorrectNumberOfMachineInputsException(string message, Exception innerException) : base(message, innerException) { }
+    }
+
     [AttributeUsage(AttributeTargets.Class)]
     public class UniqueName : Attribute
     {
@@ -106,6 +124,21 @@ namespace Imagine.Library
             set { filename = value; }
         }
 
+        private bool preview = true;
+
+        public bool Preview
+        {
+            get { return preview; }
+            set { preview = value; }
+        }
+
+        private ImagineImage lastPreviewImage;
+
+        public ImagineImage LastPreviewImage
+        {
+            get { return lastPreviewImage; }
+        }
+
         public SourceMachine()
         {
             inputNames = new string[0];
@@ -122,13 +155,21 @@ namespace Imagine.Library
 
         public ImagineImage Load()
         {
-            Bitmap bitmap = (Bitmap)Image.FromFile(filename, false);
-            ImagineImage image = new FullImage(bitmap);
-            bitmap.Dispose();
+            ImagineImage image = null;
+            if (filename != null)
+            {
+                Bitmap bitmap = (Bitmap)Image.FromFile(filename, false);
+                if (!preview)
+                    image = new FullImage(bitmap);
+                else
+                    image = FullImage.CreatePreview(bitmap);
+                bitmap.Dispose();
+            }
+            lastPreviewImage = image;
             return image;
         }
 
-        public override ImagineImage[] Process(ImagineImage[] inputs)
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs)
         {
             return new ImagineImage[] { Load() };
         }
@@ -150,6 +191,21 @@ namespace Imagine.Library
             get { return "Destination"; }
         }
 
+        private bool preview = true;
+
+        public bool Preview
+        {
+            get { return preview; }
+            set { preview = value; }
+        }
+
+        private ImagineImage lastPreviewImage;
+
+        public ImagineImage LastPreviewImage
+        {
+            get { return lastPreviewImage; }
+        }
+
         public SinkMachine()
         {
             inputNames = new string[] { "input" };
@@ -159,13 +215,21 @@ namespace Imagine.Library
             description = "Writes the input image to a file.";
         }
 
-        public override ImagineImage[] Process(ImagineImage[] inputs)
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs)
         {
-            Bitmap bitmap = inputs[0].GetBitmap();
-            ImageCodecInfo codec = FindPngCodec();
-            EncoderParameters parameters = new EncoderParameters(0);
-            bitmap.Save(filename, codec, parameters);
-            bitmap.Dispose();
+            if (!preview)
+            {
+                if (filename != null)
+                {
+                    Bitmap bitmap = inputs[0].GetBitmap();
+                    ImageCodecInfo codec = FindPngCodec();
+                    EncoderParameters parameters = new EncoderParameters(0);
+                    bitmap.Save(filename, codec, parameters);
+                    bitmap.Dispose();
+                }
+            }
+            else
+                lastPreviewImage = inputs[0];
 
             return new ImagineImage[0];
         }
@@ -199,7 +263,7 @@ namespace Imagine.Library
             get { return "Invert -a"; }
         }
 
-        public override ImagineImage[] Process(ImagineImage[] inputs)
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs)
         {
             int MAX = ImagineColor.MAX;
             ImagineImage result = NewFull(inputs[0]);
@@ -231,12 +295,10 @@ namespace Imagine.Library
             get { return "RGB Split"; }
         }
 
-        public override ImagineImage[] Process(ImagineImage[] inputs)
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs)
         {
             ImagineImage original = inputs[0];
             ControlImage[] controls = { NewControl(original), NewControl(original), NewControl(original) };
-            if (original == null)
-                return controls;
 
             for(int x = 0; x < original.Width; x++)
                 for(int y = 0; y < original.Height; y++)
@@ -268,11 +330,9 @@ namespace Imagine.Library
             get { return "Adder"; }
         }
 
-        public override ImagineImage[] Process(ImagineImage[] inputs)
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs)
         {
             ImagineImage result = NewFull(FindFirstImage(inputs));
-            if (result == null)
-                return new ImagineImage[1];
 
             for(int x = 0; x < result.Width; x++)
                 for(int y = 0; y < result.Height; y++)
@@ -313,7 +373,7 @@ namespace Imagine.Library
             get { return "Branch"; }
         }
 
-        public override ImagineImage[] Process(ImagineImage[] inputs)
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs)
         {
             return new ImagineImage[] { CloneFirst(inputs), CloneFirst(inputs), CloneFirst(inputs), CloneFirst(inputs) };
         }
@@ -341,12 +401,10 @@ namespace Imagine.Library
             get { return "RGB Join"; }
         }
 
-        public override ImagineImage[] Process(ImagineImage[] inputs)
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs)
         {
             ImagineImage result = NewFull(FindFirstImage(inputs));
-            if (result == null)
-                return new ImagineImage[1];
-
+            
             for(int x = 0; x < result.Width; x++)
                 for(int y = 0; y < result.Height; y++)
                 {
@@ -382,11 +440,9 @@ namespace Imagine.Library
             get { return "Halver -a"; }
         }
 
-        public override ImagineImage[] Process(ImagineImage[] inputs)
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs)
         {
             ImagineImage result = NewFull(inputs[0]);
-            if (result == null)
-                return new ImagineImage[1];
 
             for(int x = 0; x < result.Width; x++)
                 for(int y = 0; y < result.Height; y++)
@@ -416,11 +472,9 @@ namespace Imagine.Library
             get { return "HSL Split"; }
         }
 
-        public override ImagineImage[] Process(ImagineImage[] inputs)
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs)
         {
             ControlImage[] results = { NewControl(inputs[0]), NewControl(inputs[0]), NewControl(inputs[0]) };
-            if (inputs[0] == null)
-                return new ImagineImage[3];
 
             for(int x = 0; x < results[0].Width; x++)
                 for(int y = 0; y < results[0].Height; y++)
@@ -453,13 +507,11 @@ namespace Imagine.Library
             get { return "HSL Join"; }
         }
 
-        public override ImagineImage[] Process(ImagineImage[] inputs)
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs)
         {
             int MAX = ImagineColor.MAX;
 
             ImagineImage result = NewFull(FindFirstImage(inputs));
-            if (result == null)
-                return new ImagineImage[1];
 
             for (int x = 0; x < result.Width; x++)
                 for (int y = 0; y < result.Height; y++)
@@ -496,11 +548,9 @@ namespace Imagine.Library
             get { return "Multiply a"; }
         }
 
-        public override ImagineImage[] Process(ImagineImage[] inputs)
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs)
         {
             ControlImage result = NewControl(FindFirstImage(inputs));
-            if (result == null)
-                return new ImagineImage[1];
 
             for (int x = 0; x < result.Width; x++)
                 for (int y = 0; y < result.Height; y++)
@@ -539,7 +589,7 @@ namespace Imagine.Library
             get { return "Dyn Blur"; }
         }
 
-        public override ImagineImage[] Process(ImagineImage[] inputs)
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs)
         {
             FullImage result = NewFull(inputs[0]);
             if (inputs[0] == null)
@@ -599,13 +649,11 @@ namespace Imagine.Library
             get { return "Contrast a"; }
         }
 
-        public override ImagineImage[] Process(ImagineImage[] inputs)
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs)
         {
             const double AMOUNT = 4.0;
 
             ControlImage result = NewControl(inputs[0]);
-            if (inputs[0] == null)
-                return new ImagineImage[1];
 
             for (int x = 0; x < result.Width; x++)
                 for (int y = 0; y < result.Height; y++)

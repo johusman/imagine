@@ -29,6 +29,7 @@ namespace Imagine.Library
 
         public event System.EventHandler SourceChanged;
         public event System.EventHandler DestinationChanged;
+        public event System.EventHandler GraphChanged;
 
         public SourceMachine SourceMachine
         {
@@ -67,15 +68,23 @@ namespace Imagine.Library
         public void OpenSource(string filename)
         {
             sourceMachine.Filename = filename;
+
             if(SourceChanged != null)
                 SourceChanged.Invoke(this, new StringEventArg(filename));
+
+            if (GraphChanged != null)
+                GraphChanged.Invoke(this, null);
         }
 
         public void OpenDestination(string filename)
         {
             destinationMachine.Filename = filename;
+
             if(DestinationChanged != null)
                 DestinationChanged.Invoke(this, new StringEventArg(filename));
+
+            if (GraphChanged != null)
+                GraphChanged.Invoke(this, null);
         }
 
         public string GetSourceFilename()
@@ -103,18 +112,24 @@ namespace Imagine.Library
         public Machine NewMachine(string type)
         {
             Machine machine = (Machine)Activator.CreateInstance(machineTypes[type]);
-            graph.AddNode(machine);
+            AddMachine(machine);
             return machine;
         }
 
         public void AddMachine(Machine machine)
         {
             graph.AddNode(machine);
+
+            if(GraphChanged != null)
+                GraphChanged.Invoke(this, null);
         }
 
         public void RemoveMachine(Machine machine)
         {
             graph.RemoveNode(graph.GetNodeFor(machine));
+
+            if (GraphChanged != null)
+                GraphChanged.Invoke(this, null);
         }
 
         public void Connect(Machine machine1, int port1, Machine machine2, int port2)
@@ -125,11 +140,17 @@ namespace Imagine.Library
                 throw new MachineInputIndexOutOfRangeException();
 
             graph.Connect(graph.GetNodeFor(machine1), port1, graph.GetNodeFor(machine2), port2);
+
+            if (GraphChanged != null)
+                GraphChanged.Invoke(this, null);
         }
 
         public void Disconnect(Machine machine1, int port1, Machine machine2, int port2)
         {
             graph.Disconnect(graph.GetNodeFor(machine1), port1, graph.GetNodeFor(machine2), port2);
+
+            if (GraphChanged != null)
+                GraphChanged.Invoke(this, null);
         }
 
         public void Generate()

@@ -132,6 +132,24 @@ namespace Imagine.Library
 
             return bitmap;
         }
+
+        public static ImagineImage CreatePreview(Bitmap bitmap)
+        {
+            int width, height;
+            if (bitmap.Height > bitmap.Width)
+            {
+                height = 100;
+                width = bitmap.Width * 100 / bitmap.Height;
+            }
+            else
+            {
+                width = 100;
+                height = bitmap.Height * 100 / bitmap.Width;
+            }
+
+            Bitmap thumbnail = (Bitmap) bitmap.GetThumbnailImage(width, height, new Image.GetThumbnailImageAbort(delegate() { return false; }), System.IntPtr.Zero);
+            return new FullImage(thumbnail);
+        }
     }
 
     public struct ImagineColor

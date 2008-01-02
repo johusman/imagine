@@ -22,11 +22,13 @@ namespace Imagine.GUI
 
             facade.SourceChanged += new EventHandler(sourceChanged);
             facade.DestinationChanged += new EventHandler(destinationChanged);
+            facade.GraphChanged += new EventHandler(graphChanged);
             lblSourceFile.Text = "";
             lblDestinationFile.Text = "";
             graphArea1.Facade = facade;
             
             showTooltipsToolStripMenuItem.Checked = graphArea1.ShowTooltips;
+            showPreviewToolStripMenuItem.Checked = panelPreview.Visible;
         }
 
         private void openSourceToolStripMenuItem_Click(object sender, EventArgs e)
@@ -63,10 +65,31 @@ namespace Imagine.GUI
             lblDestinationFile.Text = e.ToString();
         }
 
+        private void graphChanged(object sender, EventArgs e)
+        {
+            if (showPreviewToolStripMenuItem.Checked)
+            {
+                facade.SourceMachine.Preview = facade.DestinationMachine.Preview = true;
+                facade.Generate();
+                facade.SourceMachine.Preview = facade.DestinationMachine.Preview = false;
+
+                ImagineImage sourcePreview = facade.SourceMachine.LastPreviewImage;
+                ImagineImage destinationPreview = facade.DestinationMachine.LastPreviewImage;
+                pictureSourcePreview.Image = sourcePreview == null ? null : sourcePreview.GetBitmap();
+                pictureDestinationPreview.Image = destinationPreview == null ? null: destinationPreview.GetBitmap();
+            }
+        }
+
         private void showTooltipsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             showTooltipsToolStripMenuItem.Checked = !showTooltipsToolStripMenuItem.Checked;
             graphArea1.ShowTooltips = showTooltipsToolStripMenuItem.Checked;
+        }
+
+        private void showPreviewToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            showPreviewToolStripMenuItem.Checked = !showPreviewToolStripMenuItem.Checked;
+            panelPreview.Visible = showPreviewToolStripMenuItem.Checked;
         }
     }
 }

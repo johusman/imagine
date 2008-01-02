@@ -31,8 +31,8 @@ namespace Imagine.GUI
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.lblSourceFile = new System.Windows.Forms.Label();
-            this.lblDestinationFile = new System.Windows.Forms.Label();
+            this.lblSourceFile = new System.Windows.Forms.LinkLabel();
+            this.lblDestinationFile = new System.Windows.Forms.LinkLabel();
             this.lblDestination = new System.Windows.Forms.Label();
             this.lblSource = new System.Windows.Forms.Label();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
@@ -42,11 +42,18 @@ namespace Imagine.GUI
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.generateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.doGenerateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.graphArea1 = new Imagine.GUI.GraphArea();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.showTooltipsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.panelPreview = new System.Windows.Forms.Panel();
+            this.showPreviewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.graphArea1 = new Imagine.GUI.GraphArea();
+            this.pictureSourcePreview = new System.Windows.Forms.PictureBox();
+            this.pictureDestinationPreview = new System.Windows.Forms.PictureBox();
             this.panel1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
+            this.panelPreview.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureSourcePreview)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureDestinationPreview)).BeginInit();
             this.SuspendLayout();
             // 
             // panel1
@@ -164,23 +171,11 @@ namespace Imagine.GUI
             this.doGenerateToolStripMenuItem.Text = "Generate!";
             this.doGenerateToolStripMenuItem.Click += new System.EventHandler(this.doGenerateToolStripMenuItem_Click);
             // 
-            // graphArea1
-            // 
-            this.graphArea1.BackColor = System.Drawing.Color.OldLace;
-            this.graphArea1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.graphArea1.Facade = null;
-            this.graphArea1.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.graphArea1.Graph = null;
-            this.graphArea1.Location = new System.Drawing.Point(0, 24);
-            this.graphArea1.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
-            this.graphArea1.Name = "graphArea1";
-            this.graphArea1.Size = new System.Drawing.Size(714, 426);
-            this.graphArea1.TabIndex = 2;
-            // 
             // optionsToolStripMenuItem
             // 
             this.optionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.showTooltipsToolStripMenuItem});
+            this.showTooltipsToolStripMenuItem,
+            this.showPreviewToolStripMenuItem});
             this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
             this.optionsToolStripMenuItem.Size = new System.Drawing.Size(56, 20);
             this.optionsToolStripMenuItem.Text = "Options";
@@ -192,11 +187,61 @@ namespace Imagine.GUI
             this.showTooltipsToolStripMenuItem.Text = "Show Tooltips";
             this.showTooltipsToolStripMenuItem.Click += new System.EventHandler(this.showTooltipsToolStripMenuItem_Click);
             // 
+            // panelPreview
+            // 
+            this.panelPreview.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panelPreview.Controls.Add(this.pictureDestinationPreview);
+            this.panelPreview.Controls.Add(this.pictureSourcePreview);
+            this.panelPreview.Dock = System.Windows.Forms.DockStyle.Right;
+            this.panelPreview.Location = new System.Drawing.Point(587, 24);
+            this.panelPreview.Name = "panelPreview";
+            this.panelPreview.Size = new System.Drawing.Size(127, 426);
+            this.panelPreview.TabIndex = 3;
+            this.panelPreview.Visible = false;
+            // 
+            // showPreviewToolStripMenuItem
+            // 
+            this.showPreviewToolStripMenuItem.Name = "showPreviewToolStripMenuItem";
+            this.showPreviewToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.showPreviewToolStripMenuItem.Text = "Show Preview";
+            this.showPreviewToolStripMenuItem.Click += new System.EventHandler(this.showPreviewToolStripMenuItem_Click);
+            // 
+            // graphArea1
+            // 
+            this.graphArea1.BackColor = System.Drawing.Color.OldLace;
+            this.graphArea1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.graphArea1.Facade = null;
+            this.graphArea1.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.graphArea1.Graph = null;
+            this.graphArea1.Location = new System.Drawing.Point(0, 24);
+            this.graphArea1.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+            this.graphArea1.Name = "graphArea1";
+            this.graphArea1.ShowTooltips = true;
+            this.graphArea1.Size = new System.Drawing.Size(714, 426);
+            this.graphArea1.TabIndex = 2;
+            // 
+            // pictureSourcePreview
+            // 
+            this.pictureSourcePreview.Location = new System.Drawing.Point(14, 12);
+            this.pictureSourcePreview.Name = "pictureSourcePreview";
+            this.pictureSourcePreview.Size = new System.Drawing.Size(100, 100);
+            this.pictureSourcePreview.TabIndex = 0;
+            this.pictureSourcePreview.TabStop = false;
+            // 
+            // pictureDestinationPreview
+            // 
+            this.pictureDestinationPreview.Location = new System.Drawing.Point(14, 118);
+            this.pictureDestinationPreview.Name = "pictureDestinationPreview";
+            this.pictureDestinationPreview.Size = new System.Drawing.Size(100, 100);
+            this.pictureDestinationPreview.TabIndex = 1;
+            this.pictureDestinationPreview.TabStop = false;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(714, 485);
+            this.Controls.Add(this.panelPreview);
             this.Controls.Add(this.graphArea1);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.menuStrip1);
@@ -206,6 +251,9 @@ namespace Imagine.GUI
             this.panel1.PerformLayout();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
+            this.panelPreview.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pictureSourcePreview)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureDestinationPreview)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -224,12 +272,16 @@ namespace Imagine.GUI
         private System.Windows.Forms.ToolStripMenuItem generateToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem doGenerateToolStripMenuItem;
         private System.Windows.Forms.Label lblSource;
-        private System.Windows.Forms.Label lblDestinationFile;
+        private System.Windows.Forms.LinkLabel lblDestinationFile;
         private System.Windows.Forms.Label lblDestination;
-        private System.Windows.Forms.Label lblSourceFile;
+        private System.Windows.Forms.LinkLabel lblSourceFile;
         private GraphArea graphArea1;
         private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem showTooltipsToolStripMenuItem;
+        private System.Windows.Forms.Panel panelPreview;
+        private System.Windows.Forms.ToolStripMenuItem showPreviewToolStripMenuItem;
+        private System.Windows.Forms.PictureBox pictureDestinationPreview;
+        private System.Windows.Forms.PictureBox pictureSourcePreview;
     }
 }
 
