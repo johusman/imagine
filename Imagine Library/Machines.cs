@@ -493,7 +493,7 @@ namespace Imagine.Library
 
         public override string Caption
         {
-            get { return "Multiply -a"; }
+            get { return "Multiply a"; }
         }
 
         public override ImagineImage[] Process(ImagineImage[] inputs)
@@ -577,6 +577,44 @@ namespace Imagine.Library
 
                 source = result;
             }
+
+            return new ImagineImage[] { result };
+        }
+    }
+
+    [UniqueName("Imagine.AlphaContrastMachine")]
+    public class AlphaContrastMachine : Machine
+    {
+        public AlphaContrastMachine()
+        {
+            inputNames = new string[] { "input" };
+            outputNames = new string[] { "output" };
+            inputCodes = new char[] { ' ' };
+            outputCodes = new char[] { ' ' };
+            description = "Increases contrast in the alpha channel of the inputs (discards all other channels).";
+        }
+
+        public override string Caption
+        {
+            get { return "Contrast a"; }
+        }
+
+        public override ImagineImage[] Process(ImagineImage[] inputs)
+        {
+            const double AMOUNT = 4.0;
+
+            ControlImage result = NewControl(inputs[0]);
+            if (inputs[0] == null)
+                return new ImagineImage[1];
+
+            for (int x = 0; x < result.Width; x++)
+                for (int y = 0; y < result.Height; y++)
+                {
+                    double value = ((double)inputs[0].GetPixel(x, y).A) / ImagineColor.MAX;
+                    value = Math.Atan(Math.Tan((value - 0.5) * Math.PI) * AMOUNT) / Math.PI + 0.5;
+
+                    result.SetValue(x, y, (int) (value * ImagineColor.MAX));
+                }
 
             return new ImagineImage[] { result };
         }
