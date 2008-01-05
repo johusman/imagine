@@ -44,16 +44,16 @@ namespace Imagine.GUI
             this.doGenerateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.showTooltipsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.panelPreview = new System.Windows.Forms.Panel();
             this.showPreviewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.graphArea1 = new Imagine.GUI.GraphArea();
-            this.pictureSourcePreview = new System.Windows.Forms.PictureBox();
+            this.panelPreview = new System.Windows.Forms.Panel();
             this.pictureDestinationPreview = new System.Windows.Forms.PictureBox();
+            this.pictureSourcePreview = new System.Windows.Forms.PictureBox();
+            this.graphArea1 = new Imagine.GUI.GraphArea();
             this.panel1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.panelPreview.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureSourcePreview)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureDestinationPreview)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureSourcePreview)).BeginInit();
             this.SuspendLayout();
             // 
             // panel1
@@ -79,7 +79,9 @@ namespace Imagine.GUI
             this.lblSourceFile.Name = "lblSourceFile";
             this.lblSourceFile.Size = new System.Drawing.Size(67, 13);
             this.lblSourceFile.TabIndex = 3;
+            this.lblSourceFile.TabStop = true;
             this.lblSourceFile.Text = "lblSourceFile";
+            this.lblSourceFile.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkClicked);
             // 
             // lblDestinationFile
             // 
@@ -89,7 +91,9 @@ namespace Imagine.GUI
             this.lblDestinationFile.Name = "lblDestinationFile";
             this.lblDestinationFile.Size = new System.Drawing.Size(86, 13);
             this.lblDestinationFile.TabIndex = 2;
+            this.lblDestinationFile.TabStop = true;
             this.lblDestinationFile.Text = "lblDestinationFile";
+            this.lblDestinationFile.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkClicked);
             // 
             // lblDestination
             // 
@@ -187,6 +191,13 @@ namespace Imagine.GUI
             this.showTooltipsToolStripMenuItem.Text = "Show Tooltips";
             this.showTooltipsToolStripMenuItem.Click += new System.EventHandler(this.showTooltipsToolStripMenuItem_Click);
             // 
+            // showPreviewToolStripMenuItem
+            // 
+            this.showPreviewToolStripMenuItem.Name = "showPreviewToolStripMenuItem";
+            this.showPreviewToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.showPreviewToolStripMenuItem.Text = "Show Preview";
+            this.showPreviewToolStripMenuItem.Click += new System.EventHandler(this.showPreviewToolStripMenuItem_Click);
+            // 
             // panelPreview
             // 
             this.panelPreview.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
@@ -199,12 +210,21 @@ namespace Imagine.GUI
             this.panelPreview.TabIndex = 3;
             this.panelPreview.Visible = false;
             // 
-            // showPreviewToolStripMenuItem
+            // pictureDestinationPreview
             // 
-            this.showPreviewToolStripMenuItem.Name = "showPreviewToolStripMenuItem";
-            this.showPreviewToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.showPreviewToolStripMenuItem.Text = "Show Preview";
-            this.showPreviewToolStripMenuItem.Click += new System.EventHandler(this.showPreviewToolStripMenuItem_Click);
+            this.pictureDestinationPreview.Location = new System.Drawing.Point(14, 118);
+            this.pictureDestinationPreview.Name = "pictureDestinationPreview";
+            this.pictureDestinationPreview.Size = new System.Drawing.Size(100, 100);
+            this.pictureDestinationPreview.TabIndex = 1;
+            this.pictureDestinationPreview.TabStop = false;
+            // 
+            // pictureSourcePreview
+            // 
+            this.pictureSourcePreview.Location = new System.Drawing.Point(14, 12);
+            this.pictureSourcePreview.Name = "pictureSourcePreview";
+            this.pictureSourcePreview.Size = new System.Drawing.Size(100, 100);
+            this.pictureSourcePreview.TabIndex = 0;
+            this.pictureSourcePreview.TabStop = false;
             // 
             // graphArea1
             // 
@@ -219,22 +239,6 @@ namespace Imagine.GUI
             this.graphArea1.ShowTooltips = true;
             this.graphArea1.Size = new System.Drawing.Size(714, 426);
             this.graphArea1.TabIndex = 2;
-            // 
-            // pictureSourcePreview
-            // 
-            this.pictureSourcePreview.Location = new System.Drawing.Point(14, 12);
-            this.pictureSourcePreview.Name = "pictureSourcePreview";
-            this.pictureSourcePreview.Size = new System.Drawing.Size(100, 100);
-            this.pictureSourcePreview.TabIndex = 0;
-            this.pictureSourcePreview.TabStop = false;
-            // 
-            // pictureDestinationPreview
-            // 
-            this.pictureDestinationPreview.Location = new System.Drawing.Point(14, 118);
-            this.pictureDestinationPreview.Name = "pictureDestinationPreview";
-            this.pictureDestinationPreview.Size = new System.Drawing.Size(100, 100);
-            this.pictureDestinationPreview.TabIndex = 1;
-            this.pictureDestinationPreview.TabStop = false;
             // 
             // MainForm
             // 
@@ -252,8 +256,8 @@ namespace Imagine.GUI
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.panelPreview.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureSourcePreview)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureDestinationPreview)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureSourcePreview)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
