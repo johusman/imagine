@@ -105,13 +105,16 @@ namespace Imagine.GUI
         private void DoPreview()
         {
             facade.SourceMachine.Preview = facade.DestinationMachine.Preview = true;
+            long startTime = DateTime.Now.Ticks;
             facade.Generate();
+            long stopTime = DateTime.Now.Ticks;
             facade.SourceMachine.Preview = facade.DestinationMachine.Preview = false;
 
             ImagineImage sourcePreview = facade.SourceMachine.LastPreviewImage;
             ImagineImage destinationPreview = facade.DestinationMachine.LastPreviewImage;
             pictureSourcePreview.Image = sourcePreview == null ? null : sourcePreview.GetBitmap();
             pictureDestinationPreview.Image = destinationPreview == null ? null : destinationPreview.GetBitmap();
+            lblTiming.Text = String.Format("{0} ms", (stopTime - startTime) / 10000);
         }
 
         private void showTooltipsToolStripMenuItem_Click(object sender, EventArgs e)

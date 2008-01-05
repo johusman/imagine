@@ -49,6 +49,10 @@ namespace Imagine.GUI
             this.pictureDestinationPreview = new System.Windows.Forms.PictureBox();
             this.pictureSourcePreview = new System.Windows.Forms.PictureBox();
             this.graphArea1 = new Imagine.GUI.GraphArea();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.lblTiming = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.panelPreview.SuspendLayout();
@@ -201,6 +205,10 @@ namespace Imagine.GUI
             // panelPreview
             // 
             this.panelPreview.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panelPreview.Controls.Add(this.lblTiming);
+            this.panelPreview.Controls.Add(this.label3);
+            this.panelPreview.Controls.Add(this.label2);
+            this.panelPreview.Controls.Add(this.label1);
             this.panelPreview.Controls.Add(this.pictureDestinationPreview);
             this.panelPreview.Controls.Add(this.pictureSourcePreview);
             this.panelPreview.Dock = System.Windows.Forms.DockStyle.Right;
@@ -212,7 +220,7 @@ namespace Imagine.GUI
             // 
             // pictureDestinationPreview
             // 
-            this.pictureDestinationPreview.Location = new System.Drawing.Point(14, 118);
+            this.pictureDestinationPreview.Location = new System.Drawing.Point(14, 153);
             this.pictureDestinationPreview.Name = "pictureDestinationPreview";
             this.pictureDestinationPreview.Size = new System.Drawing.Size(100, 100);
             this.pictureDestinationPreview.TabIndex = 1;
@@ -220,7 +228,7 @@ namespace Imagine.GUI
             // 
             // pictureSourcePreview
             // 
-            this.pictureSourcePreview.Location = new System.Drawing.Point(14, 12);
+            this.pictureSourcePreview.Location = new System.Drawing.Point(14, 25);
             this.pictureSourcePreview.Name = "pictureSourcePreview";
             this.pictureSourcePreview.Size = new System.Drawing.Size(100, 100);
             this.pictureSourcePreview.TabIndex = 0;
@@ -240,6 +248,41 @@ namespace Imagine.GUI
             this.graphArea1.Size = new System.Drawing.Size(714, 426);
             this.graphArea1.TabIndex = 2;
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(11, 9);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(44, 13);
+            this.label1.TabIndex = 2;
+            this.label1.Text = "Source:";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(11, 137);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(63, 13);
+            this.label2.TabIndex = 3;
+            this.label2.Text = "Destination:";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(11, 269);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(41, 13);
+            this.label3.TabIndex = 4;
+            this.label3.Text = "Timing:";
+            // 
+            // lblTiming
+            // 
+            this.lblTiming.AutoSize = true;
+            this.lblTiming.Location = new System.Drawing.Point(20, 282);
+            this.lblTiming.Name = "lblTiming";
+            this.lblTiming.Size = new System.Drawing.Size(0, 13);
+            this.lblTiming.TabIndex = 5;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -256,6 +299,7 @@ namespace Imagine.GUI
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.panelPreview.ResumeLayout(false);
+            this.panelPreview.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureDestinationPreview)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureSourcePreview)).EndInit();
             this.ResumeLayout(false);
@@ -286,6 +330,10 @@ namespace Imagine.GUI
         private System.Windows.Forms.ToolStripMenuItem showPreviewToolStripMenuItem;
         private System.Windows.Forms.PictureBox pictureDestinationPreview;
         private System.Windows.Forms.PictureBox pictureSourcePreview;
+        private System.Windows.Forms.Label lblTiming;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label1;
     }
 }
 
