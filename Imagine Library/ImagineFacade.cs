@@ -30,6 +30,7 @@ namespace Imagine.Library
         public event System.EventHandler SourceChanged;
         public event System.EventHandler DestinationChanged;
         public event System.EventHandler GraphChanged;
+        public delegate void ProgressCallback(int machineIndex, int totalMachines, Machine currentMachine, int currentPercent);
 
         public SourceMachine SourceMachine
         {
@@ -155,23 +156,42 @@ namespace Imagine.Library
 
         public void Generate()
         {
+            Generate(null);
+        }
+
+        public void Generate(ProgressCallback progressCallback)
+        {
             Dictionary<GraphPort<Machine>, ImagineImage> resultMap = new Dictionary<GraphPort<Machine>, ImagineImage>();
 
             List<GraphNode<Machine>> ordering = graph.GetTopologicalOrdering();
+            
+            int machineIndex = 0;
+            int totalMachines = ordering.Count;
+            Machine currentMachine = null;
+
+            Machine.ProgressCallback machineCallback = new Machine.ProgressCallback(delegate(int percent) {
+                if(progressCallback != null)
+                    progressCallback.Invoke(machineIndex, totalMachines, currentMachine, percent);
+            });
+            
             foreach(GraphNode<Machine> node in ordering)
             {
-                ImagineImage[] inputs = new ImagineImage[node.Machine.InputCount];
-                for (int i = 0; i < node.Machine.InputCount; i++)
+                currentMachine = node.Machine;
+
+                ImagineImage[] inputs = new ImagineImage[currentMachine.InputCount];
+                for (int i = 0; i < currentMachine.InputCount; i++)
                 {
                     GraphPort<Machine> inPort = null;
                     if(node.Inports.TryGetValue(i, out inPort))
                         inputs[i] = resultMap[inPort.RemotePort];
                 }
 
-                ImagineImage[] results = node.Machine.Process(inputs);
+                ImagineImage[] results = currentMachine.Process(inputs, machineCallback);
                 for(int i = 0; i < node.Machine.OutputCount; i++)
                     if(node.Outports.ContainsKey(i))
                         resultMap[node.Outports[i]] = results[i];
+
+                machineIndex++;
             }
         }
     }

@@ -32,7 +32,7 @@ namespace Imagine.Library
             Assert.IsNotNull(bitmapByLoad);
 
             // It should also be available by the general "Process" method
-            ImagineImage bitmapByProcess = machine.Process(null)[0];
+            ImagineImage bitmapByProcess = machine.Process(null, null)[0];
             TestUtil.AssertImagesAreEqual(bitmapByLoad, bitmapByProcess);
         }
 
@@ -56,7 +56,7 @@ namespace Imagine.Library
 
             try
             {
-                ImagineImage[] bitmaps = machine.Process(inputs);
+                ImagineImage[] bitmaps = machine.Process(inputs, null);
                 Assert.AreEqual(0, bitmaps.Length);
                 TestUtil.AssertBitmapFilesAreEqual(SRC_FILE, DEST_FILE);
             }

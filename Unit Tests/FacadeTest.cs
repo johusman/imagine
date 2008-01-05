@@ -97,7 +97,7 @@ namespace Imagine.Library
     {
         public ImagineImage source;
 
-        public override ImagineImage[] Process(ImagineImage[] inputs)
+        public override ImagineImage[] Process(ImagineImage[] inputs, ProgressCallback callback)
         {
             return new ImagineImage[] { source };
         }
@@ -107,7 +107,7 @@ namespace Imagine.Library
     {
         public ImagineImage destination;
 
-        public override ImagineImage[] Process(ImagineImage[] inputs)
+        public override ImagineImage[] Process(ImagineImage[] inputs, ProgressCallback callback)
         {
             destination = inputs[0];
             return new ImagineImage[0];

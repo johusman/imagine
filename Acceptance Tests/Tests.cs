@@ -133,7 +133,7 @@ namespace Imagine.AcceptanceTests
             facade.Disconnect(facade.SourceMachine, 0, facade.DestinationMachine, 0);
 
             Machine splitter = facade.NewMachine("Imagine.RGBSplitter");
-            Machine composer = facade.NewMachine("Imagine.RGBComposer");
+            Machine composer = facade.NewMachine("Imagine.RGBJoiner");
             facade.Connect(facade.SourceMachine, 0, splitter, 0);
             facade.Connect(splitter, 2, composer, 2);
             facade.Connect(composer, 0, facade.DestinationMachine, 0);
@@ -164,6 +164,38 @@ namespace Imagine.AcceptanceTests
 
         }
 
+        [Test]
+        public void that_generation_reports_on_progress()
+        {
+            facade.Disconnect(facade.SourceMachine, 0, facade.DestinationMachine, 0);
+
+            Machine inverter = facade.NewMachine("Imagine.Inverter");
+            facade.Connect(facade.SourceMachine, 0, inverter, 0);
+            facade.Connect(inverter, 0, facade.DestinationMachine, 0);
+
+            try
+            {
+                facade.Generate(ReportProgress);
+                AssertBitmapFilesAreEqual(INV_FILE, DEST_FILE);
+                Assert.Contains(new ProgressReport(0, 3, facade.SourceMachine, 0), reports);
+                Assert.Contains(new ProgressReport(0, 3, facade.SourceMachine, 100), reports);
+                Assert.Contains(new ProgressReport(1, 3, inverter, 0), reports);
+                Assert.Contains(new ProgressReport(1, 3, inverter, 100), reports);
+                Assert.Contains(new ProgressReport(2, 3, facade.DestinationMachine, 0), reports);
+                Assert.Contains(new ProgressReport(2, 3, facade.DestinationMachine, 100), reports);
+            }
+            finally
+            {
+                System.IO.File.Delete(DEST_FILE);
+            }
+        }
+
+        List<ProgressReport> reports = new List<ProgressReport>();
+        public void ReportProgress(int machineIndex, int totalMachines, Machine currentMachine, int currentPercent)
+        {
+            reports.Add(new ProgressReport(machineIndex, totalMachines, currentMachine, currentPercent));
+        }
+
 
         private void AssertBitmapsAreEqual(Bitmap bitmap1, Bitmap bitmap2)
         {
@@ -181,5 +213,21 @@ namespace Imagine.AcceptanceTests
             using(Bitmap bitmap2 = (Bitmap)Image.FromFile(filename2))
                 AssertBitmapsAreEqual(bitmap1, bitmap2);
         }
+    }
+
+    struct ProgressReport
+    {
+        public ProgressReport(int machineIndex, int totalMachines, Machine currentMachine, int currentPercent)
+        {
+            this.machineIndex = machineIndex;
+            this.totalMachines = totalMachines;
+            this.currentMachine = currentMachine;
+            this.currentPercent = currentPercent;
+        }
+
+        public int machineIndex;
+        public int totalMachines;
+        public Machine currentMachine;
+        public int currentPercent;
     }
 }

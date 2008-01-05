@@ -8,17 +8,28 @@ namespace Imagine.Library
 {
     public abstract class Machine
     {
-        public virtual ImagineImage[] Process(ImagineImage[] inputs)
+        public virtual ImagineImage[] Process(ImagineImage[] inputs, ProgressCallback callback)
         {
-            if (inputs.Length != InputCount)
-                throw new IncorrectNumberOfMachineInputsException();
-            if (InputCount > 0 && FindFirstImage(inputs) == null)
-                return new ImagineImage[OutputCount];
+            callback.Invoke(0);
 
-            return DoProcess(inputs);
+            try
+            {
+                if (inputs.Length != InputCount)
+                    throw new IncorrectNumberOfMachineInputsException();
+                if (InputCount > 0 && FindFirstImage(inputs) == null)
+                    return new ImagineImage[OutputCount];
+
+                return DoProcess(inputs, callback);
+            }
+            finally
+            {
+                callback.Invoke(100);
+            }
         }
 
-        protected abstract ImagineImage[] DoProcess(ImagineImage[] inputs);
+        public delegate void ProgressCallback(int percent);
+
+        protected abstract ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback);
 
         protected string[] inputNames;
         protected string[] outputNames;
@@ -89,6 +100,12 @@ namespace Imagine.Library
         {
             return (image == null) ? null : new ControlImage(image.Width, image.Height);
         }
+
+        protected void StandardCallback(int index, int outOf, ProgressCallback callback)
+        {
+            if (callback != null && (index & 0x3F) == 0)
+                callback.Invoke(100 * index / outOf);
+        }
     }
 
     public class IncorrectNumberOfMachineInputsException : Exception
@@ -124,7 +141,7 @@ namespace Imagine.Library
             set { filename = value; }
         }
 
-        private bool preview = true;
+        private bool preview = false;
 
         public bool Preview
         {
@@ -169,7 +186,7 @@ namespace Imagine.Library
             return image;
         }
 
-        protected override ImagineImage[] DoProcess(ImagineImage[] inputs)
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
         {
             return new ImagineImage[] { Load() };
         }
@@ -191,7 +208,7 @@ namespace Imagine.Library
             get { return "Destination"; }
         }
 
-        private bool preview = true;
+        private bool preview = false;
 
         public bool Preview
         {
@@ -215,7 +232,7 @@ namespace Imagine.Library
             description = "Writes the input image to a file.";
         }
 
-        protected override ImagineImage[] DoProcess(ImagineImage[] inputs)
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
         {
             if (!preview)
             {
@@ -263,16 +280,20 @@ namespace Imagine.Library
             get { return "Invert -a"; }
         }
 
-        protected override ImagineImage[] DoProcess(ImagineImage[] inputs)
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
         {
             int MAX = ImagineColor.MAX;
             ImagineImage result = NewFull(inputs[0]);
-            for(int x = 0; x < result.Width; x++)
-                for(int y = 0; y < result.Height; y++)
+            for (int x = 0; x < result.Width; x++)
+            {
+                for (int y = 0; y < result.Height; y++)
                 {
                     ImagineColor color = inputs[0].GetPixel(x, y);
                     result.SetPixel(x, y, color.A, MAX - color.R, MAX - color.G, MAX - color.B);
                 }
+
+                StandardCallback(x, result.Width, callback);
+            }
 
             return new ImagineImage[] { result };
         }
@@ -295,19 +316,23 @@ namespace Imagine.Library
             get { return "RGB Split"; }
         }
 
-        protected override ImagineImage[] DoProcess(ImagineImage[] inputs)
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
         {
             ImagineImage original = inputs[0];
             ControlImage[] controls = { NewControl(original), NewControl(original), NewControl(original) };
 
-            for(int x = 0; x < original.Width; x++)
-                for(int y = 0; y < original.Height; y++)
+            for (int x = 0; x < original.Width; x++)
+            {
+                for (int y = 0; y < original.Height; y++)
                 {
                     ImagineColor color = original.GetPixel(x, y);
                     controls[0].SetValue(x, y, color.R);
                     controls[1].SetValue(x, y, color.G);
                     controls[2].SetValue(x, y, color.B);
                 }
+
+                StandardCallback(x, original.Width, callback);
+            }
 
             return new ImagineImage[] { controls[0], controls[1], controls[2] };
         }
@@ -330,12 +355,13 @@ namespace Imagine.Library
             get { return "Adder"; }
         }
 
-        protected override ImagineImage[] DoProcess(ImagineImage[] inputs)
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
         {
             ImagineImage result = NewFull(FindFirstImage(inputs));
 
-            for(int x = 0; x < result.Width; x++)
-                for(int y = 0; y < result.Height; y++)
+            for (int x = 0; x < result.Width; x++)
+            {
+                for (int y = 0; y < result.Height; y++)
                 {
                     int a = 0, r = 0, g = 0, b = 0;
                     for (int i = 0; i < inputs.Length; i++)
@@ -351,6 +377,9 @@ namespace Imagine.Library
                     }
                     result.SetPixel(x, y, a, r, g, b);
                 }
+
+                StandardCallback(x, result.Width, callback);
+            }
 
             return new ImagineImage[] { result };
         }
@@ -373,7 +402,7 @@ namespace Imagine.Library
             get { return "Branch"; }
         }
 
-        protected override ImagineImage[] DoProcess(ImagineImage[] inputs)
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
         {
             return new ImagineImage[] { CloneFirst(inputs), CloneFirst(inputs), CloneFirst(inputs), CloneFirst(inputs) };
         }
@@ -401,12 +430,13 @@ namespace Imagine.Library
             get { return "RGB Join"; }
         }
 
-        protected override ImagineImage[] DoProcess(ImagineImage[] inputs)
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
         {
             ImagineImage result = NewFull(FindFirstImage(inputs));
-            
-            for(int x = 0; x < result.Width; x++)
-                for(int y = 0; y < result.Height; y++)
+
+            for (int x = 0; x < result.Width; x++)
+            {
+                for (int y = 0; y < result.Height; y++)
                 {
                     int r = 0, g = 0, b = 0;
                     if (inputs[0] != null)
@@ -418,6 +448,9 @@ namespace Imagine.Library
 
                     result.SetPixel(x, y, ImagineColor.MAX, r, g, b);
                 }
+
+                StandardCallback(x, result.Width, callback);
+            }
 
             return new ImagineImage[] { result };
         }
@@ -440,16 +473,20 @@ namespace Imagine.Library
             get { return "Halver -a"; }
         }
 
-        protected override ImagineImage[] DoProcess(ImagineImage[] inputs)
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
         {
             ImagineImage result = NewFull(inputs[0]);
 
-            for(int x = 0; x < result.Width; x++)
-                for(int y = 0; y < result.Height; y++)
+            for (int x = 0; x < result.Width; x++)
+            {
+                for (int y = 0; y < result.Height; y++)
                 {
                     ImagineColor color = inputs[0].GetPixel(x, y);
                     result.SetPixel(x, y, color.A, color.R / 2, color.G / 2, color.B / 2);
                 }
+
+                StandardCallback(x, result.Width, callback);
+            }
 
             return new ImagineImage[] { result };
         }
@@ -472,19 +509,23 @@ namespace Imagine.Library
             get { return "HSL Split"; }
         }
 
-        protected override ImagineImage[] DoProcess(ImagineImage[] inputs)
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
         {
             ControlImage[] results = { NewControl(inputs[0]), NewControl(inputs[0]), NewControl(inputs[0]) };
 
-            for(int x = 0; x < results[0].Width; x++)
-                for(int y = 0; y < results[0].Height; y++)
+            for (int x = 0; x < results[0].Width; x++)
+            {
+                for (int y = 0; y < results[0].Height; y++)
                 {
                     ImagineColor color = inputs[0].GetPixel(x, y);
-                    results[0].SetValue(x, y, (int) (color.Color.GetHue()/360.0 * ImagineColor.MAX));
-                    results[1].SetValue(x, y, (int) (color.Color.GetSaturation() * ImagineColor.MAX));
+                    results[0].SetValue(x, y, (int)(color.Color.GetHue() / 360.0 * ImagineColor.MAX));
+                    results[1].SetValue(x, y, (int)(color.Color.GetSaturation() * ImagineColor.MAX));
                     // This is wrong.. Microsofts model isn't HSB (a.k.a HSV) as claimed, it is actually HSL, which is quite different
-                    results[2].SetValue(x, y, (int) (color.Color.GetBrightness() * ImagineColor.MAX));
+                    results[2].SetValue(x, y, (int)(color.Color.GetBrightness() * ImagineColor.MAX));
                 }
+
+                StandardCallback(x, results[0].Width, callback);
+            }
 
             return new ImagineImage[] { results[0], results[1], results[2] };
         }
@@ -507,13 +548,14 @@ namespace Imagine.Library
             get { return "HSL Join"; }
         }
 
-        protected override ImagineImage[] DoProcess(ImagineImage[] inputs)
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
         {
             int MAX = ImagineColor.MAX;
 
             ImagineImage result = NewFull(FindFirstImage(inputs));
 
             for (int x = 0; x < result.Width; x++)
+            {
                 for (int y = 0; y < result.Height; y++)
                 {
                     double h = 0, s = 0, l = 0;
@@ -524,8 +566,11 @@ namespace Imagine.Library
                     if (inputs[2] != null)
                         l = (double)(inputs[2].GetPixel(x, y).A);
 
-                    result.SetPixel(x, y, ImagineColor.FromHSL(h*360.0/MAX, s/MAX, l/MAX));
+                    result.SetPixel(x, y, ImagineColor.FromHSL(h * 360.0 / MAX, s / MAX, l / MAX));
                 }
+
+                StandardCallback(x, result.Width, callback);
+            }
 
             return new ImagineImage[] { result };
         }
@@ -548,11 +593,12 @@ namespace Imagine.Library
             get { return "Multiply a"; }
         }
 
-        protected override ImagineImage[] DoProcess(ImagineImage[] inputs)
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
         {
             ControlImage result = NewControl(FindFirstImage(inputs));
 
             for (int x = 0; x < result.Width; x++)
+            {
                 for (int y = 0; y < result.Height; y++)
                 {
                     double dividend = 0;
@@ -565,8 +611,11 @@ namespace Imagine.Library
                             alpha *= (((double)inputs[i].GetPixel(x, y).A) / ImagineColor.MAX);
                         }
                     }
-                    result.SetValue(x, y, (int) (alpha/dividend * ImagineColor.MAX));
+                    result.SetValue(x, y, (int)(alpha / dividend * ImagineColor.MAX));
                 }
+
+                StandardCallback(x, result.Width, callback);
+            }
 
             return new ImagineImage[] { result };
         }
@@ -589,7 +638,7 @@ namespace Imagine.Library
             get { return "Dyn Blur"; }
         }
 
-        protected override ImagineImage[] DoProcess(ImagineImage[] inputs)
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
         {
             FullImage result = NewFull(inputs[0]);
             if (inputs[0] == null)
@@ -626,6 +675,9 @@ namespace Imagine.Library
                     }
 
                 source = result;
+
+                if (callback != null)
+                    callback.Invoke(5 * i);
             }
 
             return new ImagineImage[] { result };
@@ -649,20 +701,24 @@ namespace Imagine.Library
             get { return "Contrast a"; }
         }
 
-        protected override ImagineImage[] DoProcess(ImagineImage[] inputs)
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
         {
             const double AMOUNT = 4.0;
 
             ControlImage result = NewControl(inputs[0]);
 
             for (int x = 0; x < result.Width; x++)
+            {
                 for (int y = 0; y < result.Height; y++)
                 {
                     double value = ((double)inputs[0].GetPixel(x, y).A) / ImagineColor.MAX;
                     value = Math.Atan(Math.Tan((value - 0.5) * Math.PI) * AMOUNT) / Math.PI + 0.5;
 
-                    result.SetValue(x, y, (int) (value * ImagineColor.MAX));
+                    result.SetValue(x, y, (int)(value * ImagineColor.MAX));
                 }
+
+                StandardCallback(x, result.Width, callback);
+            }
 
             return new ImagineImage[] { result };
         }

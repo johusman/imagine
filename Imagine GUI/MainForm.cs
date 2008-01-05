@@ -53,7 +53,31 @@ namespace Imagine.GUI
 
         private void doGenerateToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            facade.Generate();
+            ProgressWindow window = new ProgressWindow();
+            window.Left = this.Left + (this.Width - window.Width) / 2;
+            window.Top = this.Top + (this.Height - window.Height) / 2;
+            window.Show(this);
+            window.Refresh();
+
+            Cursor lastCursor = Cursor.Current;
+            Cursor.Current = Cursors.WaitCursor;
+
+            facade.SourceMachine.Preview = facade.DestinationMachine.Preview = false;
+            facade.Generate(
+                new ImagineFacade.ProgressCallback(
+                    delegate(int machineIndex, int totalMachines, Machine currentMachine, int currentPercent)
+                    {
+                        double percent = currentPercent / 100.0;
+                        double oneMachine = 1.0 / totalMachines;
+                        window.SetPercent((int) ((machineIndex + percent) * oneMachine * 100.0));
+                        window.SetText(currentMachine.ToString() + " [" + (machineIndex + 1) + "/" + totalMachines + "]");
+                        window.Refresh();
+                    }));
+            facade.SourceMachine.Preview = facade.DestinationMachine.Preview = true;
+
+            window.Close();
+
+            Cursor.Current = lastCursor;
         }
 
         private void sourceChanged(object sender, EventArgs e)
