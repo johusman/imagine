@@ -80,8 +80,14 @@ namespace Imagine.GUI
                 if (facade != null)
                 {
                     Graph = facade.Graph;
+                    
+                    List<string> uniqueNames = new List<string>(facade.MachineTypes.Keys);
+                    uniqueNames.Remove("Imagine.Source");
+                    uniqueNames.Remove("Imagine.Destination");
+                    uniqueNames.Sort();
+
                     this.newToolStripMenuItem.DropDownItems.Clear();
-                    foreach (string uniqueName in facade.MachineTypes.Keys)
+                    foreach (string uniqueName in uniqueNames)
                     {
                         ToolStripMenuItem item = new ToolStripMenuItem();
                         item.Tag = uniqueName;
