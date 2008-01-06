@@ -259,7 +259,7 @@ namespace Imagine.Library
             Dictionary<string, Machine> machines = new Dictionary<string,Machine>();
 
             string data = serialize.Replace('\t', ' ').Replace('\n', ' ').Replace('\r', ' ');
-            string graphData = Regex.Match(data, "^\\s*Graph\\s+{\\s*(?<graph>.+)}$").Groups["graph"].Value;
+            string graphData = Regex.Match(data, "^\\s*Graph\\s+{\\s*(?<graph>.+)}[^}]*$").Groups["graph"].Value;
             Group machineGroup = Regex.Match(graphData, "^(\\s*(?<machine>\\S+\\s+'[^']+'\\s*{[^}]*})\\s*)*$").Groups["machine"];
             foreach (Capture capture in machineGroup.Captures)
             {
