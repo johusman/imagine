@@ -38,6 +38,7 @@
     <Compile Include="GraphNode.cs" />
     <Compile Include="GraphPort.cs" />
     <Compile Include="ImagineFacade.cs" />
+    <Compile Include="ImagineFileFormat.cs" />
     <Compile Include="ImagineImage.cs" />
     <Compile Include="Machines.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

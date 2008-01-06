@@ -6,6 +6,7 @@ using System.Data;
 using System.Text;
 using System.Windows.Forms;
 using Imagine.Library;
+using System.Text.RegularExpressions;
 
 namespace Imagine.GUI
 {
@@ -658,5 +659,50 @@ namespace Imagine.GUI
             }
         }
 
+
+        public string SerializeLayout()
+        {
+            List<GraphNode<Machine>> ordering = graph.GetTopologicalOrdering();
+
+            string text = "Layout {\n";
+
+            foreach (GraphNode<Machine> node in ordering)
+            {
+                string machineString = String.Format("\t'machine{0}' {1}, {2}\n",
+                    ordering.IndexOf(node),
+                    machinePositions[node].X,
+                    machinePositions[node].Y);
+
+                text += machineString;
+            }
+
+            text += "}";
+
+            return text;
+        }
+
+        public void DeserializeLayout(string input)
+        {
+            List<GraphNode<Machine>> ordering = graph.GetTopologicalOrdering();
+
+            string data = input.Replace('\t', ' ').Replace('\n', ' ').Replace('\r', ' ');
+            Dictionary<string, string> sections = ImagineFileFormat.ExtractSections(data);
+            if (sections.ContainsKey("Layout"))
+            {
+                string layoutData = sections["Layout"];
+                Group machineGroup = Regex.Match(layoutData, "^\\s*((?<machine>'[^']+'\\s*\\d+\\s*,\\s*\\d+)\\s*)*$").Groups["machine"];
+                foreach (Capture capture in machineGroup.Captures)
+                {
+                    string machineData = capture.Value;
+                    Match machineMatch = Regex.Match(machineData, "^'machine(?<index>[^']+)'\\s*(?<x>\\d+)\\s*,\\s*(?<y>\\d+)$");
+                    int machineIndex = int.Parse(machineMatch.Groups["index"].Value);
+                    int xPos = int.Parse(machineMatch.Groups["x"].Value);
+                    int yPos = int.Parse(machineMatch.Groups["y"].Value);
+                    machinePositions[ordering[machineIndex]] = new Point(xPos, yPos);
+                }
+            }
+
+            Refresh();
+        }
     }
 }

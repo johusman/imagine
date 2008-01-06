@@ -315,7 +315,8 @@ namespace Imagine.AcceptanceTests
         [Test]
         public void that_we_can_load_a_complex_graph()
         {
-            Assert.Fail("Write this test!");
+            Machine oldSource = facade.SourceMachine;
+            Machine oldDestination = facade.DestinationMachine;
 
             string serialize =
                 "Graph {\n" +
@@ -343,6 +344,60 @@ namespace Imagine.AcceptanceTests
                 "\t\t'machine4' -> \n" +
                 "\t}\n" +
                 "}";
+            facade.DeserializeGraph(serialize);
+            Graph<Machine> graph = facade.Graph;
+            Assert.AreNotSame(oldSource, facade.SourceMachine);
+            Assert.AreNotSame(oldDestination, facade.DestinationMachine);
+            Assert.AreEqual(1, graph.GetNodeFor(facade.SourceMachine).OutputCount);
+            Assert.AreEqual(1, graph.GetNodeFor(facade.DestinationMachine).InputCount);
+            Assert.AreEqual(6, graph.NodeCount);
+            Assert.AreEqual(7, graph.ConnectionCount);
+        }
+
+        [Test]
+        public void that_we_can_load_from_correct_section()
+        {
+            Machine oldSource = facade.SourceMachine;
+            Machine oldDestination = facade.DestinationMachine;
+
+            string serialize =
+                "Blah { hej { } hopp {\n hejsan {\n}} }\n" +
+
+                "Graph {\n" +
+                "\tImagine.Source 'machine0' {}\n" +
+
+                "\tImagine.Inverter 'machine1' {\n" +
+                "\t\t'machine0' -> \n" +
+                "\t}\n" +
+
+                "\tImagine.RGBSplitter 'machine2' {\n" +
+                "\t\t'machine1' -> \n" +
+                "\t}\n" +
+
+                "\tImagine.Branch4 'machine3' {\n" +
+                "\t\t'machine2':r -> \n" +
+                "\t}\n" +
+
+                "\tImagine.RGBJoiner 'machine4' {\n" +
+                "\t\t'machine3':1 -> r\n" +
+                "\t\t'machine3':2 -> g\n" +
+                "\t\t'machine2':b -> b\n" +
+                "\t}\n" +
+
+                "\tImagine.Destination 'machine5' {\n" +
+                "\t\t'machine4' -> \n" +
+                "\t}\n" +
+                "}\n" +
+                
+                "Hoho { mjau { } hopp {\n hejsan {\n}} }\n";
+            facade.DeserializeGraph(serialize);
+            Graph<Machine> graph = facade.Graph;
+            Assert.AreNotSame(oldSource, facade.SourceMachine);
+            Assert.AreNotSame(oldDestination, facade.DestinationMachine);
+            Assert.AreEqual(1, graph.GetNodeFor(facade.SourceMachine).OutputCount);
+            Assert.AreEqual(1, graph.GetNodeFor(facade.DestinationMachine).InputCount);
+            Assert.AreEqual(6, graph.NodeCount);
+            Assert.AreEqual(7, graph.ConnectionCount);
         }
 
         private void AssertBitmapsAreEqual(Bitmap bitmap1, Bitmap bitmap2)

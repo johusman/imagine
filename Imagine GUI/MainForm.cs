@@ -161,9 +161,11 @@ namespace Imagine.GUI
             DialogResult result = saveFileDialog.ShowDialog();
             if (result == DialogResult.OK)
             {
+                string graphData = facade.SerializeGraph();
+                string layoutData = graphArea1.SerializeLayout();
                 using (TextWriter writer = new StreamWriter(saveFileDialog.FileName))
                 {
-                    writer.Write(facade.SerializeGraph());
+                    writer.Write(graphData + "\n\n" + layoutData);
                 }
             }
         }
@@ -184,14 +186,27 @@ namespace Imagine.GUI
                 string source = facade.GetSourceFilename();
                 string destination = facade.GetDestinationFilename();
 
-                facade.DeserializeGraph(data);
+                List<string> unrecognizedTypes = facade.DeserializeGraph(data);
 
                 graphArea1.Facade = facade;
+                graphArea1.DeserializeLayout(data);
                 if(source != null)
                     facade.OpenSource(source);
                 if(destination != null)
                     facade.OpenDestination(destination);
-                graphArea1.Refresh();
+
+                if (unrecognizedTypes.Count > 0)
+                {
+                    string types = "";
+                    foreach (string type in unrecognizedTypes)
+                        types += "\n\t" + type;
+                    MessageBox.Show(this, "The following machine types where not recognized\nand have been left out of the graph:\n"
+                        + types +
+                        "\n\nPerhaps you are missing a required library,\n" +
+                        "or the name of the types may have changed\n" +
+                        "in this version of Imagine or the library.",
+                        "Problem during load", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
 
                 if (showPreviewToolStripMenuItem.Checked)
                     DoPreview();

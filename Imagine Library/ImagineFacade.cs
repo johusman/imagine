@@ -247,8 +247,10 @@ namespace Imagine.Library
             return text;
         }
 
-        public void DeserializeGraph(string serialize)
+        public List<string> DeserializeGraph(string input)
         {
+            List<string> unrecognizedTypes = new List<string>();
+
             System.EventHandler oldHandler = GraphChanged;
             GraphChanged = null;
 
@@ -258,8 +260,8 @@ namespace Imagine.Library
 
             Dictionary<string, Machine> machines = new Dictionary<string,Machine>();
 
-            string data = serialize.Replace('\t', ' ').Replace('\n', ' ').Replace('\r', ' ');
-            string graphData = Regex.Match(data, "^\\s*Graph\\s+{\\s*(?<graph>.+)}[^}]*$").Groups["graph"].Value;
+            string data = input.Replace('\t', ' ').Replace('\n', ' ').Replace('\r', ' ');
+            string graphData = ImagineFileFormat.ExtractSections(data)["Graph"];
             Group machineGroup = Regex.Match(graphData, "^(\\s*(?<machine>\\S+\\s+'[^']+'\\s*{[^}]*})\\s*)*$").Groups["machine"];
             foreach (Capture capture in machineGroup.Captures)
             {
@@ -269,39 +271,49 @@ namespace Imagine.Library
                 string machineName = machineMatch.Groups["name"].Value;
                 string connectionsData = machineMatch.Groups["connections"].Value;
 
-                Machine machine = NewMachine(machineType);
-                machines[machineName] = machine;
-                if (machineType.Trim() == "Imagine.Source")
-                    sourceMachine = (SourceMachine)machine;
-                if (machineType.Trim() == "Imagine.Destination")
-                    destinationMachine = (SinkMachine)machine;
-
-                if(!Regex.IsMatch(connectionsData, "^\\s*{\\s*}\\s*$"))
+                if (machineTypes.ContainsKey(machineType))
                 {
-                    Group connectionsGroup = Regex.Match(connectionsData, "^(\\s*(?<connection>'[^']+'(\\s*:\\S)?\\s*->(\\s*\\S)?)\\s*)+$").Groups["connection"];
-                    foreach (Capture connectionCapture in connectionsGroup.Captures)
+                    Machine machine = NewMachine(machineType);
+                    machines[machineName] = machine;
+                    if (machineType.Trim() == "Imagine.Source")
+                        sourceMachine = (SourceMachine)machine;
+                    if (machineType.Trim() == "Imagine.Destination")
+                        destinationMachine = (SinkMachine)machine;
+
+                    if (!Regex.IsMatch(connectionsData, "^\\s*{\\s*}\\s*$"))
                     {
-                        string connectionData = connectionCapture.Value;
-                        Match connectionMatch = Regex.Match(connectionData, "^\\s*'(?<fromname>[^']+)'(\\s*:(?<fromport>\\S))?\\s*->\\s*(?<toport>(\\S)?)\\s*$");
-                        string fromName = connectionMatch.Groups["fromname"].Value;
-                        string fromPort = connectionMatch.Groups["fromport"].Value;
-                        string toPort = connectionMatch.Groups["toport"].Value;
+                        Group connectionsGroup = Regex.Match(connectionsData, "^(\\s*(?<connection>'[^']+'(\\s*:\\S)?\\s*->(\\s*\\S)?)\\s*)+$").Groups["connection"];
+                        foreach (Capture connectionCapture in connectionsGroup.Captures)
+                        {
+                            string connectionData = connectionCapture.Value;
+                            Match connectionMatch = Regex.Match(connectionData, "^\\s*'(?<fromname>[^']+)'(\\s*:(?<fromport>\\S))?\\s*->\\s*(?<toport>(\\S)?)\\s*$");
+                            string fromName = connectionMatch.Groups["fromname"].Value;
+                            string fromPort = connectionMatch.Groups["fromport"].Value;
+                            string toPort = connectionMatch.Groups["toport"].Value;
 
-                        Machine fromMachine = machines[fromName];
-                        int fromPortIndex = 0;
-                        if (fromPort.Length > 0)
-                            fromPortIndex = Array.IndexOf(fromMachine.OutputCodes, fromPort[0]);
-                        int toPortIndex = 0;
-                        if (toPort.Length > 0)
-                            toPortIndex = Array.IndexOf(machine.InputCodes, toPort[0]);
+                            if (machines.ContainsKey(fromName))
+                            {
+                                Machine fromMachine = machines[fromName];
+                                int fromPortIndex = 0;
+                                if (fromPort.Length > 0)
+                                    fromPortIndex = Array.IndexOf(fromMachine.OutputCodes, fromPort[0]);
+                                int toPortIndex = 0;
+                                if (toPort.Length > 0)
+                                    toPortIndex = Array.IndexOf(machine.InputCodes, toPort[0]);
 
-                        Connect(fromMachine, fromPortIndex, machine, toPortIndex);
+                                Connect(fromMachine, fromPortIndex, machine, toPortIndex);
+                            }
+                        }
                     }
-
                 }
+                else
+                    if (!unrecognizedTypes.Contains(machineType))
+                        unrecognizedTypes.Add(machineType);
             }
 
             GraphChanged = oldHandler;
+
+            return unrecognizedTypes;
         }
     }
 
