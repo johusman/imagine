@@ -46,13 +46,17 @@ namespace Imagine.GUI
             this.showTooltipsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.showPreviewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panelPreview = new System.Windows.Forms.Panel();
+            this.lblTiming = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
             this.pictureDestinationPreview = new System.Windows.Forms.PictureBox();
             this.pictureSourcePreview = new System.Windows.Forms.PictureBox();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.saveGraphToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.graphArea1 = new Imagine.GUI.GraphArea();
-            this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
-            this.lblTiming = new System.Windows.Forms.Label();
+            this.openGraphToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.panelPreview.SuspendLayout();
@@ -136,8 +140,12 @@ namespace Imagine.GUI
             // fileToolStripMenuItem
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.openGraphToolStripMenuItem,
+            this.saveGraphToolStripMenuItem,
+            this.toolStripSeparator1,
             this.openSourceToolStripMenuItem,
             this.openDestinationToolStripMenuItem,
+            this.toolStripSeparator2,
             this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(35, 20);
@@ -218,6 +226,41 @@ namespace Imagine.GUI
             this.panelPreview.TabIndex = 3;
             this.panelPreview.Visible = false;
             // 
+            // lblTiming
+            // 
+            this.lblTiming.AutoSize = true;
+            this.lblTiming.Location = new System.Drawing.Point(20, 282);
+            this.lblTiming.Name = "lblTiming";
+            this.lblTiming.Size = new System.Drawing.Size(0, 13);
+            this.lblTiming.TabIndex = 5;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(11, 269);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(41, 13);
+            this.label3.TabIndex = 4;
+            this.label3.Text = "Timing:";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(11, 137);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(63, 13);
+            this.label2.TabIndex = 3;
+            this.label2.Text = "Destination:";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(11, 9);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(44, 13);
+            this.label1.TabIndex = 2;
+            this.label1.Text = "Source:";
+            // 
             // pictureDestinationPreview
             // 
             this.pictureDestinationPreview.Location = new System.Drawing.Point(14, 153);
@@ -234,6 +277,23 @@ namespace Imagine.GUI
             this.pictureSourcePreview.TabIndex = 0;
             this.pictureSourcePreview.TabStop = false;
             // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(176, 6);
+            // 
+            // saveGraphToolStripMenuItem
+            // 
+            this.saveGraphToolStripMenuItem.Name = "saveGraphToolStripMenuItem";
+            this.saveGraphToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.saveGraphToolStripMenuItem.Text = "Save graph...";
+            this.saveGraphToolStripMenuItem.Click += new System.EventHandler(this.saveGraphToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(176, 6);
+            // 
             // graphArea1
             // 
             this.graphArea1.BackColor = System.Drawing.Color.OldLace;
@@ -248,40 +308,12 @@ namespace Imagine.GUI
             this.graphArea1.Size = new System.Drawing.Size(714, 426);
             this.graphArea1.TabIndex = 2;
             // 
-            // label1
+            // openGraphToolStripMenuItem
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(11, 9);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(44, 13);
-            this.label1.TabIndex = 2;
-            this.label1.Text = "Source:";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(11, 137);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(63, 13);
-            this.label2.TabIndex = 3;
-            this.label2.Text = "Destination:";
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(11, 269);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(41, 13);
-            this.label3.TabIndex = 4;
-            this.label3.Text = "Timing:";
-            // 
-            // lblTiming
-            // 
-            this.lblTiming.AutoSize = true;
-            this.lblTiming.Location = new System.Drawing.Point(20, 282);
-            this.lblTiming.Name = "lblTiming";
-            this.lblTiming.Size = new System.Drawing.Size(0, 13);
-            this.lblTiming.TabIndex = 5;
+            this.openGraphToolStripMenuItem.Name = "openGraphToolStripMenuItem";
+            this.openGraphToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.openGraphToolStripMenuItem.Text = "Open graph...";
+            this.openGraphToolStripMenuItem.Click += new System.EventHandler(this.openGraphToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -334,6 +366,10 @@ namespace Imagine.GUI
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripMenuItem saveGraphToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.ToolStripMenuItem openGraphToolStripMenuItem;
     }
 }
 

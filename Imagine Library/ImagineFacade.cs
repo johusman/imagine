@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Reflection;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace Imagine.Library
 {
@@ -193,6 +194,107 @@ namespace Imagine.Library
 
                 machineIndex++;
             }
+        }
+
+        public string SerializeGraph()
+        {
+            List<GraphNode<Machine>> ordering = graph.GetTopologicalOrdering();
+
+            string text = "Graph {\n";
+
+            foreach (GraphNode<Machine> node in ordering)
+            {
+                string machineString;
+                if (node.InputCount == 0)
+                {
+                    machineString = String.Format("\t{0} 'machine{1}' {{}}\n",
+                        node.Machine.ToString(),
+                        ordering.IndexOf(node));
+                }
+                else
+                {
+                    string connections = "";
+                    foreach(KeyValuePair<int, GraphPort<Machine>> pair in node.Inports)
+                    {
+                        char thisCode = node.Machine.InputCodes[pair.Key];
+                        GraphNode<Machine> otherNode = pair.Value.RemotePort.Node;
+                        string otherName = ordering.IndexOf(otherNode).ToString();
+                        char otherCode = otherNode.Machine.OutputCodes[pair.Value.RemotePort.PortNumber];
+                        connections += String.Format("\t\t'machine{0}'{1} -> {2}\n",
+                            otherName,
+                            otherCode == ' ' ? "" : ":" + otherCode.ToString(),
+                            thisCode == ' ' ? "" : thisCode.ToString());
+                    }
+
+                    machineString = String.Format("\t{0} 'machine{1}' {{\n{2}\t}}\n",
+                        node.Machine.ToString(),
+                        ordering.IndexOf(node),
+                        connections);
+                }
+
+                text += machineString;
+            }
+
+            text += "}";
+
+            return text;
+        }
+
+        public void DeserializeGraph(string serialize)
+        {
+            System.EventHandler oldHandler = GraphChanged;
+            GraphChanged = null;
+
+            graph = new Graph<Machine>();
+            sourceMachine = null;
+            destinationMachine = null;
+
+            Dictionary<string, Machine> machines = new Dictionary<string,Machine>();
+
+            string data = serialize.Replace('\t', ' ').Replace('\n', ' ').Replace('\r', ' ');
+            string graphData = Regex.Match(data, "^\\s*Graph\\s+{\\s*(?<graph>.+)}$").Groups["graph"].Value;
+            Group machineGroup = Regex.Match(graphData, "^(\\s*(?<machine>\\S+\\s+'[^']+'\\s*{[^}]*})\\s*)*$").Groups["machine"];
+            foreach (Capture capture in machineGroup.Captures)
+            {
+                string machineData = capture.Value;
+                Match machineMatch = Regex.Match(machineData, "^(?<type>\\S+)\\s+'(?<name>[^']+)'\\s*{(?<connections>[^}]*)}$");
+                string machineType = machineMatch.Groups["type"].Value;
+                string machineName = machineMatch.Groups["name"].Value;
+                string connectionsData = machineMatch.Groups["connections"].Value;
+
+                Machine machine = NewMachine(machineType);
+                machines[machineName] = machine;
+                if (machineType.Trim() == "Imagine.Source")
+                    sourceMachine = (SourceMachine)machine;
+                if (machineType.Trim() == "Imagine.Destination")
+                    destinationMachine = (SinkMachine)machine;
+
+                if(!Regex.IsMatch(connectionsData, "^\\s*{\\s*}\\s*$"))
+                {
+                    Group connectionsGroup = Regex.Match(connectionsData, "^(\\s*(?<connection>'[^']+'(\\s*:\\S)?\\s*->(\\s*\\S)?)\\s*)+$").Groups["connection"];
+                    foreach (Capture connectionCapture in connectionsGroup.Captures)
+                    {
+                        string connectionData = connectionCapture.Value;
+                        Match connectionMatch = Regex.Match(connectionData, "^\\s*'(?<fromname>[^']+)'(\\s*:(?<fromport>\\S))?\\s*->\\s*(?<toport>(\\S)?)\\s*$");
+                        string fromName = connectionMatch.Groups["fromname"].Value;
+                        string fromPort = connectionMatch.Groups["fromport"].Value;
+                        string toPort = connectionMatch.Groups["toport"].Value;
+
+                        Machine fromMachine = machines[fromName];
+                        int fromPortIndex = 0;
+                        if (fromPort.Length > 0)
+                            fromPortIndex = Array.IndexOf(fromMachine.OutputCodes, fromPort[0]);
+                        int toPortIndex = 0;
+                        if (toPort.Length > 0)
+                            toPortIndex = Array.IndexOf(machine.InputCodes, toPort[0]);
+
+                        Connect(fromMachine, fromPortIndex, machine, toPortIndex);
+                    }
+
+                }
+            }
+
+            GraphChanged = oldHandler;
         }
     }
 

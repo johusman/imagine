@@ -196,6 +196,154 @@ namespace Imagine.AcceptanceTests
             reports.Add(new ProgressReport(machineIndex, totalMachines, currentMachine, currentPercent));
         }
 
+        [Test]
+        public void that_we_can_save_a_simple_graph()
+        {
+            string serialize = facade.SerializeGraph();
+            Assert.AreEqual("Graph {\n" +
+                "\tImagine.Source 'machine0' {}\n" +
+                "\tImagine.Destination 'machine1' {\n" +
+                "\t\t'machine0' -> \n" +
+                "\t}\n" +
+                "}",
+                serialize);
+        }
+
+        [Test]
+        public void that_we_can_save_a_complex_graph()
+        {
+            facade.Disconnect(facade.SourceMachine, 0, facade.DestinationMachine, 0);
+
+            Machine inverter = facade.NewMachine("Imagine.Inverter");
+            facade.Connect(facade.SourceMachine, 0, inverter, 0);
+
+            Machine splitter = facade.NewMachine("Imagine.RGBSplitter");
+            facade.Connect(inverter, 0, splitter, 0);
+
+            Machine branch = facade.NewMachine("Imagine.Branch4");
+            facade.Connect(splitter, 0, branch, 0);
+
+            Machine joiner = facade.NewMachine("Imagine.RGBJoiner");
+            facade.Connect(branch, 0, joiner, 0);
+            facade.Connect(branch, 1, joiner, 1);
+            facade.Connect(splitter, 2, joiner, 2);
+
+            facade.Connect(joiner, 0, facade.DestinationMachine, 0);
+
+            string serialize = facade.SerializeGraph();
+            Assert.AreEqual("Graph {\n" +
+                "\tImagine.Source 'machine0' {}\n" +
+
+                "\tImagine.Inverter 'machine1' {\n" +
+                "\t\t'machine0' -> \n" +
+                "\t}\n" +
+
+                "\tImagine.RGBSplitter 'machine2' {\n" +
+                "\t\t'machine1' -> \n" +
+                "\t}\n" +
+
+                "\tImagine.Branch4 'machine3' {\n" +
+                "\t\t'machine2':r -> \n" +
+                "\t}\n" +
+
+                "\tImagine.RGBJoiner 'machine4' {\n" +
+                "\t\t'machine3':1 -> r\n" +
+                "\t\t'machine3':2 -> g\n" +
+                "\t\t'machine2':b -> b\n" +
+                "\t}\n" +
+
+                "\tImagine.Destination 'machine5' {\n" +
+                "\t\t'machine4' -> \n" +
+                "\t}\n" +
+                "}",
+                serialize);
+        }
+
+        [Test]
+        public void that_we_can_save_an_unconnected_graph()
+        {
+            facade.Disconnect(facade.SourceMachine, 0, facade.DestinationMachine, 0);
+
+            string serialize = facade.SerializeGraph();
+            Assert.AreEqual("Graph {\n" +
+                "\tImagine.Source 'machine0' {}\n" +
+                "\tImagine.Destination 'machine1' {}\n" +
+                "}",
+                serialize);
+        }
+
+        [Test]
+        public void that_we_can_load_a_simple_graph()
+        {
+            Machine oldSource = facade.SourceMachine;
+            Machine oldDestination = facade.DestinationMachine;
+
+            string serialize =
+                "Graph {\n" +
+                "\tImagine.Source 'machine0' {}\n" +
+                "\tImagine.Destination 'machine1' {\n" +
+                "\t\t'machine0' -> \n" +
+                "\t}\n" +
+                "}";
+
+            facade.DeserializeGraph(serialize);
+            Assert.AreNotSame(oldSource, facade.SourceMachine);
+            Assert.AreNotSame(oldDestination, facade.DestinationMachine);
+            Assert.AreSame(facade.DestinationMachine, facade.Graph.GetNodeFor(facade.SourceMachine).Outports[0].RemotePort.Node.Machine);
+        }
+
+        [Test]
+        public void that_we_can_load_an_unconnected_graph()
+        {
+            Machine oldSource = facade.SourceMachine;
+            Machine oldDestination = facade.DestinationMachine;
+            
+            string serialize =
+                "Graph {\n" +
+                "\tImagine.Source 'machine0' {}\n" +
+                "\tImagine.Destination 'machine1' {}\n" +
+                "}";
+            facade.DeserializeGraph(serialize);
+            Assert.AreNotSame(oldSource, facade.SourceMachine);
+            Assert.AreNotSame(oldDestination, facade.DestinationMachine);
+            Assert.AreEqual(0, facade.Graph.GetNodeFor(facade.SourceMachine).OutputCount);
+            Assert.AreEqual(0, facade.Graph.GetNodeFor(facade.DestinationMachine).InputCount);
+            Assert.AreEqual(2, facade.Graph.NodeCount);
+            Assert.AreEqual(0, facade.Graph.ConnectionCount);
+        }
+
+        [Test]
+        public void that_we_can_load_a_complex_graph()
+        {
+            Assert.Fail("Write this test!");
+
+            string serialize =
+                "Graph {\n" +
+                "\tImagine.Source 'machine0' {}\n" +
+
+                "\tImagine.Inverter 'machine1' {\n" +
+                "\t\t'machine0' -> \n" +
+                "\t}\n" +
+
+                "\tImagine.RGBSplitter 'machine2' {\n" +
+                "\t\t'machine1' -> \n" +
+                "\t}\n" +
+
+                "\tImagine.Branch4 'machine3' {\n" +
+                "\t\t'machine2':r -> \n" +
+                "\t}\n" +
+
+                "\tImagine.RGBJoiner 'machine4' {\n" +
+                "\t\t'machine3':1 -> r\n" +
+                "\t\t'machine3':2 -> g\n" +
+                "\t\t'machine2':b -> b\n" +
+                "\t}\n" +
+
+                "\tImagine.Destination 'machine5' {\n" +
+                "\t\t'machine4' -> \n" +
+                "\t}\n" +
+                "}";
+        }
 
         private void AssertBitmapsAreEqual(Bitmap bitmap1, Bitmap bitmap2)
         {

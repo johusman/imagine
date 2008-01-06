@@ -79,6 +79,7 @@ namespace Imagine.GUI
                 if (facade != null)
                 {
                     Graph = facade.Graph;
+                    this.newToolStripMenuItem.DropDownItems.Clear();
                     foreach (string uniqueName in facade.MachineTypes.Keys)
                     {
                         ToolStripMenuItem item = new ToolStripMenuItem();

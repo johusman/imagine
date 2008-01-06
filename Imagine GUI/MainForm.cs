@@ -7,6 +7,7 @@ using System.Text;
 using System.Windows.Forms;
 using Imagine.Library;
 using System.Diagnostics;
+using System.IO;
 
 namespace Imagine.GUI
 {
@@ -34,6 +35,7 @@ namespace Imagine.GUI
 
         private void openSourceToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            openFileDialog.Filter = "Images|*.jpg;*.png;*.gif;*.bmp|JPEG (*.jpg)|*.jpg|Ping (*.png)|*.png|GIF (*.gif)|*.gif|Bitmap (*.bmp)|*.bmp";
             DialogResult result = openFileDialog.ShowDialog();
             if(result == DialogResult.OK)
                 facade.OpenSource(openFileDialog.FileName);
@@ -41,6 +43,8 @@ namespace Imagine.GUI
 
         private void openDestinationToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            saveFileDialog.DefaultExt = "png";
+            saveFileDialog.Filter = "Ping (*.png)|*.png";
             DialogResult result = saveFileDialog.ShowDialog();
             if(result == DialogResult.OK)
                 facade.OpenDestination(saveFileDialog.FileName);
@@ -140,6 +144,52 @@ namespace Imagine.GUI
                 System.Diagnostics.Process.Start(process);
             }
             catch (Exception) { }
+        }
+
+        private void saveGraphToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            saveFileDialog.DefaultExt = "imagine";
+            saveFileDialog.Filter = "Imagine graphs (*.imagine)|*.imagine";
+            DialogResult result = saveFileDialog.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                using (TextWriter writer = new StreamWriter(saveFileDialog.FileName))
+                {
+                    writer.Write(facade.SerializeGraph());
+                }
+            }
+        }
+
+        private void openGraphToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            openFileDialog.DefaultExt = "imagine";
+            openFileDialog.Filter = "Imagine graphs (*.imagine)|*.imagine";
+            DialogResult result = openFileDialog.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                string data;
+                using (TextReader reader = new StreamReader(openFileDialog.FileName))
+                {
+                    data = reader.ReadToEnd();
+                }
+
+                string source = facade.GetSourceFilename();
+                string destination = facade.GetDestinationFilename();
+
+                facade.DeserializeGraph(data);
+
+                graphArea1.Facade = facade;
+                if(source != null)
+                    facade.OpenSource(source);
+                if(destination != null)
+                    facade.OpenDestination(destination);
+                graphArea1.Refresh();
+
+                if (showPreviewToolStripMenuItem.Checked)
+                {
+                    DoPreview();
+                }
+            }
         }
     }
 }
