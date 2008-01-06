@@ -37,8 +37,12 @@ namespace Imagine.GUI
             this.lblSource = new System.Windows.Forms.Label();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openGraphToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveGraphToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.openSourceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openDestinationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.generateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.doGenerateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -52,11 +56,8 @@ namespace Imagine.GUI
             this.label1 = new System.Windows.Forms.Label();
             this.pictureDestinationPreview = new System.Windows.Forms.PictureBox();
             this.pictureSourcePreview = new System.Windows.Forms.PictureBox();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.saveGraphToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.graphArea1 = new Imagine.GUI.GraphArea();
-            this.openGraphToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.newGraphToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.panelPreview.SuspendLayout();
@@ -140,6 +141,7 @@ namespace Imagine.GUI
             // fileToolStripMenuItem
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.newGraphToolStripMenuItem,
             this.openGraphToolStripMenuItem,
             this.saveGraphToolStripMenuItem,
             this.toolStripSeparator1,
@@ -150,6 +152,25 @@ namespace Imagine.GUI
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(35, 20);
             this.fileToolStripMenuItem.Text = "File";
+            // 
+            // openGraphToolStripMenuItem
+            // 
+            this.openGraphToolStripMenuItem.Name = "openGraphToolStripMenuItem";
+            this.openGraphToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.openGraphToolStripMenuItem.Text = "Open graph...";
+            this.openGraphToolStripMenuItem.Click += new System.EventHandler(this.openGraphToolStripMenuItem_Click);
+            // 
+            // saveGraphToolStripMenuItem
+            // 
+            this.saveGraphToolStripMenuItem.Name = "saveGraphToolStripMenuItem";
+            this.saveGraphToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.saveGraphToolStripMenuItem.Text = "Save graph...";
+            this.saveGraphToolStripMenuItem.Click += new System.EventHandler(this.saveGraphToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(176, 6);
             // 
             // openSourceToolStripMenuItem
             // 
@@ -164,6 +185,11 @@ namespace Imagine.GUI
             this.openDestinationToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
             this.openDestinationToolStripMenuItem.Text = "Open destination...";
             this.openDestinationToolStripMenuItem.Click += new System.EventHandler(this.openDestinationToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(176, 6);
             // 
             // exitToolStripMenuItem
             // 
@@ -277,23 +303,6 @@ namespace Imagine.GUI
             this.pictureSourcePreview.TabIndex = 0;
             this.pictureSourcePreview.TabStop = false;
             // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(176, 6);
-            // 
-            // saveGraphToolStripMenuItem
-            // 
-            this.saveGraphToolStripMenuItem.Name = "saveGraphToolStripMenuItem";
-            this.saveGraphToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
-            this.saveGraphToolStripMenuItem.Text = "Save graph...";
-            this.saveGraphToolStripMenuItem.Click += new System.EventHandler(this.saveGraphToolStripMenuItem_Click);
-            // 
-            // toolStripSeparator2
-            // 
-            this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(176, 6);
-            // 
             // graphArea1
             // 
             this.graphArea1.BackColor = System.Drawing.Color.OldLace;
@@ -308,12 +317,12 @@ namespace Imagine.GUI
             this.graphArea1.Size = new System.Drawing.Size(714, 426);
             this.graphArea1.TabIndex = 2;
             // 
-            // openGraphToolStripMenuItem
+            // newGraphToolStripMenuItem
             // 
-            this.openGraphToolStripMenuItem.Name = "openGraphToolStripMenuItem";
-            this.openGraphToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
-            this.openGraphToolStripMenuItem.Text = "Open graph...";
-            this.openGraphToolStripMenuItem.Click += new System.EventHandler(this.openGraphToolStripMenuItem_Click);
+            this.newGraphToolStripMenuItem.Name = "newGraphToolStripMenuItem";
+            this.newGraphToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.newGraphToolStripMenuItem.Text = "New graph";
+            this.newGraphToolStripMenuItem.Click += new System.EventHandler(this.newGraphToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -370,6 +379,7 @@ namespace Imagine.GUI
         private System.Windows.Forms.ToolStripMenuItem saveGraphToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripMenuItem openGraphToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem newGraphToolStripMenuItem;
     }
 }
 

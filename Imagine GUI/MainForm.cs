@@ -18,19 +18,25 @@ namespace Imagine.GUI
         public MainForm()
         {
             InitializeComponent();
-            facade = new ImagineFacade();
 
+            CreateNewFacade();
+            lblSourceFile.Text = "";
+            lblDestinationFile.Text = "";
+            
+            showTooltipsToolStripMenuItem.Checked = graphArea1.ShowTooltips;
+            showPreviewToolStripMenuItem.Checked = panelPreview.Visible;
+        }
+
+        private void CreateNewFacade()
+        {
+            facade = new ImagineFacade();
             facade.Disconnect(facade.SourceMachine, 0, facade.DestinationMachine, 0);
 
             facade.SourceChanged += new EventHandler(sourceChanged);
             facade.DestinationChanged += new EventHandler(destinationChanged);
             facade.GraphChanged += new EventHandler(graphChanged);
-            lblSourceFile.Text = "";
-            lblDestinationFile.Text = "";
+
             graphArea1.Facade = facade;
-            
-            showTooltipsToolStripMenuItem.Checked = graphArea1.ShowTooltips;
-            showPreviewToolStripMenuItem.Checked = panelPreview.Visible;
         }
 
         private void openSourceToolStripMenuItem_Click(object sender, EventArgs e)
@@ -89,6 +95,8 @@ namespace Imagine.GUI
             lblSourceFile.Text = e.ToString();
             lblSourceFile.Links.Clear();
             lblSourceFile.Links.Add(new LinkLabel.Link(0, e.ToString().Length, e.ToString()));
+            if (showPreviewToolStripMenuItem.Checked)
+                DoPreview();
         }
 
         private void destinationChanged(object sender, EventArgs e)
@@ -96,14 +104,14 @@ namespace Imagine.GUI
             lblDestinationFile.Text = e.ToString();
             lblDestinationFile.Links.Clear();
             lblDestinationFile.Links.Add(new LinkLabel.Link(0, e.ToString().Length, e.ToString()));
+            if (showPreviewToolStripMenuItem.Checked)
+                DoPreview();
         }
 
         private void graphChanged(object sender, EventArgs e)
         {
             if (showPreviewToolStripMenuItem.Checked)
-            {
                 DoPreview();
-            }
         }
 
         private void DoPreview()
@@ -186,10 +194,25 @@ namespace Imagine.GUI
                 graphArea1.Refresh();
 
                 if (showPreviewToolStripMenuItem.Checked)
-                {
                     DoPreview();
-                }
             }
+        }
+
+        private void newGraphToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string source = facade.GetSourceFilename();
+            string destination = facade.GetDestinationFilename();
+
+            CreateNewFacade();
+
+            if (source != null)
+                facade.OpenSource(source);
+            if (destination != null)
+                facade.OpenDestination(destination);
+            graphArea1.Refresh();
+
+            if (showPreviewToolStripMenuItem.Checked)
+                DoPreview();
         }
     }
 }
