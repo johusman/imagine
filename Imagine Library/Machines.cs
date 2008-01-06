@@ -691,10 +691,10 @@ namespace Imagine.Library
         }
     }
 
-    [UniqueName("Imagine.DynamicBlurMachine")]
-    public class DynamicBlurMachine : Machine
+    [UniqueName("Imagine.BadDynamicBlur")]
+    public class BadDynamicBlurMachine : Machine
     {
-        public DynamicBlurMachine()
+        public BadDynamicBlurMachine()
         {
             inputNames = new string[] { "image", "control" };
             outputNames = new string[] { "output" };
@@ -754,26 +754,26 @@ namespace Imagine.Library
         }
     }
 
-    [UniqueName("Imagine.ControlContrastMachine")]
-    public class ControlContrastMachine : Machine
+    [UniqueName("Imagine.SoftControlContrast")]
+    public class SoftControlContrastMachine : Machine
     {
-        public ControlContrastMachine()
+        public SoftControlContrastMachine()
         {
             inputNames = new string[] { "input (control)" };
             outputNames = new string[] { "output (control)" };
             inputCodes = new char[] { ' ' };
             outputCodes = new char[] { ' ' };
-            description = "Increases contrast in the control input.";
+            description = "Increases contrast in the control input by a continuous, nonclipping function.";
         }
 
         public override string Caption
         {
-            get { return "[Contrast]"; }
+            get { return "[SContrast]"; }
         }
 
         protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
         {
-            const double AMOUNT = 4.0;
+            const double AMOUNT = 2.0;
 
             ControlImage result = NewControl(inputs[0]);
 
@@ -783,6 +783,50 @@ namespace Imagine.Library
                 {
                     double value = ((double)inputs[0].GetPixel(x, y).A) / ImagineColor.MAX;
                     value = Math.Atan(Math.Tan((value - 0.5) * Math.PI) * AMOUNT) / Math.PI + 0.5;
+
+                    result.SetValue(x, y, (int)(value * ImagineColor.MAX));
+                }
+
+                StandardCallback(x, result.Width, callback);
+            }
+
+            return new ImagineImage[] { result };
+        }
+    }
+
+    [UniqueName("Imagine.HardControlContrast")]
+    public class HardControlContrastMachine : Machine
+    {
+        public HardControlContrastMachine()
+        {
+            inputNames = new string[] { "input (control)" };
+            outputNames = new string[] { "output (control)" };
+            inputCodes = new char[] { ' ' };
+            outputCodes = new char[] { ' ' };
+            description = "Increases contrast in the control input by a clipping, linear function.";
+        }
+
+        public override string Caption
+        {
+            get { return "[HContrast]"; }
+        }
+
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
+        {
+            const double AMOUNT = 1.5;
+            
+            ControlImage result = NewControl(inputs[0]);
+
+            for (int x = 0; x < result.Width; x++)
+            {
+                for (int y = 0; y < result.Height; y++)
+                {
+                    double value = ((double)inputs[0].GetPixel(x, y).A) / ImagineColor.MAX;
+                    value = (value - 0.5) * AMOUNT + 0.5;
+                    if (value > 1.0)
+                        value = 1.0;
+                    if (value < 0.0)
+                        value = 0.0;
 
                     result.SetValue(x, y, (int)(value * ImagineColor.MAX));
                 }
