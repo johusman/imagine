@@ -183,8 +183,13 @@ namespace Imagine.Library
                 for (int i = 0; i < currentMachine.InputCount; i++)
                 {
                     GraphPort<Machine> inPort = null;
-                    if(node.Inports.TryGetValue(i, out inPort))
+                    if (node.Inports.TryGetValue(i, out inPort))
+                    {
                         inputs[i] = resultMap[inPort.RemotePort];
+                        // This is an attempt to free up memory; it might turn out
+                        // to be a bad idea for future features. Should work now though.
+                        resultMap.Remove(inPort.RemotePort);
+                    }
                 }
 
                 ImagineImage[] results = currentMachine.Process(inputs, machineCallback);
@@ -194,6 +199,8 @@ namespace Imagine.Library
 
                 machineIndex++;
             }
+
+            System.GC.Collect();
         }
 
         public string SerializeGraph()
