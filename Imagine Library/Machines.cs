@@ -277,7 +277,7 @@ namespace Imagine.Library
 
         public override string Caption
         {
-            get { return "Invert -a"; }
+            get { return "Invert"; }
         }
 
         protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
@@ -299,16 +299,51 @@ namespace Imagine.Library
         }
     }
 
+    [UniqueName("Imagine.ControlInverter")]
+    public class ControlInverterMachine : Machine
+    {
+        public ControlInverterMachine()
+        {
+            inputNames = new string[] { "input" };
+            outputNames = new string[] { "output" };
+            inputCodes = new char[] { ' ' };
+            outputCodes = new char[] { ' ' };
+            description = "Inverts a control channel.";
+        }
+
+        public override string Caption
+        {
+            get { return "[Invert]"; }
+        }
+
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
+        {
+            int MAX = ImagineColor.MAX;
+            ControlImage result = NewControl(inputs[0]);
+            for (int x = 0; x < result.Width; x++)
+            {
+                for (int y = 0; y < result.Height; y++)
+                {
+                    result.SetValue(x, y, MAX - inputs[0].GetPixel(x, y).A);
+                }
+
+                StandardCallback(x, result.Width, callback);
+            }
+
+            return new ImagineImage[] { result };
+        }
+    }
+
     [UniqueName("Imagine.RGBSplitter")]
     public class RGBSplitterMachine : Machine
     {
         public RGBSplitterMachine()
         {
             inputNames = new string[] { "input" };
-            outputNames = new string[] { "red (alpha)", "green (alpha)", "blue (alpha)" };
+            outputNames = new string[] { "red (control)", "green (control)", "blue (control)" };
             inputCodes = new char[] { ' ' };
             outputCodes = new char[] { 'r', 'g', 'b' };
-            description = "Deconstructs the R, G, and B channels of an image into three single-channel (Alpha) images.";
+            description = "Deconstructs the R, G, and B channels of an image into three single-channel (control) images.";
         }
 
         public override string Caption
@@ -347,7 +382,7 @@ namespace Imagine.Library
             outputNames = new string[] { "output" };
             inputCodes = new char[] { '1', '2', '3', '4' };
             outputCodes = new char[] { ' ' };
-            description = "Adds up to four input images by adding and clipping the separate channels.";
+            description = "Adds up to four input images by adding and clipping the separate channels (A, R, G, B).";
         }
 
         public override string Caption
@@ -418,11 +453,11 @@ namespace Imagine.Library
     {
         public RGBJoinerMachine()
         {
-            inputNames = new string[] { "red (alpha)", "green (alpha)", "blue (alpha)" };
+            inputNames = new string[] { "red (control)", "green (control)", "blue (control)" };
             outputNames = new string[] { "output" };
             inputCodes = new char[] { 'r', 'g', 'b' };
             outputCodes = new char[] { ' ' };
-            description = "Constructs an image from red, green and blue channels derived from alpha channel of respective input (alpha of output is fully opaque).";
+            description = "Constructs an image from red, green and blue channels derived from control channel of respective input (alpha of output is fully opaque).";
         }
 
         public override string Caption
@@ -470,7 +505,7 @@ namespace Imagine.Library
 
         public override string Caption
         {
-            get { return "Halver -a"; }
+            get { return "Halver"; }
         }
 
         protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
@@ -492,16 +527,51 @@ namespace Imagine.Library
         }
     }
 
+    [UniqueName("Imagine.ControlHalver")]
+    public class ControlHalverMachine : Machine
+    {
+        public ControlHalverMachine()
+        {
+            inputNames = new string[] { "input (control)" };
+            outputNames = new string[] { "output (control)" };
+            inputCodes = new char[] { ' ' };
+            outputCodes = new char[] { ' ' };
+            description = "Diminishes the control input by 50%.";
+        }
+
+        public override string Caption
+        {
+            get { return "[Halver]"; }
+        }
+
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
+        {
+            ControlImage result = NewControl(inputs[0]);
+
+            for (int x = 0; x < result.Width; x++)
+            {
+                for (int y = 0; y < result.Height; y++)
+                {
+                    result.SetValue(x, y, inputs[0].GetPixel(x, y).A / 2);
+                }
+
+                StandardCallback(x, result.Width, callback);
+            }
+
+            return new ImagineImage[] { result };
+        }
+    }
+
     [UniqueName("Imagine.HSLSplitter")]
     public class HSLSplitterMachine : Machine
     {
         public HSLSplitterMachine()
         {
             inputNames = new string[] { "input" };
-            outputNames = new string[] { "hue (alpha)", "saturation (alpha)", "lightness (alpha)" };
+            outputNames = new string[] { "hue (control)", "saturation (control)", "lightness (control)" };
             inputCodes = new char[] { ' ' };
             outputCodes = new char[] { 'h', 's', 'l' };
-            description = "Outputs the HSL (Hue/Saturation/Lightness) of each pixel, encoded in the alpha channel of respective output.";
+            description = "Outputs the HSL (Hue/Saturation/Lightness) of each pixel, encoded in control channels.";
         }
 
         public override string Caption
@@ -536,11 +606,11 @@ namespace Imagine.Library
     {
         public HSLJoinerMachine()
         {
-            inputNames = new string[] { "hue (alpha)", "saturation (alpha)", "lightness (alpha)" };
+            inputNames = new string[] { "hue (control)", "saturation (control)", "lightness (control)" };
             outputNames = new string[] { "output" };
             inputCodes = new char[] { 'h', 's', 'l' };
             outputCodes = new char[] { ' ' };
-            description = "Constructs an image from HSL (Hue/Saturation/Lightness) derived from alpha channel of respective input (alpha of output is fully opaque).";
+            description = "Constructs an image from HSL (Hue/Saturation/Lightness) derived from control channel of respective input (alpha of output is fully opaque).";
         }
 
         public override string Caption
@@ -576,21 +646,21 @@ namespace Imagine.Library
         }
     }
 
-    [UniqueName("Imagine.AlphaMultiplier4")]
-    public class AlphaMultiply4Machine : Machine
+    [UniqueName("Imagine.ControlMultiplier4")]
+    public class ControlMultiply4Machine : Machine
     {
-        public AlphaMultiply4Machine()
+        public ControlMultiply4Machine()
         {
-            inputNames = new string[] { "input 1", "input 2", "input 3", "input 4" };
-            outputNames = new string[] { "output" };
+            inputNames = new string[] { "input 1 (control)", "input 2 (control)", "input 3 (control)", "input 4 (control)" };
+            outputNames = new string[] { "output (control)" };
             inputCodes = new char[] { '1', '2', '3', '4' };
             outputCodes = new char[] { ' ' };
-            description = "Multiplies up to four alpha channels from inputs, clipping as necessary.";
+            description = "Multiplies up to four control inputs, clipping as necessary.";
         }
 
         public override string Caption
         {
-            get { return "Multiply a"; }
+            get { return "[Multiply]"; }
         }
 
         protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
@@ -630,7 +700,7 @@ namespace Imagine.Library
             outputNames = new string[] { "output" };
             inputCodes = new char[] { 'I', 'c' };
             outputCodes = new char[] { ' ' };
-            description = "Blurs the image. The amount of blur at each pixel is determined by alpha channel of the control input.";
+            description = "Blurs the RGB image. The amount of blur at each pixel is determined by the single channel of the control input. Alpha becomes fully opaque.";
         }
 
         public override string Caption
@@ -684,21 +754,21 @@ namespace Imagine.Library
         }
     }
 
-    [UniqueName("Imagine.AlphaContrastMachine")]
-    public class AlphaContrastMachine : Machine
+    [UniqueName("Imagine.ControlContrastMachine")]
+    public class ControlContrastMachine : Machine
     {
-        public AlphaContrastMachine()
+        public ControlContrastMachine()
         {
-            inputNames = new string[] { "input" };
-            outputNames = new string[] { "output" };
+            inputNames = new string[] { "input (control)" };
+            outputNames = new string[] { "output (control)" };
             inputCodes = new char[] { ' ' };
             outputCodes = new char[] { ' ' };
-            description = "Increases contrast in the alpha channel of the inputs (discards all other channels).";
+            description = "Increases contrast in the control input.";
         }
 
         public override string Caption
         {
-            get { return "Contrast a"; }
+            get { return "[Contrast]"; }
         }
 
         protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)

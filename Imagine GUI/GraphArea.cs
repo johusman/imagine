@@ -190,11 +190,11 @@ namespace Imagine.GUI
 
             DrawCenteredCircle(graphics, machinepen, Brushes.Black, Brushes.White,
                     new PointF(portPos.X, portPos.Y),
-                    BUBBLE_R, node.Machine.OutputCodes[port.PortNumber].ToString());
+                    BUBBLE_R, node.Machine.OutputCodes[port.PortNumber].ToString(), new Font(FontFamily.GenericMonospace, 7.0f));
 
             DrawCenteredCircle(graphics, machinepen, Brushes.White, Brushes.Black,
                     new PointF(remotePortPos.X, remotePortPos.Y),
-                    BUBBLE_R, remoteNode.Machine.InputCodes[remotePort.PortNumber].ToString());
+                    BUBBLE_R, remoteNode.Machine.InputCodes[remotePort.PortNumber].ToString(), new Font(FontFamily.GenericMonospace, 7.0f));
 
             PointF unitVector = CalculateUnitVector(portPos, remotePortPos);
             if (PointDistance(portPos, remotePortPos) > BUBBLE_R * 2.0)
@@ -255,11 +255,16 @@ namespace Imagine.GUI
 
         private void DrawCenteredCircle(Graphics g, Pen pen, Brush brush, Brush textBrush, PointF p, float radius, string text)
         {
+            DrawCenteredCircle(g, pen, brush, textBrush, p, radius, text, Font);
+        }
+
+        private void DrawCenteredCircle(Graphics g, Pen pen, Brush brush, Brush textBrush, PointF p, float radius, string text, Font font)
+        {
             g.FillEllipse(brush, p.X - radius, p.Y - radius, radius * 2, radius * 2);
             g.DrawEllipse(pen, p.X - radius, p.Y - radius, radius * 2, radius * 2);
 
-            SizeF textSize = g.MeasureString(text, Font);
-            g.DrawString(text, Font, textBrush, p.X - textSize.Width / 2.0f + 1, p.Y - textSize.Height / 2.0f);
+            SizeF textSize = g.MeasureString(text, font);
+            g.DrawString(text, font, textBrush, p.X - textSize.Width / 2.0f + 1, p.Y - textSize.Height / 2.0f);
         }
 
         private void DrawConnector(Graphics g)
