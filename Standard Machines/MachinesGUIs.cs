@@ -7,7 +7,7 @@ using Imagine.GUI;
 
 namespace Imagine.StandardMachines
 {
-    [GUIForMachine("Imagine.HardControlContrast")]
+    [GUIForMachine("Imagine.Ctrl.HardControlContrast")]
     public class HardControlContrastGUI : MachineGUI
     {
         public HardControlContrastMachine MyMachine
@@ -28,7 +28,7 @@ namespace Imagine.StandardMachines
         }
     }
 
-    [GUIForMachine("Imagine.SoftControlContrast")]
+    [GUIForMachine("Imagine.Ctrl.SoftControlContrast")]
     public class SoftControlContrastGUI : MachineGUI
     {
         public SoftControlContrastMachine MyMachine
@@ -49,7 +49,7 @@ namespace Imagine.StandardMachines
         }
     }
 
-    [GUIForMachine("Imagine.Gain")]
+    [GUIForMachine("Imagine.Img.Gain")]
     public class GainGUI : MachineGUI
     {
         public GainMachine MyMachine
@@ -70,7 +70,7 @@ namespace Imagine.StandardMachines
         }
     }
 
-    [GUIForMachine("Imagine.ControlGain")]
+    [GUIForMachine("Imagine.Ctrl.ControlGain")]
     public class ContrastGainGUI : MachineGUI
     {
         public ControlGainMachine MyMachine
@@ -91,7 +91,7 @@ namespace Imagine.StandardMachines
         }
     }
 
-    [GUIForMachine("Imagine.ColorProximity")]
+    [GUIForMachine("Imagine.Img.ColorProximity")]
     public class ColorProximityGUI : MachineGUI
     {
         public ColorProximityMachine MyMachine
@@ -115,7 +115,7 @@ namespace Imagine.StandardMachines
         }
     }
 
-    [GUIForMachine("Imagine.HueProximity")]
+    [GUIForMachine("Imagine.Img.HueProximity")]
     public class HueProximityGUI : MachineGUI
     {
         public HueProximityMachine MyMachine

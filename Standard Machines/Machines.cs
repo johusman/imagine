@@ -7,7 +7,7 @@ using Imagine.Library;
 
 namespace Imagine.StandardMachines
 {
-    [UniqueName("Imagine.Inverter")]
+    [UniqueName("Imagine.Img.Inverter")]
     public class InverterMachine : Machine
     {
         public InverterMachine()
@@ -43,7 +43,7 @@ namespace Imagine.StandardMachines
         }
     }
 
-    [UniqueName("Imagine.ControlInverter")]
+    [UniqueName("Imagine.Ctrl.ControlInverter")]
     public class ControlInverterMachine : Machine
     {
         public ControlInverterMachine()
@@ -78,7 +78,7 @@ namespace Imagine.StandardMachines
         }
     }
 
-    [UniqueName("Imagine.RGBSplitter")]
+    [UniqueName("Imagine.Img.RGBSplitter")]
     public class RGBSplitterMachine : Machine
     {
         public RGBSplitterMachine()
@@ -192,7 +192,7 @@ namespace Imagine.StandardMachines
         }
     }
 
-    [UniqueName("Imagine.RGBJoiner")]
+    [UniqueName("Imagine.Ctrl.RGBJoiner")]
     public class RGBJoinerMachine : Machine
     {
         public RGBJoinerMachine()
@@ -235,7 +235,7 @@ namespace Imagine.StandardMachines
         }
     }
 
-    [UniqueName("Imagine.Halver")]
+    [UniqueName("Imagine.Img.Halver")]
     public class HalverMachine : Machine
     {
         public HalverMachine()
@@ -271,7 +271,7 @@ namespace Imagine.StandardMachines
         }
     }
 
-    [UniqueName("Imagine.ControlHalver")]
+    [UniqueName("Imagine.Ctrl.ControlHalver")]
     public class ControlHalverMachine : Machine
     {
         public ControlHalverMachine()
@@ -306,7 +306,7 @@ namespace Imagine.StandardMachines
         }
     }
 
-    [UniqueName("Imagine.HSLSplitter")]
+    [UniqueName("Imagine.Img.HSLSplitter")]
     public class HSLSplitterMachine : Machine
     {
         public HSLSplitterMachine()
@@ -345,7 +345,7 @@ namespace Imagine.StandardMachines
         }
     }
 
-    [UniqueName("Imagine.HSLJoiner")]
+    [UniqueName("Imagine.Ctrl.HSLJoiner")]
     public class HSLJoinerMachine : Machine
     {
         public HSLJoinerMachine()
@@ -390,7 +390,7 @@ namespace Imagine.StandardMachines
         }
     }
 
-    [UniqueName("Imagine.ControlMultiplier4")]
+    [UniqueName("Imagine.Ctrl.ControlMultiplier4")]
     public class ControlMultiply4Machine : Machine
     {
         public ControlMultiply4Machine()
@@ -433,7 +433,7 @@ namespace Imagine.StandardMachines
         }
     }
 
-    [UniqueName("Imagine.BadDynamicBlur")]
+    [UniqueName("Imagine.Img.BadDynamicBlur")]
     public class BadDynamicBlurMachine : Machine
     {
         private int iterations = 20;
@@ -504,7 +504,7 @@ namespace Imagine.StandardMachines
         }
     }
 
-    [UniqueName("Imagine.SoftControlContrast")]
+    [UniqueName("Imagine.Ctrl.SoftControlContrast")]
     public class SoftControlContrastMachine : Machine
     {
         private double amount = 1.0;
@@ -550,7 +550,7 @@ namespace Imagine.StandardMachines
         }
     }
 
-    [UniqueName("Imagine.HardControlContrast")]
+    [UniqueName("Imagine.Ctrl.HardControlContrast")]
     public class HardControlContrastMachine : Machine
     {
         private double amount = 1.0;
@@ -596,7 +596,7 @@ namespace Imagine.StandardMachines
         }
     }
 
-    [UniqueName("Imagine.Gain")]
+    [UniqueName("Imagine.Img.Gain")]
     public class GainMachine : Machine
     {
         private double gain = 1.0;
@@ -640,7 +640,7 @@ namespace Imagine.StandardMachines
         }
     }
 
-    [UniqueName("Imagine.ControlGain")]
+    [UniqueName("Imagine.Ctrl.ControlGain")]
     public class ControlGainMachine : Machine
     {
         private double gain = 1.0;
@@ -683,7 +683,7 @@ namespace Imagine.StandardMachines
         }
     }
 
-    [UniqueName("Imagine.ColorProximity")]
+    [UniqueName("Imagine.Img.ColorProximity")]
     public class ColorProximityMachine : Machine
     {
         private ImagineColor targetColor = new ImagineColor(ImagineColor.MAX, ImagineColor.MAX, ImagineColor.MAX, ImagineColor.MAX);
@@ -733,7 +733,7 @@ namespace Imagine.StandardMachines
         }
     }
 
-    [UniqueName("Imagine.HueProximity")]
+    [UniqueName("Imagine.Img.HueProximity")]
     public class HueProximityMachine : Machine
     {
         private ImagineColor targetColor = new ImagineColor(ImagineColor.MAX, ImagineColor.MAX, ImagineColor.MAX, ImagineColor.MAX);

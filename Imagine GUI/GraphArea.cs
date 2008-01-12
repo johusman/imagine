@@ -9,6 +9,7 @@ using Imagine.Library;
 using System.Text.RegularExpressions;
 using System.Reflection;
 using System.IO;
+using System.Collections;
 
 namespace Imagine.GUI
 {
@@ -88,20 +89,66 @@ namespace Imagine.GUI
                     List<string> uniqueNames = new List<string>(facade.MachineTypes.Keys);
                     uniqueNames.Remove("Imagine.Source");
                     uniqueNames.Remove("Imagine.Destination");
-                    uniqueNames.Sort();
-
-                    this.newToolStripMenuItem.DropDownItems.Clear();
-                    foreach (string uniqueName in uniqueNames)
-                    {
-                        ToolStripMenuItem item = new ToolStripMenuItem();
-                        item.Tag = uniqueName;
-                        item.Text = uniqueName;
-                        item.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
-                        this.newToolStripMenuItem.DropDownItems.Add(item);
-                    }
+                    ConstructNewMachineMenu(uniqueNames);
 
                     LoadMachineGUITypes();
                 }
+            }
+        }
+
+        private void ConstructNewMachineMenu(List<string> uniqueNames)
+        {
+            uniqueNames.Sort();
+
+            this.contextMenu.Items.Clear();
+            ToolStripMenuItem header = new ToolStripMenuItem("New machine:");
+            header.Font = new Font(header.Font, FontStyle.Bold);
+            header.Enabled = false;
+            this.contextMenu.Items.Add(header);
+
+            ToolStripItemCollection currentParentCollection = this.contextMenu.Items;
+            Stack<ToolStripItemCollection> collectionStack = new Stack<ToolStripItemCollection>();
+            int lastLevel = 0;
+            string[] lastParts = new string[0];
+            
+            foreach (string uniqueName in uniqueNames)
+            {
+                string[] nameParts = uniqueName.Split('.');
+                int level = nameParts.Length - 1;
+                string text = nameParts[level];
+
+                int matchLevel = 0;
+                for (int i = 0; i < level && i < lastLevel; i++)
+                    if (nameParts[i] == lastParts[i])
+                        matchLevel++;
+                    else
+                        break;
+
+                int tempLevel = lastLevel;
+                while (tempLevel > matchLevel)
+                {
+                    tempLevel--;
+                    currentParentCollection = collectionStack.Pop();
+                }
+
+                while (tempLevel < level)
+                {
+                    tempLevel++;
+                    ToolStripMenuItem newGroupItem = new ToolStripMenuItem();
+                    newGroupItem.Text = nameParts[tempLevel-1];
+                    currentParentCollection.Add(newGroupItem);
+                    collectionStack.Push(currentParentCollection);
+                    currentParentCollection = newGroupItem.DropDownItems;
+                }
+
+                ToolStripMenuItem item = new ToolStripMenuItem();
+                item.Tag = uniqueName;
+                item.Text = text;
+                item.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
+                currentParentCollection.Add(item);
+
+                lastLevel = level;
+                lastParts = nameParts;
             }
         }
 
@@ -753,7 +800,8 @@ namespace Imagine.GUI
                     int machineIndex = int.Parse(machineMatch.Groups["index"].Value);
                     int xPos = int.Parse(machineMatch.Groups["x"].Value);
                     int yPos = int.Parse(machineMatch.Groups["y"].Value);
-                    machinePositions[ordering[machineIndex]] = new Point(xPos, yPos);
+                    if(machineIndex < ordering.Count)
+                        machinePositions[ordering[machineIndex]] = new Point(xPos, yPos);
                 }
             }
 
