@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using Imagine.GUI;
 
-namespace Imagine.GUI
+namespace Imagine
 {
     static class ImagineProgram
     {

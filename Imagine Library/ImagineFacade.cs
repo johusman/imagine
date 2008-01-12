@@ -33,6 +33,8 @@ namespace Imagine.Library
         public event System.EventHandler GraphChanged;
         public delegate void ProgressCallback(int machineIndex, int totalMachines, Machine currentMachine, int currentPercent);
 
+        private bool disableEvents = false;
+
         public SourceMachine SourceMachine
         {
             get { return sourceMachine; }
@@ -46,47 +48,50 @@ namespace Imagine.Library
 
         public ImagineFacade()
         {
-            machineTypes = new Dictionary<string, Type>();
-            
-            String path = Directory.GetParent(Assembly.GetExecutingAssembly().Location).FullName;
-            foreach(String fileName in Directory.GetFiles(path, "*.dll", SearchOption.AllDirectories))
-                foreach(Type type in Assembly.LoadFile(fileName).GetTypes())
-                    if(type.IsSubclassOf(typeof(Machine)))
-                    {
-                        if(type.GetCustomAttributes(typeof(UniqueName), false).Length == 1)
-                        {
-                            string name = ((UniqueName) type.GetCustomAttributes(typeof(UniqueName), false)[0]).Value;
-                            machineTypes[name] = type;
-                        }
-                    }
+            LoadMachines();
 
             graph = new Graph<Machine>();
             sourceMachine = new SourceMachine();
+            sourceMachine.MachineChanged += MachineChangedHandler;
             destinationMachine = new SinkMachine();
+            destinationMachine.MachineChanged += MachineChangedHandler;
 
             graph.Connect(graph.AddNode(sourceMachine), 0, graph.AddNode(destinationMachine), 0);
+        }
+
+        private void LoadMachines()
+        {
+            machineTypes = new Dictionary<string, Type>();
+            String path = Environment.CurrentDirectory;
+            //String path = Directory.GetParent(Assembly.GetExecutingAssembly().Location).FullName;
+            foreach (String fileName in Directory.GetFiles(path, "*.dll", SearchOption.AllDirectories))
+                if (System.IO.Path.GetFileName(fileName).ToLower() != System.IO.Path.GetFileName(Assembly.GetExecutingAssembly().Location.ToLower()))
+                    foreach (Type type in Assembly.LoadFile(fileName).GetTypes())
+                        if (type.IsSubclassOf(typeof(Machine)))
+                            if (type.GetCustomAttributes(typeof(UniqueName), false).Length == 1)
+                            {
+                                string name = ((UniqueName)type.GetCustomAttributes(typeof(UniqueName), false)[0]).Value;
+                                machineTypes[name] = type;
+                            }
+
+            machineTypes["Imagine.Source"] = typeof(SourceMachine);
+            machineTypes["Imagine.Destination"] = typeof(SinkMachine);
         }
 
         public void OpenSource(string filename)
         {
             sourceMachine.Filename = filename;
 
-            if(SourceChanged != null)
-                SourceChanged.Invoke(this, new StringEventArg(filename));
-
-            if (GraphChanged != null)
-                GraphChanged.Invoke(this, null);
+            if (!disableEvents && GraphChanged != null)
+                GraphChanged.Invoke(sourceMachine, null);
         }
 
         public void OpenDestination(string filename)
         {
             destinationMachine.Filename = filename;
 
-            if(DestinationChanged != null)
-                DestinationChanged.Invoke(this, new StringEventArg(filename));
-
-            if (GraphChanged != null)
-                GraphChanged.Invoke(this, null);
+            if (!disableEvents && GraphChanged != null)
+                GraphChanged.Invoke(destinationMachine, null);
         }
 
         public string GetSourceFilename()
@@ -120,17 +125,24 @@ namespace Imagine.Library
 
         public void AddMachine(Machine machine)
         {
+            machine.MachineChanged += MachineChangedHandler;
             graph.AddNode(machine);
 
-            if(GraphChanged != null)
+            if(!disableEvents && GraphChanged != null)
                 GraphChanged.Invoke(this, null);
+        }
+
+        private void MachineChangedHandler(object sender, EventArgs e)
+        {
+            if (!disableEvents && GraphChanged != null)
+                GraphChanged.Invoke(sender, null);
         }
 
         public void RemoveMachine(Machine machine)
         {
             graph.RemoveNode(graph.GetNodeFor(machine));
 
-            if (GraphChanged != null)
+            if (!disableEvents && GraphChanged != null)
                 GraphChanged.Invoke(this, null);
         }
 
@@ -143,7 +155,7 @@ namespace Imagine.Library
 
             graph.Connect(graph.GetNodeFor(machine1), port1, graph.GetNodeFor(machine2), port2);
 
-            if (GraphChanged != null)
+            if (!disableEvents && GraphChanged != null)
                 GraphChanged.Invoke(this, null);
         }
 
@@ -151,7 +163,7 @@ namespace Imagine.Library
         {
             graph.Disconnect(graph.GetNodeFor(machine1), port1, graph.GetNodeFor(machine2), port2);
 
-            if (GraphChanged != null)
+            if (!disableEvents && GraphChanged != null)
                 GraphChanged.Invoke(this, null);
         }
 
@@ -251,8 +263,9 @@ namespace Imagine.Library
         {
             List<string> unrecognizedTypes = new List<string>();
 
-            System.EventHandler oldHandler = GraphChanged;
-            GraphChanged = null;
+            //System.EventHandler oldHandler = GraphChanged;
+            //GraphChanged = null;
+            disableEvents = true;
 
             graph = new Graph<Machine>();
             sourceMachine = null;
@@ -311,7 +324,8 @@ namespace Imagine.Library
                         unrecognizedTypes.Add(machineType);
             }
 
-            GraphChanged = oldHandler;
+            //GraphChanged = oldHandler;
+            disableEvents = false;
 
             return unrecognizedTypes;
         }

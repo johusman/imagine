@@ -5,10 +5,12 @@
     <ProductVersion>8.0.50727</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{38E4AA38-94F2-4B73-996A-F831AB2D27F2}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Imagine.GUI</RootNamespace>
     <AssemblyName>Imagine GUI</AssemblyName>
+    <StartupObject>
+    </StartupObject>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -42,13 +44,13 @@
     <Compile Include="GraphArea.Designer.cs">
       <DependentUpon>GraphArea.cs</DependentUpon>
     </Compile>
+    <Compile Include="MachinesGUIs.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="ImagineProgram.cs" />
     <Compile Include="CirkularlGeometricDistributor.cs" />
     <Compile Include="ProgressWindow.cs">
       <SubType>Form</SubType>

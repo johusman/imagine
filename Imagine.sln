@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GUI Unit Tests", "GUI Unit 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imagine Library", "Imagine Library\Imagine Library.csproj", "{CD2E4196-052F-4B8C-AB6A-029BF1A1EBF2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Standard Machines", "Standard Machines\Standard Machines.csproj", "{FD5E1A31-B576-4089-A69C-03773B7408E3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imagine", "Imagine\Imagine.csproj", "{755CBD3E-CEDA-4BCB-BDD3-51A91CCB8AC5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +41,14 @@ Global
 		{CD2E4196-052F-4B8C-AB6A-029BF1A1EBF2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CD2E4196-052F-4B8C-AB6A-029BF1A1EBF2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CD2E4196-052F-4B8C-AB6A-029BF1A1EBF2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD5E1A31-B576-4089-A69C-03773B7408E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD5E1A31-B576-4089-A69C-03773B7408E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD5E1A31-B576-4089-A69C-03773B7408E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD5E1A31-B576-4089-A69C-03773B7408E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{755CBD3E-CEDA-4BCB-BDD3-51A91CCB8AC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{755CBD3E-CEDA-4BCB-BDD3-51A91CCB8AC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{755CBD3E-CEDA-4BCB-BDD3-51A91CCB8AC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{755CBD3E-CEDA-4BCB-BDD3-51A91CCB8AC5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

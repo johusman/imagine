@@ -7,6 +7,8 @@ using System.Text;
 using System.Windows.Forms;
 using Imagine.Library;
 using System.Text.RegularExpressions;
+using System.Reflection;
+using System.IO;
 
 namespace Imagine.GUI
 {
@@ -27,6 +29,8 @@ namespace Imagine.GUI
         private Dictionary<GraphPort<Machine>, Point?> inportPositions;
         private Graph<Machine> graph;
         private ImagineFacade facade;
+        private Dictionary<Type, Type> machineGUITypes;
+        private Dictionary<GraphNode<Machine>, MachineGUI> machineGUIs;
 
         private Pen machinepen = new Pen(Color.Gray, 1);
         private Pen machinePenPotential = new Pen(Color.Gray, 1);
@@ -95,8 +99,49 @@ namespace Imagine.GUI
                         item.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
                         this.newToolStripMenuItem.DropDownItems.Add(item);
                     }
+
+                    LoadMachineGUITypes();
                 }
             }
+        }
+
+        private void LoadMachineGUITypes()
+        {
+            machineGUITypes = new Dictionary<Type, Type>();
+            machineGUIs = new Dictionary<GraphNode<Machine>,MachineGUI>();
+
+            String path = Directory.GetParent(Assembly.GetExecutingAssembly().Location).FullName;
+            foreach (String fileName in Directory.GetFiles(path, "*.dll", SearchOption.AllDirectories))
+                foreach (Type guiType in Assembly.LoadFile(fileName).GetTypes())
+                    if (guiType.IsSubclassOf(typeof(MachineGUI)))
+                    {
+                        if (guiType.GetCustomAttributes(typeof(GUIForMachine), false).Length == 1)
+                        {
+                            string name = ((GUIForMachine)guiType.GetCustomAttributes(typeof(GUIForMachine), false)[0]).Value;
+                            Type machineType = facade.MachineTypes[name];
+                            machineGUITypes[machineType] = guiType;
+                        }
+                    }
+        }
+
+        // If we can figure out exactly when to add/remove these mappings, this function wouldn't have to exist
+        private MachineGUI GUIForNode(GraphNode<Machine> node)
+        {
+            MachineGUI gui = null;
+            if (!machineGUIs.TryGetValue(node, out gui))
+            {
+                if(machineGUITypes.ContainsKey(node.Machine.GetType()))
+                    gui = (MachineGUI)Activator.CreateInstance(machineGUITypes[node.Machine.GetType()]);
+                else
+                {
+                    machineGUITypes[node.Machine.GetType()] = typeof(MachineGUI);
+                    gui = new MachineGUI();
+                }
+                gui.Node = node;
+                machineGUIs[node] = gui;
+            }
+
+            return gui;
         }
 
         public bool ShowTooltips
@@ -301,12 +346,16 @@ namespace Imagine.GUI
             manipulatedNode = GetMachineAtCoordinate(e.Location);
             if(manipulatedNode != null)
             {
-                if(e.Button == MouseButtons.Left)
+                if(e.Button == MouseButtons.Left && e.Clicks == 1)
                 {
                     manipulationState = ManipulationState.Dragging;
                     manipulationOffset = Point.Subtract(e.Location, new Size(machinePositions[manipulatedNode]));
                 }
-                else if(e.Button == MouseButtons.Right && e.Clicks == 1)
+                else if (e.Button == MouseButtons.Left && e.Clicks == 2)
+                {
+                    GUIForNode(manipulatedNode).LaunchSettings(this);
+                }
+                else if (e.Button == MouseButtons.Right && e.Clicks == 1)
                 {
                     manipulationState = ManipulationState.Connecting;
                     manipulationOffset = e.Location;

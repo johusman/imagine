@@ -50,7 +50,7 @@ namespace Imagine.Library
 
         public void SetValue(int x, int y, int a)
         {
-            image[x, y] = (a > ImagineColor.MAX) ? ImagineColor.MAX : a;
+            image[x, y] = (a > ImagineColor.MAX) ? ImagineColor.MAX : (a < 0 ? 0 : a);
         }
 
         public override ImagineColor GetPixel(int x, int y)

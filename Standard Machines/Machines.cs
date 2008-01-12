@@ -1,0 +1,785 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Drawing;
+using System.Drawing.Imaging;
+using Imagine.Library;
+
+namespace Imagine.StandardMachines
+{
+    [UniqueName("Imagine.Inverter")]
+    public class InverterMachine : Machine
+    {
+        public InverterMachine()
+        {
+            inputNames = new string[] { "input" };
+            outputNames = new string[] { "output" };
+            inputCodes = new char[] { ' ' };
+            outputCodes = new char[] { ' ' };
+            description = "Does an RGB invert of the image (leaves Alpha intact).";
+        }
+
+        public override string Caption
+        {
+            get { return "Invert"; }
+        }
+
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
+        {
+            int MAX = ImagineColor.MAX;
+            ImagineImage result = NewFull(inputs[0]);
+            for (int x = 0; x < result.Width; x++)
+            {
+                for (int y = 0; y < result.Height; y++)
+                {
+                    ImagineColor color = inputs[0].GetPixel(x, y);
+                    result.SetPixel(x, y, color.A, MAX - color.R, MAX - color.G, MAX - color.B);
+                }
+
+                StandardCallback(x, result.Width, callback);
+            }
+
+            return new ImagineImage[] { result };
+        }
+    }
+
+    [UniqueName("Imagine.ControlInverter")]
+    public class ControlInverterMachine : Machine
+    {
+        public ControlInverterMachine()
+        {
+            inputNames = new string[] { "input" };
+            outputNames = new string[] { "output" };
+            inputCodes = new char[] { ' ' };
+            outputCodes = new char[] { ' ' };
+            description = "Inverts a control channel.";
+        }
+
+        public override string Caption
+        {
+            get { return "[Invert]"; }
+        }
+
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
+        {
+            int MAX = ImagineColor.MAX;
+            ControlImage result = NewControl(inputs[0]);
+            for (int x = 0; x < result.Width; x++)
+            {
+                for (int y = 0; y < result.Height; y++)
+                {
+                    result.SetValue(x, y, MAX - inputs[0].GetPixel(x, y).A);
+                }
+
+                StandardCallback(x, result.Width, callback);
+            }
+
+            return new ImagineImage[] { result };
+        }
+    }
+
+    [UniqueName("Imagine.RGBSplitter")]
+    public class RGBSplitterMachine : Machine
+    {
+        public RGBSplitterMachine()
+        {
+            inputNames = new string[] { "input" };
+            outputNames = new string[] { "red (control)", "green (control)", "blue (control)" };
+            inputCodes = new char[] { ' ' };
+            outputCodes = new char[] { 'r', 'g', 'b' };
+            description = "Deconstructs the R, G, and B channels of an image into three single-channel (control) images.";
+        }
+
+        public override string Caption
+        {
+            get { return "RGB Split"; }
+        }
+
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
+        {
+            ImagineImage original = inputs[0];
+            ControlImage[] controls = { NewControl(original), NewControl(original), NewControl(original) };
+
+            for (int x = 0; x < original.Width; x++)
+            {
+                for (int y = 0; y < original.Height; y++)
+                {
+                    ImagineColor color = original.GetPixel(x, y);
+                    controls[0].SetValue(x, y, color.R);
+                    controls[1].SetValue(x, y, color.G);
+                    controls[2].SetValue(x, y, color.B);
+                }
+
+                StandardCallback(x, original.Width, callback);
+            }
+
+            return new ImagineImage[] { controls[0], controls[1], controls[2] };
+        }
+    }
+    
+    [UniqueName("Imagine.Adder4")]
+    public class Adder4Machine : Machine
+    {
+        public Adder4Machine()
+        {
+            inputNames = new string[] { "input 1", "input 2", "input 3", "input 4" };
+            outputNames = new string[] { "output" };
+            inputCodes = new char[] { '1', '2', '3', '4' };
+            outputCodes = new char[] { ' ' };
+            description = "Adds up to four input images by adding and clipping the separate channels (A, R, G, B).";
+        }
+
+        public override string Caption
+        {
+            get { return "Adder"; }
+        }
+
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
+        {
+            ImagineImage result = NewFull(FindFirstImage(inputs));
+
+            for (int x = 0; x < result.Width; x++)
+            {
+                for (int y = 0; y < result.Height; y++)
+                {
+                    int a = 0, r = 0, g = 0, b = 0;
+                    for (int i = 0; i < inputs.Length; i++)
+                    {
+                        if (inputs[i] != null)
+                        {
+                            ImagineColor color = inputs[i].GetPixel(x, y);
+                            a += color.A;
+                            r += color.R;
+                            g += color.G;
+                            b += color.B;
+                        }
+                    }
+                    result.SetPixel(x, y, a, r, g, b);
+                }
+
+                StandardCallback(x, result.Width, callback);
+            }
+
+            return new ImagineImage[] { result };
+        }
+    }
+
+    [UniqueName("Imagine.Branch4")]
+    public class Branch4Machine : Machine
+    {
+        public Branch4Machine()
+        {
+            inputNames = new string[] { "input" };
+            outputNames = new string[] { "output1", "output2", "output3", "output4" };
+            inputCodes = new char[] { ' ' };
+            outputCodes = new char[] { '1', '2', '3', '4' };
+            description = "Outputs up for four identical copies of the input image.";
+        }
+
+        public override string Caption
+        {
+            get { return "Branch"; }
+        }
+
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
+        {
+            return new ImagineImage[] { CloneFirst(inputs), CloneFirst(inputs), CloneFirst(inputs), CloneFirst(inputs) };
+        }
+
+        private ImagineImage CloneFirst(ImagineImage[] inputs)
+        {
+            return (inputs[0] == null) ? null : inputs[0].Copy();
+        }
+    }
+
+    [UniqueName("Imagine.RGBJoiner")]
+    public class RGBJoinerMachine : Machine
+    {
+        public RGBJoinerMachine()
+        {
+            inputNames = new string[] { "red (control)", "green (control)", "blue (control)" };
+            outputNames = new string[] { "output" };
+            inputCodes = new char[] { 'r', 'g', 'b' };
+            outputCodes = new char[] { ' ' };
+            description = "Constructs an image from red, green and blue channels derived from control channel of respective input (alpha of output is fully opaque).";
+        }
+
+        public override string Caption
+        {
+            get { return "RGB Join"; }
+        }
+
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
+        {
+            ImagineImage result = NewFull(FindFirstImage(inputs));
+
+            for (int x = 0; x < result.Width; x++)
+            {
+                for (int y = 0; y < result.Height; y++)
+                {
+                    int r = 0, g = 0, b = 0;
+                    if (inputs[0] != null)
+                        r = inputs[0].GetPixel(x, y).A;
+                    if (inputs[1] != null)
+                        g = inputs[1].GetPixel(x, y).A;
+                    if (inputs[2] != null)
+                        b = inputs[2].GetPixel(x, y).A;
+
+                    result.SetPixel(x, y, ImagineColor.MAX, r, g, b);
+                }
+
+                StandardCallback(x, result.Width, callback);
+            }
+
+            return new ImagineImage[] { result };
+        }
+    }
+
+    [UniqueName("Imagine.Halver")]
+    public class HalverMachine : Machine
+    {
+        public HalverMachine()
+        {
+            inputNames = new string[] { "input" };
+            outputNames = new string[] { "output" };
+            inputCodes = new char[] { ' ' };
+            outputCodes = new char[] { ' ' };
+            description = "Diminishes R, G and B channel by 50% (leaves alpha intact).";
+        }
+
+        public override string Caption
+        {
+            get { return "Halver"; }
+        }
+
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
+        {
+            ImagineImage result = NewFull(inputs[0]);
+
+            for (int x = 0; x < result.Width; x++)
+            {
+                for (int y = 0; y < result.Height; y++)
+                {
+                    ImagineColor color = inputs[0].GetPixel(x, y);
+                    result.SetPixel(x, y, color.A, color.R / 2, color.G / 2, color.B / 2);
+                }
+
+                StandardCallback(x, result.Width, callback);
+            }
+
+            return new ImagineImage[] { result };
+        }
+    }
+
+    [UniqueName("Imagine.ControlHalver")]
+    public class ControlHalverMachine : Machine
+    {
+        public ControlHalverMachine()
+        {
+            inputNames = new string[] { "input (control)" };
+            outputNames = new string[] { "output (control)" };
+            inputCodes = new char[] { ' ' };
+            outputCodes = new char[] { ' ' };
+            description = "Diminishes the control input by 50%.";
+        }
+
+        public override string Caption
+        {
+            get { return "[Halver]"; }
+        }
+
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
+        {
+            ControlImage result = NewControl(inputs[0]);
+
+            for (int x = 0; x < result.Width; x++)
+            {
+                for (int y = 0; y < result.Height; y++)
+                {
+                    result.SetValue(x, y, inputs[0].GetPixel(x, y).A / 2);
+                }
+
+                StandardCallback(x, result.Width, callback);
+            }
+
+            return new ImagineImage[] { result };
+        }
+    }
+
+    [UniqueName("Imagine.HSLSplitter")]
+    public class HSLSplitterMachine : Machine
+    {
+        public HSLSplitterMachine()
+        {
+            inputNames = new string[] { "input" };
+            outputNames = new string[] { "hue (control)", "saturation (control)", "lightness (control)" };
+            inputCodes = new char[] { ' ' };
+            outputCodes = new char[] { 'h', 's', 'l' };
+            description = "Outputs the HSL (Hue/Saturation/Lightness) of each pixel, encoded in control channels.";
+        }
+
+        public override string Caption
+        {
+            get { return "HSL Split"; }
+        }
+
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
+        {
+            ControlImage[] results = { NewControl(inputs[0]), NewControl(inputs[0]), NewControl(inputs[0]) };
+
+            for (int x = 0; x < results[0].Width; x++)
+            {
+                for (int y = 0; y < results[0].Height; y++)
+                {
+                    ImagineColor color = inputs[0].GetPixel(x, y);
+                    results[0].SetValue(x, y, (int)(color.Color.GetHue() / 360.0 * ImagineColor.MAX));
+                    results[1].SetValue(x, y, (int)(color.Color.GetSaturation() * ImagineColor.MAX));
+                    // This is wrong.. Microsofts model isn't HSB (a.k.a HSV) as claimed, it is actually HSL, which is quite different
+                    results[2].SetValue(x, y, (int)(color.Color.GetBrightness() * ImagineColor.MAX));
+                }
+
+                StandardCallback(x, results[0].Width, callback);
+            }
+
+            return new ImagineImage[] { results[0], results[1], results[2] };
+        }
+    }
+
+    [UniqueName("Imagine.HSLJoiner")]
+    public class HSLJoinerMachine : Machine
+    {
+        public HSLJoinerMachine()
+        {
+            inputNames = new string[] { "hue (control)", "saturation (control)", "lightness (control)" };
+            outputNames = new string[] { "output" };
+            inputCodes = new char[] { 'h', 's', 'l' };
+            outputCodes = new char[] { ' ' };
+            description = "Constructs an image from HSL (Hue/Saturation/Lightness) derived from control channel of respective input (alpha of output is fully opaque).";
+        }
+
+        public override string Caption
+        {
+            get { return "HSL Join"; }
+        }
+
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
+        {
+            int MAX = ImagineColor.MAX;
+
+            ImagineImage result = NewFull(FindFirstImage(inputs));
+
+            for (int x = 0; x < result.Width; x++)
+            {
+                for (int y = 0; y < result.Height; y++)
+                {
+                    double h = 0, s = 0, l = 0;
+                    if (inputs[0] != null)
+                        h = (double)(inputs[0].GetPixel(x, y).A);
+                    if (inputs[1] != null)
+                        s = (double)(inputs[1].GetPixel(x, y).A);
+                    if (inputs[2] != null)
+                        l = (double)(inputs[2].GetPixel(x, y).A);
+
+                    result.SetPixel(x, y, ImagineColor.FromHSL(h * 360.0 / MAX, s / MAX, l / MAX));
+                }
+
+                StandardCallback(x, result.Width, callback);
+            }
+
+            return new ImagineImage[] { result };
+        }
+    }
+
+    [UniqueName("Imagine.ControlMultiplier4")]
+    public class ControlMultiply4Machine : Machine
+    {
+        public ControlMultiply4Machine()
+        {
+            inputNames = new string[] { "input 1 (control)", "input 2 (control)", "input 3 (control)", "input 4 (control)" };
+            outputNames = new string[] { "output (control)" };
+            inputCodes = new char[] { '1', '2', '3', '4' };
+            outputCodes = new char[] { ' ' };
+            description = "Multiplies up to four control inputs, clipping as necessary.";
+        }
+
+        public override string Caption
+        {
+            get { return "[Multiply]"; }
+        }
+
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
+        {
+            ControlImage result = NewControl(FindFirstImage(inputs));
+
+            for (int x = 0; x < result.Width; x++)
+            {
+                for (int y = 0; y < result.Height; y++)
+                {
+                    double alpha = 1;
+                    for (int i = 0; i < inputs.Length; i++)
+                    {
+                        if (inputs[i] != null)
+                        {
+                             alpha *= (((double)inputs[i].GetPixel(x, y).A) / ImagineColor.MAX);
+                        }
+                    }
+                    result.SetValue(x, y, (int)(alpha * ImagineColor.MAX));
+                }
+
+                StandardCallback(x, result.Width, callback);
+            }
+
+            return new ImagineImage[] { result };
+        }
+    }
+
+    [UniqueName("Imagine.BadDynamicBlur")]
+    public class BadDynamicBlurMachine : Machine
+    {
+        private int iterations = 20;
+
+        public int Iterations
+        {
+            get { return iterations; }
+            set { iterations = value; OnMachineChanged(); }
+        }
+
+        public BadDynamicBlurMachine()
+        {
+            inputNames = new string[] { "image", "control" };
+            outputNames = new string[] { "output" };
+            inputCodes = new char[] { 'I', 'c' };
+            outputCodes = new char[] { ' ' };
+            description = "Blurs the RGB image. The amount of blur at each pixel is determined by the single channel of the control input. Alpha becomes fully opaque.";
+        }
+
+        public override string Caption
+        {
+            get { return "Dyn Blur"; }
+        }
+
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
+        {
+            FullImage result = NewFull(inputs[0]);
+            if (inputs[0] == null)
+                return new ImagineImage[1];
+            if (inputs[1] == null)
+                return new ImagineImage[] { inputs[0].Copy() };
+            ImagineImage source = inputs[0];
+
+            for (int i = 0; i < iterations; i++)
+            {
+                result = NewFull(inputs[0]);
+                
+                for (int x = 1; x < result.Width - 1; x++)
+                    for (int y = 1; y < result.Height - 1; y++)
+                    {
+                        int r, g, b;
+                        
+                        ImagineColor c, n, w, s, e;
+                        c = source.GetPixel(x, y);
+                        n = source.GetPixel(x, y - 1);
+                        e = source.GetPixel(x + 1, y);
+                        w = source.GetPixel(x - 1, y);
+                        s = source.GetPixel(x, y + 1);
+
+                        double a = ((double) inputs[1].GetPixel(x, y).A) / ImagineColor.MAX;
+                        double cA = 1.0 - a * 0.8; 
+                        double vA = (1.0 - cA) / 4.0;
+
+                        r = (int) (c.R * cA + n.R * vA + w.R * vA + s.R * vA + e.R * vA);
+                        g = (int) (c.G * cA + n.G * vA + w.G * vA + s.G * vA + e.G * vA);
+                        b = (int) (c.B * cA + n.B * vA + w.B * vA + s.B * vA + e.B * vA);
+
+                        result.SetPixel(x, y, ImagineColor.MAX, r, g, b);
+                    }
+
+                source = result;
+
+                if (callback != null)
+                    callback.Invoke(5 * i);
+            }
+
+            return new ImagineImage[] { result };
+        }
+    }
+
+    [UniqueName("Imagine.SoftControlContrast")]
+    public class SoftControlContrastMachine : Machine
+    {
+        private double amount = 1.0;
+
+        public double Amount
+        {
+            get { return amount; }
+            set { amount = value; OnMachineChanged(); }
+        }
+
+        public SoftControlContrastMachine()
+        {
+            inputNames = new string[] { "input (control)" };
+            outputNames = new string[] { "output (control)" };
+            inputCodes = new char[] { ' ' };
+            outputCodes = new char[] { ' ' };
+            description = "Increases contrast in the control input by a continuous, nonclipping function.";
+        }
+
+        public override string Caption
+        {
+            get { return "[SContrast]"; }
+        }
+
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
+        {
+            ControlImage result = NewControl(inputs[0]);
+
+            for (int x = 0; x < result.Width; x++)
+            {
+                for (int y = 0; y < result.Height; y++)
+                {
+                    double value = ((double)inputs[0].GetPixel(x, y).A) / ImagineColor.MAX;
+                    value = Math.Atan(Math.Tan((value - 0.5) * Math.PI) * amount) / Math.PI + 0.5;
+
+                    result.SetValue(x, y, (int)(value * ImagineColor.MAX));
+                }
+
+                StandardCallback(x, result.Width, callback);
+            }
+
+            return new ImagineImage[] { result };
+        }
+    }
+
+    [UniqueName("Imagine.HardControlContrast")]
+    public class HardControlContrastMachine : Machine
+    {
+        private double amount = 1.0;
+
+        public double Amount
+        {
+            get { return amount; }
+            set { amount = value; OnMachineChanged(); }
+        }
+
+        public HardControlContrastMachine()
+        {
+            inputNames = new string[] { "input (control)" };
+            outputNames = new string[] { "output (control)" };
+            inputCodes = new char[] { ' ' };
+            outputCodes = new char[] { ' ' };
+            description = "Increases contrast in the control input by a clipping, linear function.";
+        }
+
+        public override string Caption
+        {
+            get { return "[HContrast]"; }
+        }
+
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
+        {
+            ControlImage result = NewControl(inputs[0]);
+
+            for (int x = 0; x < result.Width; x++)
+            {
+                for (int y = 0; y < result.Height; y++)
+                {
+                    double value = ((double)inputs[0].GetPixel(x, y).A) / ImagineColor.MAX;
+                    value = (value - 0.5) * amount + 0.5;
+
+                    result.SetValue(x, y, (int)(value * ImagineColor.MAX));
+                }
+
+                StandardCallback(x, result.Width, callback);
+            }
+
+            return new ImagineImage[] { result };
+        }
+    }
+
+    [UniqueName("Imagine.Gain")]
+    public class GainMachine : Machine
+    {
+        private double gain = 1.0;
+
+        public double Gain
+        {
+            get { return gain; }
+            set { gain = value; OnMachineChanged(); }
+        }
+
+        public GainMachine()
+        {
+            inputNames = new string[] { "input" };
+            outputNames = new string[] { "output" };
+            inputCodes = new char[] { ' ' };
+            outputCodes = new char[] { ' ' };
+            description = "Applies gain (multiplication by value) to R, G, and B. 1.0 = no change. Does not affect alpha.";
+        }
+
+        public override string Caption
+        {
+            get { return "Gain"; }
+        }
+
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
+        {
+            FullImage result = NewFull(inputs[0]);
+
+            for (int x = 0; x < result.Width; x++)
+            {
+                for (int y = 0; y < result.Height; y++)
+                {
+                    ImagineColor color = inputs[0].GetPixel(x, y);
+                    result.SetPixel(x, y, color.A, (int)(color.R * gain), (int)(color.G * gain), (int)(color.B * gain));
+                }
+
+                StandardCallback(x, result.Width, callback);
+            }
+
+            return new ImagineImage[] { result };
+        }
+    }
+
+    [UniqueName("Imagine.ControlGain")]
+    public class ControlGainMachine : Machine
+    {
+        private double gain = 1.0;
+
+        public double Gain
+        {
+            get { return gain; }
+            set { gain = value; OnMachineChanged(); }
+        }
+
+        public ControlGainMachine()
+        {
+            inputNames = new string[] { "input (control)" };
+            outputNames = new string[] { "output (control)" };
+            inputCodes = new char[] { ' ' };
+            outputCodes = new char[] { ' ' };
+            description = "Applies gain value to control input.";
+        }
+
+        public override string Caption
+        {
+            get { return "[Gain]"; }
+        }
+
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
+        {
+            ControlImage result = NewControl(inputs[0]);
+
+            for (int x = 0; x < result.Width; x++)
+            {
+                for (int y = 0; y < result.Height; y++)
+                {
+                    result.SetValue(x, y, (int) (inputs[0].GetPixel(x, y).A * gain));
+                }
+
+                StandardCallback(x, result.Width, callback);
+            }
+
+            return new ImagineImage[] { result };
+        }
+    }
+
+    [UniqueName("Imagine.ColorProximity")]
+    public class ColorProximityMachine : Machine
+    {
+        private ImagineColor targetColor = new ImagineColor(ImagineColor.MAX, ImagineColor.MAX, ImagineColor.MAX, ImagineColor.MAX);
+
+        public ImagineColor TargetColor
+        {
+            get { return targetColor; }
+            set { targetColor = value; OnMachineChanged(); }
+        }
+
+        public ColorProximityMachine()
+        {
+            inputNames = new string[] { "input" };
+            outputNames = new string[] { "output (control)" };
+            inputCodes = new char[] { ' ' };
+            outputCodes = new char[] { ' ' };
+            description = "Contructs a control imagine based on the proximity of each pixel to the given color.";
+        }
+
+        public override string Caption
+        {
+            get { return "Color prox."; }
+        }
+
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
+        {
+            ControlImage result = NewControl(inputs[0]);
+
+            double MAX = ImagineColor.MAX;
+            double MAX_DISTANCE = Math.Sqrt(3);
+
+            for (int x = 0; x < result.Width; x++)
+            {
+                for (int y = 0; y < result.Height; y++)
+                {
+                    ImagineColor color = inputs[0].GetPixel(x, y);
+                    double dR = (color.R - targetColor.R) / MAX;
+                    double dG = (color.G - targetColor.G) / MAX;
+                    double dB = (color.B - targetColor.B) / MAX;
+                    result.SetValue(x, y, (int)((1.0 - Math.Sqrt(dR * dR + dG * dG + dB * dB) / MAX_DISTANCE) * MAX));
+                }
+
+                StandardCallback(x, result.Width, callback);
+            }
+
+            return new ImagineImage[] { result };
+        }
+    }
+
+    [UniqueName("Imagine.HueProximity")]
+    public class HueProximityMachine : Machine
+    {
+        private ImagineColor targetColor = new ImagineColor(ImagineColor.MAX, ImagineColor.MAX, ImagineColor.MAX, ImagineColor.MAX);
+
+        public ImagineColor TargetColor
+        {
+            get { return targetColor; }
+            set { targetColor = value; OnMachineChanged(); }
+        }
+
+        public HueProximityMachine()
+        {
+            inputNames = new string[] { "input" };
+            outputNames = new string[] { "output (control)" };
+            inputCodes = new char[] { ' ' };
+            outputCodes = new char[] { ' ' };
+            description = "Contructs a control imagine based on the proximity of the hue of each pixel to the hue of the given color.";
+        }
+
+        public override string Caption
+        {
+            get { return "Hue prox."; }
+        }
+
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
+        {
+            ControlImage result = NewControl(inputs[0]);
+
+            double MAX = ImagineColor.MAX;
+            double MAX_DISTANCE = Math.Sqrt(3);
+
+            for (int x = 0; x < result.Width; x++)
+            {
+                for (int y = 0; y < result.Height; y++)
+                {
+                    ImagineColor color = inputs[0].GetPixel(x, y);
+                    double dH = Math.Abs(color.Color.GetHue() - targetColor.Color.GetHue()) / 180.0;
+                    if (dH > 1.0)
+                        dH = 2.0 - dH;
+                    result.SetValue(x, y, (int) ((1.0 - dH) * MAX));
+                }
+
+                StandardCallback(x, result.Width, callback);
+            }
+
+            return new ImagineImage[] { result };
+        }
+    }
+}

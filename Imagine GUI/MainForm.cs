@@ -32,9 +32,9 @@ namespace Imagine.GUI
             facade = new ImagineFacade();
             facade.Disconnect(facade.SourceMachine, 0, facade.DestinationMachine, 0);
 
-            facade.SourceChanged += new EventHandler(sourceChanged);
-            facade.DestinationChanged += new EventHandler(destinationChanged);
-            facade.GraphChanged += new EventHandler(graphChanged);
+            facade.SourceChanged += sourceChanged;
+            facade.DestinationChanged += destinationChanged;
+            facade.GraphChanged += graphChanged;
 
             graphArea1.Facade = facade;
         }
@@ -92,9 +92,6 @@ namespace Imagine.GUI
 
         private void sourceChanged(object sender, EventArgs e)
         {
-            lblSourceFile.Text = e.ToString();
-            lblSourceFile.Links.Clear();
-            lblSourceFile.Links.Add(new LinkLabel.Link(0, e.ToString().Length, e.ToString()));
             if (showPreviewToolStripMenuItem.Checked)
                 DoPreview();
         }
@@ -110,6 +107,20 @@ namespace Imagine.GUI
 
         private void graphChanged(object sender, EventArgs e)
         {
+            if (sender == facade.SourceMachine)
+            {
+                lblSourceFile.Text = facade.SourceMachine.Filename;
+                lblSourceFile.Links.Clear();
+                lblSourceFile.Links.Add(new LinkLabel.Link(0, lblSourceFile.Text.Length, lblSourceFile.Text));
+            }
+            if (sender == facade.DestinationMachine)
+            {
+                lblDestinationFile.Text = facade.DestinationMachine.Filename;
+                lblDestinationFile.Links.Clear();
+                lblDestinationFile.Links.Add(new LinkLabel.Link(0, lblDestinationFile.Text.Length, lblDestinationFile.Text));
+            }
+
+
             if (showPreviewToolStripMenuItem.Checked)
                 DoPreview();
         }

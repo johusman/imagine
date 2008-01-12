@@ -19,9 +19,6 @@ namespace Imagine.AcceptanceTests
         string BLUE_FILE = System.IO.Directory.GetCurrentDirectory() + "\\nausicaa_blue.png";
         string RED_FILE = System.IO.Directory.GetCurrentDirectory() + "\\nausicaa_red.png";
 
-        string callbackSourceFilename;
-        string callbackDestinationFilename;
-
         [SetUp]
         public void Init()
         {
@@ -58,19 +55,35 @@ namespace Imagine.AcceptanceTests
             
             string SRC = "hej";
             string DEST = "hopp";
+            int called = 0;
 
-            facade.SourceChanged += new System.EventHandler(
+            facade.GraphChanged += new System.EventHandler(
                 delegate(object sender, EventArgs args)
-                { callbackSourceFilename = args.ToString(); });
-            facade.DestinationChanged += new System.EventHandler(
-                delegate(object sender, EventArgs args)
-                { callbackDestinationFilename = args.ToString(); });
+                { called++; });
 
             facade.OpenSource(SRC);
             facade.OpenDestination(DEST);
 
-            Assert.AreEqual(SRC, callbackSourceFilename);
-            Assert.AreEqual(DEST, callbackDestinationFilename);
+            Assert.AreEqual(2, called);
+            Assert.AreEqual(SRC, facade.SourceMachine.Filename);
+            Assert.AreEqual(DEST, facade.DestinationMachine.Filename);
+        }
+
+        [Test]
+        public void that_you_can_be_notified_of_changes_in_machine_parameters()
+        {
+            object eventSender = null;
+
+            facade = new ImagineFacade();
+            facade.GraphChanged += new System.EventHandler(
+                delegate(object sender, EventArgs args)
+                { eventSender = sender; });
+            DummyMachine dummy = new DummyMachine();
+            facade.AddMachine(dummy);
+            eventSender = null;
+            
+            dummy.DummyValue = 4;
+            Assert.AreSame(dummy, eventSender);
         }
 
         [Test]
@@ -432,5 +445,34 @@ namespace Imagine.AcceptanceTests
         public int totalMachines;
         public Machine currentMachine;
         public int currentPercent;
+    }
+
+    public class DummyMachine : Machine
+    {
+        public DummyMachine()
+        {
+            inputNames = new string[] { "input" };
+            outputNames = new string[] { "output1" };
+            inputCodes = new char[] { ' ' };
+            outputCodes = new char[] { ' ' };
+            description = "Does nothing.";
+        }
+
+        private int dummyValue;
+        public int DummyValue
+        {
+            get { return dummyValue; }
+            set { dummyValue = value; OnMachineChanged(); }
+        }
+
+        public override string Caption
+        {
+            get { return "Dummy"; }
+        }
+
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
+        {
+            return null;
+        }
     }
 }
