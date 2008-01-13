@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Imagine.GUI.Properties {
+namespace Standard_Machines {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace Imagine.GUI.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Imagine.GUI.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Standard_Machines.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -60,23 +60,44 @@ namespace Imagine.GUI.Properties {
             }
         }
         
-        internal static System.Drawing.Bitmap gradient {
+        internal static System.Drawing.Bitmap Imagine_Adder {
             get {
-                object obj = ResourceManager.GetObject("gradient", resourceCulture);
+                object obj = ResourceManager.GetObject("Imagine_Adder", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
         
-        internal static System.Drawing.Bitmap Imagine_Destination {
+        internal static System.Drawing.Bitmap Imagine_Branch {
             get {
-                object obj = ResourceManager.GetObject("Imagine_Destination", resourceCulture);
+                object obj = ResourceManager.GetObject("Imagine_Branch", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
         
-        internal static System.Drawing.Bitmap Imagine_Source {
+        internal static System.Drawing.Bitmap Imagine_Ctrl_Contrast {
             get {
-                object obj = ResourceManager.GetObject("Imagine_Source", resourceCulture);
+                object obj = ResourceManager.GetObject("Imagine_Ctrl_Contrast", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap Imagine_Ctrl_ControlMultiplier {
+            get {
+                object obj = ResourceManager.GetObject("Imagine_Ctrl_ControlMultiplier", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap Imagine_Gain {
+            get {
+                object obj = ResourceManager.GetObject("Imagine_Gain", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap Imagine_Img_Blur {
+            get {
+                object obj = ResourceManager.GetObject("Imagine_Img_Blur", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

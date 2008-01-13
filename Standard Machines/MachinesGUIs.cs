@@ -4,12 +4,19 @@ using System.Text;
 using Imagine.Library;
 using System.Windows.Forms;
 using Imagine.GUI;
+using Standard_Machines;
+using System.Drawing;
 
 namespace Imagine.StandardMachines
 {
     [GUIForMachine("Imagine.Ctrl.HardControlContrast")]
     public class HardControlContrastGUI : MachineGUI
     {
+        public HardControlContrastGUI()
+        {
+            SetBitmap(Resources.Imagine_Ctrl_Contrast);
+        }
+
         public HardControlContrastMachine MyMachine
         {
             get { return (HardControlContrastMachine)Node.Machine; }
@@ -31,6 +38,11 @@ namespace Imagine.StandardMachines
     [GUIForMachine("Imagine.Ctrl.SoftControlContrast")]
     public class SoftControlContrastGUI : MachineGUI
     {
+        public SoftControlContrastGUI()
+        {
+            SetBitmap(Resources.Imagine_Ctrl_Contrast);
+        }
+
         public SoftControlContrastMachine MyMachine
         {
             get { return (SoftControlContrastMachine)Node.Machine; }
@@ -52,6 +64,11 @@ namespace Imagine.StandardMachines
     [GUIForMachine("Imagine.Img.Gain")]
     public class GainGUI : MachineGUI
     {
+        public GainGUI()
+        {
+            SetBitmap(Resources.Imagine_Gain);
+        }
+
         public GainMachine MyMachine
         {
             get { return (GainMachine)Node.Machine; }
@@ -73,6 +90,11 @@ namespace Imagine.StandardMachines
     [GUIForMachine("Imagine.Ctrl.ControlGain")]
     public class ContrastGainGUI : MachineGUI
     {
+        public ContrastGainGUI()
+        {
+            SetBitmap(Resources.Imagine_Gain);
+        }
+
         public ControlGainMachine MyMachine
         {
             get { return (ControlGainMachine)Node.Machine; }
@@ -136,6 +158,47 @@ namespace Imagine.StandardMachines
                 MyMachine.TargetColor = new ImagineColor(dialog.Color);
             }
             dialog.Dispose();
+        }
+    }
+
+    [GUIForMachine("Imagine.Img.BadDynamicBlur")]
+    public class BadDynamicBlurGUI : MachineGUI
+    {
+        public BadDynamicBlurGUI()
+        {
+            SetBitmap(Resources.Imagine_Img_Blur);
+        }
+    }
+
+    [GUIForMachine("Imagine.Ctrl.ControlMultiplier4")]
+    public class ControlMultiplierGUI : MachineGUI
+    {
+        public ControlMultiplierGUI()
+        {
+            SetBitmap(Resources.Imagine_Ctrl_ControlMultiplier);
+        }
+    }
+
+    [GUIForMachine("Imagine.Adder4")]
+    public class AdderGUI : MachineGUI
+    {
+        public AdderGUI()
+        {
+            SetBitmap(Resources.Imagine_Adder);
+        }
+    }
+
+    [GUIForMachine("Imagine.Branch4")]
+    public class BranchGUI : MachineGUI
+    {
+        public BranchGUI()
+        {
+            SetBitmap(Resources.Imagine_Branch);
+        }
+
+        public override System.Drawing.Brush Background
+        {
+            get { return Brushes.AntiqueWhite; }
         }
     }
 }

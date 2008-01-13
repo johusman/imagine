@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 using System.Reflection;
 using System.IO;
 using System.Collections;
+using System.Drawing.Imaging;
 
 namespace Imagine.GUI
 {
@@ -271,8 +272,15 @@ namespace Imagine.GUI
         private void DrawMachine(Graphics graphics, GraphNode<Machine> node)
         {
             Point p = machinePositions[node];
-            graphics.FillEllipse(machinebrush, p.X - MACHINE_R, p.Y - MACHINE_R, MACHINE_R * 2, MACHINE_R * 2);
+            MachineGUI gui = GUIForNode(node);
+            
+            graphics.FillEllipse(gui.Background, p.X - MACHINE_R, p.Y - MACHINE_R, MACHINE_R * 2, MACHINE_R * 2);
             graphics.DrawEllipse(machinepen, p.X - MACHINE_R, p.Y - MACHINE_R, MACHINE_R * 2, MACHINE_R * 2);
+            
+            
+            if(gui.Bitmap != null)
+                graphics.DrawImage(GUIForNode(node).Bitmap, p.X - 16, p.Y - 16);
+            
             SizeF textSize = graphics.MeasureString(node.Machine.Caption, Font);
             graphics.DrawString(node.Machine.Caption, Font, arrowbrush, p.X - textSize.Width/2 + 1, p.Y - textSize.Height/2);
         }

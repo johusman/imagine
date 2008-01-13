@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using Imagine.Library;
 using System.Windows.Forms;
+using System.Drawing;
+using Imagine.GUI.Properties;
 
 namespace Imagine.GUI
 {
@@ -16,7 +18,32 @@ namespace Imagine.GUI
             set { node = value; }
         }
 
-        public virtual void LaunchSettings(GraphArea graphArea) {}
+        private Bitmap bitmap = null;
+
+        public Bitmap Bitmap
+        {
+            get { return bitmap; }
+            set { bitmap = value; }
+        }
+
+        public virtual Brush Background
+        {
+            get { return Brushes.Bisque; }
+        }
+
+        protected void SetBitmap(Bitmap newBitmap)
+        {
+            Bitmap alphaBitmap = (Bitmap) newBitmap.Clone();
+            for(int x = 0; x < alphaBitmap.Width; x++)
+                for(int y = 0; y < alphaBitmap.Height; y++)
+                {
+                    double b = 1.0 - alphaBitmap.GetPixel(x, y).GetBrightness();
+                    alphaBitmap.SetPixel(x, y, Color.FromArgb((int)(20 * b), Color.Black)); 
+                }
+            bitmap = alphaBitmap;
+        }
+
+        public virtual void LaunchSettings(GraphArea graphArea) { }
         public virtual string SerializeSettings() { return "";  }
         public virtual void DeserializeSettings(string input) {}
     }
@@ -39,6 +66,16 @@ namespace Imagine.GUI
     [GUIForMachine("Imagine.Source")]
     public class SourceMachineGUI : MachineGUI
     {
+        public SourceMachineGUI()
+        {
+            SetBitmap(Resources.Imagine_Source);
+        }
+
+        public override Brush Background
+        {
+            get { return Brushes.AliceBlue; }
+        }
+
         public SourceMachine MyMachine
         {
             get { return (SourceMachine)Node.Machine; }
@@ -61,6 +98,16 @@ namespace Imagine.GUI
     [GUIForMachine("Imagine.Destination")]
     public class SinkMachineGUI : MachineGUI
     {
+        public SinkMachineGUI()
+        {
+            SetBitmap(Resources.Imagine_Destination);
+        }
+
+        public override Brush Background
+        {
+            get { return Brushes.AliceBlue; }
+        }
+
         public SinkMachine MyMachine
         {
             get { return (SinkMachine)Node.Machine; }
