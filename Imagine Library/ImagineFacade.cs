@@ -262,8 +262,6 @@ namespace Imagine.Library
         {
             List<string> unrecognizedTypes = new List<string>();
 
-            //System.EventHandler oldHandler = GraphChanged;
-            //GraphChanged = null;
             disableEvents = true;
 
             graph = new Graph<Machine>();
@@ -323,7 +321,6 @@ namespace Imagine.Library
                         unrecognizedTypes.Add(machineType);
             }
 
-            //GraphChanged = oldHandler;
             disableEvents = false;
 
             return unrecognizedTypes;

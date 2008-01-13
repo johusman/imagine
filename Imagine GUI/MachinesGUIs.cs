@@ -90,7 +90,6 @@ namespace Imagine.GUI
             DialogResult result = dialog.ShowDialog();
             if (result == DialogResult.OK)
                 MyMachine.Filename = dialog.FileName;
-                //graphArea.Facade.OpenSource(dialog.FileName);
             dialog.Dispose();
         }
     }
@@ -123,7 +122,6 @@ namespace Imagine.GUI
             DialogResult result = dialog.ShowDialog();
             if (result == DialogResult.OK)
                 MyMachine.Filename = dialog.FileName;
-                //graphArea.Facade.OpenDestination(dialog.FileName);
             dialog.Dispose();
         }
     }
