@@ -33,7 +33,7 @@ namespace Imagine.Library
             Assert.IsNotNull(bitmapByLoad);
 
             // It should also be available by the general "Process" method
-            ImagineImage bitmapByProcess = machine.Process(null, null)[0];
+            ImagineImage bitmapByProcess = machine.Process(new ImagineImage[0], null)[0];
             TestUtil.AssertImagesAreEqual(bitmapByLoad, bitmapByProcess);
         }
 
@@ -63,7 +63,6 @@ namespace Imagine.Library
             }
             finally
             {
-                //inputs[0].Dispose();
                 System.IO.File.Delete(DEST_FILE);
             }
         }
@@ -98,12 +97,12 @@ namespace Imagine.Library
             Assert.AreEqual(3, machine.OutputCount);
             Assert.AreEqual("input", machine.InputNames[0]);
             Assert.AreEqual(' ', machine.InputCodes[0]);
-            Assert.AreEqual("red", machine.OutputNames[0]);
-            Assert.AreEqual('R', machine.OutputCodes[0]);
-            Assert.AreEqual("green", machine.OutputNames[1]);
-            Assert.AreEqual('G', machine.OutputCodes[1]);
-            Assert.AreEqual("blue", machine.OutputNames[2]);
-            Assert.AreEqual('B', machine.OutputCodes[2]);
+            Assert.AreEqual("red (control)", machine.OutputNames[0]);
+            Assert.AreEqual('r', machine.OutputCodes[0]);
+            Assert.AreEqual("green (control)", machine.OutputNames[1]);
+            Assert.AreEqual('g', machine.OutputCodes[1]);
+            Assert.AreEqual("blue (control)", machine.OutputNames[2]);
+            Assert.AreEqual('b', machine.OutputCodes[2]);
         }
     }
 }

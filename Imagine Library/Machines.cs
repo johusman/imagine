@@ -10,7 +10,8 @@ namespace Imagine.Library
     {
         public virtual ImagineImage[] Process(ImagineImage[] inputs, ProgressCallback callback)
         {
-            callback.Invoke(0);
+            if(callback != null)
+                callback.Invoke(0);
 
             try
             {
@@ -23,7 +24,8 @@ namespace Imagine.Library
             }
             finally
             {
-                callback.Invoke(100);
+                if (callback != null)
+                    callback.Invoke(100);
             }
         }
 

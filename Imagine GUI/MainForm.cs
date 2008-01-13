@@ -13,11 +13,14 @@ namespace Imagine.GUI
 {
     public partial class MainForm : Form
     {
-        ImagineFacade facade;
+        private ImagineFacade facade;
+        private string workingDirectory;
 
         public MainForm()
         {
             InitializeComponent();
+
+            workingDirectory = Environment.CurrentDirectory;
 
             CreateNewFacade();
             lblSourceFile.Text = "";
@@ -29,11 +32,9 @@ namespace Imagine.GUI
 
         private void CreateNewFacade()
         {
-            facade = new ImagineFacade();
+            facade = new ImagineFacade(workingDirectory);
             facade.Disconnect(facade.SourceMachine, 0, facade.DestinationMachine, 0);
 
-            facade.SourceChanged += sourceChanged;
-            facade.DestinationChanged += destinationChanged;
             facade.GraphChanged += graphChanged;
 
             graphArea1.Facade = facade;
@@ -88,21 +89,6 @@ namespace Imagine.GUI
             window.Close();
 
             Cursor.Current = lastCursor;
-        }
-
-        private void sourceChanged(object sender, EventArgs e)
-        {
-            if (showPreviewToolStripMenuItem.Checked)
-                DoPreview();
-        }
-
-        private void destinationChanged(object sender, EventArgs e)
-        {
-            lblDestinationFile.Text = e.ToString();
-            lblDestinationFile.Links.Clear();
-            lblDestinationFile.Links.Add(new LinkLabel.Link(0, e.ToString().Length, e.ToString()));
-            if (showPreviewToolStripMenuItem.Checked)
-                DoPreview();
         }
 
         private void graphChanged(object sender, EventArgs e)

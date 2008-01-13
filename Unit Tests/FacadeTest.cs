@@ -17,7 +17,7 @@ namespace Imagine.Library
         [SetUp]
         public void Init()
         {
-            facade = new ImagineFacade();
+            facade = new ImagineFacade(".");
             facade.RemoveMachine(facade.SourceMachine);
             facade.RemoveMachine(facade.DestinationMachine);
 
@@ -28,7 +28,7 @@ namespace Imagine.Library
         [Test]
         public void that_we_can_remove_machines()
         {
-            Machine machine = facade.NewMachine("Imagine.Inverter");
+            Machine machine = facade.NewMachine("Imagine.Img.Inverter");
             Assert.AreEqual(3, facade.Graph.NodeCount);
 
             facade.RemoveMachine(machine);
@@ -56,7 +56,7 @@ namespace Imagine.Library
         public void that_we_can_generate_to_multiple_outputs()
         {
             int MAX = ImagineColor.MAX;
-            Machine rgbmachine = facade.NewMachine("Imagine.RGBSplitter");
+            Machine rgbmachine = facade.NewMachine("Imagine.Img.RGBSplitter");
             InmemorySinkMachine sinkMachine2 = new InmemorySinkMachine();
             facade.AddMachine(sinkMachine2);
 
@@ -69,10 +69,20 @@ namespace Imagine.Library
             sourceMachine.source.SetPixel(1, 0, new ImagineColor(MAX, 0, MAX, 0));
 
             facade.Generate();
-            Assert.AreEqual(new ImagineColor(MAX, MAX, 0, 0), sinkMachine.destination.GetPixel(0, 0));
-            Assert.AreEqual(new ImagineColor(MAX, 0, 0, 0), sinkMachine.destination.GetPixel(1, 0));
-            Assert.AreEqual(new ImagineColor(MAX, 0, 0, 0), sinkMachine2.destination.GetPixel(0, 0));
-            Assert.AreEqual(new ImagineColor(MAX, 0, MAX, 0), sinkMachine2.destination.GetPixel(1, 0));
+            AssertSameColor(new ImagineColor(MAX, 0, 0, 0), sinkMachine.destination.GetPixel(0, 0));
+            AssertSameColor(new ImagineColor(0, 0, 0, 0), sinkMachine.destination.GetPixel(1, 0));
+            AssertSameColor(new ImagineColor(0, 0, 0, 0), sinkMachine2.destination.GetPixel(0, 0));
+            AssertSameColor(new ImagineColor(MAX, 0, 0, 0), sinkMachine2.destination.GetPixel(1, 0));
+        }
+
+        private void AssertSameColor(ImagineColor expected, ImagineColor actual)
+        {
+            if (expected.A != actual.A
+                || expected.R != actual.R
+                || expected.G != actual.G
+                || expected.B != actual.B)
+                Assert.Fail(String.Format("Colors did not match. Expected ({0}, {1}, {2}, {3}) but was ({4}, {5}, {6}, {7})",
+                    expected.A, expected.R, expected.G, expected.B, actual.A, actual.R, actual.G, actual.B));
         }
 
         [Test]

@@ -22,7 +22,7 @@ namespace Imagine.AcceptanceTests
         [SetUp]
         public void Init()
         {
-            facade = new ImagineFacade();
+            facade = new ImagineFacade(".");
             facade.OpenSource(SRC_FILE);
             facade.OpenDestination(DEST_FILE);
         }
@@ -51,7 +51,7 @@ namespace Imagine.AcceptanceTests
         [Test]
         public void that_you_can_be_notified_of_changes_in_source_and_destination()
         {
-            facade = new ImagineFacade();
+            facade = new ImagineFacade(".");
             
             string SRC = "hej";
             string DEST = "hopp";
@@ -74,7 +74,7 @@ namespace Imagine.AcceptanceTests
         {
             object eventSender = null;
 
-            facade = new ImagineFacade();
+            facade = new ImagineFacade(".");
             facade.GraphChanged += new System.EventHandler(
                 delegate(object sender, EventArgs args)
                 { eventSender = sender; });
@@ -125,7 +125,7 @@ namespace Imagine.AcceptanceTests
         {
             facade.Disconnect(facade.SourceMachine, 0, facade.DestinationMachine, 0);
 
-            Machine inverter = facade.NewMachine("Imagine.Inverter");
+            Machine inverter = facade.NewMachine("Imagine.Img.Inverter");
             facade.Connect(facade.SourceMachine, 0, inverter, 0);
             facade.Connect(inverter, 0, facade.DestinationMachine, 0);
 
@@ -145,8 +145,8 @@ namespace Imagine.AcceptanceTests
         {
             facade.Disconnect(facade.SourceMachine, 0, facade.DestinationMachine, 0);
 
-            Machine splitter = facade.NewMachine("Imagine.RGBSplitter");
-            Machine composer = facade.NewMachine("Imagine.RGBJoiner");
+            Machine splitter = facade.NewMachine("Imagine.Img.RGBSplitter");
+            Machine composer = facade.NewMachine("Imagine.Ctrl.RGBJoiner");
             facade.Connect(facade.SourceMachine, 0, splitter, 0);
             facade.Connect(splitter, 2, composer, 2);
             facade.Connect(composer, 0, facade.DestinationMachine, 0);
@@ -182,7 +182,7 @@ namespace Imagine.AcceptanceTests
         {
             facade.Disconnect(facade.SourceMachine, 0, facade.DestinationMachine, 0);
 
-            Machine inverter = facade.NewMachine("Imagine.Inverter");
+            Machine inverter = facade.NewMachine("Imagine.Img.Inverter");
             facade.Connect(facade.SourceMachine, 0, inverter, 0);
             facade.Connect(inverter, 0, facade.DestinationMachine, 0);
 
@@ -227,16 +227,16 @@ namespace Imagine.AcceptanceTests
         {
             facade.Disconnect(facade.SourceMachine, 0, facade.DestinationMachine, 0);
 
-            Machine inverter = facade.NewMachine("Imagine.Inverter");
+            Machine inverter = facade.NewMachine("Imagine.Img.Inverter");
             facade.Connect(facade.SourceMachine, 0, inverter, 0);
 
-            Machine splitter = facade.NewMachine("Imagine.RGBSplitter");
+            Machine splitter = facade.NewMachine("Imagine.Img.RGBSplitter");
             facade.Connect(inverter, 0, splitter, 0);
 
             Machine branch = facade.NewMachine("Imagine.Branch4");
             facade.Connect(splitter, 0, branch, 0);
 
-            Machine joiner = facade.NewMachine("Imagine.RGBJoiner");
+            Machine joiner = facade.NewMachine("Imagine.Ctrl.RGBJoiner");
             facade.Connect(branch, 0, joiner, 0);
             facade.Connect(branch, 1, joiner, 1);
             facade.Connect(splitter, 2, joiner, 2);
@@ -247,11 +247,11 @@ namespace Imagine.AcceptanceTests
             Assert.AreEqual("Graph {\n" +
                 "\tImagine.Source 'machine0' {}\n" +
 
-                "\tImagine.Inverter 'machine1' {\n" +
+                "\tImagine.Img.Inverter 'machine1' {\n" +
                 "\t\t'machine0' -> \n" +
                 "\t}\n" +
 
-                "\tImagine.RGBSplitter 'machine2' {\n" +
+                "\tImagine.Img.RGBSplitter 'machine2' {\n" +
                 "\t\t'machine1' -> \n" +
                 "\t}\n" +
 
@@ -259,7 +259,7 @@ namespace Imagine.AcceptanceTests
                 "\t\t'machine2':r -> \n" +
                 "\t}\n" +
 
-                "\tImagine.RGBJoiner 'machine4' {\n" +
+                "\tImagine.Ctrl.RGBJoiner 'machine4' {\n" +
                 "\t\t'machine3':1 -> r\n" +
                 "\t\t'machine3':2 -> g\n" +
                 "\t\t'machine2':b -> b\n" +
@@ -335,11 +335,11 @@ namespace Imagine.AcceptanceTests
                 "Graph {\n" +
                 "\tImagine.Source 'machine0' {}\n" +
 
-                "\tImagine.Inverter 'machine1' {\n" +
+                "\tImagine.Img.Inverter 'machine1' {\n" +
                 "\t\t'machine0' -> \n" +
                 "\t}\n" +
 
-                "\tImagine.RGBSplitter 'machine2' {\n" +
+                "\tImagine.Img.RGBSplitter 'machine2' {\n" +
                 "\t\t'machine1' -> \n" +
                 "\t}\n" +
 
@@ -347,7 +347,7 @@ namespace Imagine.AcceptanceTests
                 "\t\t'machine2':r -> \n" +
                 "\t}\n" +
 
-                "\tImagine.RGBJoiner 'machine4' {\n" +
+                "\tImagine.Ctrl.RGBJoiner 'machine4' {\n" +
                 "\t\t'machine3':1 -> r\n" +
                 "\t\t'machine3':2 -> g\n" +
                 "\t\t'machine2':b -> b\n" +
@@ -379,11 +379,11 @@ namespace Imagine.AcceptanceTests
                 "Graph {\n" +
                 "\tImagine.Source 'machine0' {}\n" +
 
-                "\tImagine.Inverter 'machine1' {\n" +
+                "\tImagine.Img.Inverter 'machine1' {\n" +
                 "\t\t'machine0' -> \n" +
                 "\t}\n" +
 
-                "\tImagine.RGBSplitter 'machine2' {\n" +
+                "\tImagine.Img.RGBSplitter 'machine2' {\n" +
                 "\t\t'machine1' -> \n" +
                 "\t}\n" +
 
@@ -391,7 +391,7 @@ namespace Imagine.AcceptanceTests
                 "\t\t'machine2':r -> \n" +
                 "\t}\n" +
 
-                "\tImagine.RGBJoiner 'machine4' {\n" +
+                "\tImagine.Ctrl.RGBJoiner 'machine4' {\n" +
                 "\t\t'machine3':1 -> r\n" +
                 "\t\t'machine3':2 -> g\n" +
                 "\t\t'machine2':b -> b\n" +

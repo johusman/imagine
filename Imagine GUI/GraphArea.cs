@@ -92,7 +92,7 @@ namespace Imagine.GUI
                     uniqueNames.Remove("Imagine.Destination");
                     ConstructNewMachineMenu(uniqueNames);
 
-                    LoadMachineGUITypes();
+                    LoadMachineGUITypes(facade.WorkingDirectory);
                 }
             }
         }
@@ -153,13 +153,12 @@ namespace Imagine.GUI
             }
         }
 
-        private void LoadMachineGUITypes()
+        private void LoadMachineGUITypes(string workingDirectory)
         {
             machineGUITypes = new Dictionary<Type, Type>();
             machineGUIs = new Dictionary<GraphNode<Machine>,MachineGUI>();
 
-            String path = Directory.GetParent(Assembly.GetExecutingAssembly().Location).FullName;
-            foreach (String fileName in Directory.GetFiles(path, "*.dll", SearchOption.AllDirectories))
+            foreach (String fileName in Directory.GetFiles(workingDirectory, "*.dll", SearchOption.AllDirectories))
                 foreach (Type guiType in Assembly.LoadFile(fileName).GetTypes())
                     if (guiType.IsSubclassOf(typeof(MachineGUI)))
                     {

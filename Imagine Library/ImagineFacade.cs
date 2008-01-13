@@ -28,8 +28,6 @@ namespace Imagine.Library
             set { graph = value; }
         }
 
-        public event System.EventHandler SourceChanged;
-        public event System.EventHandler DestinationChanged;
         public event System.EventHandler GraphChanged;
         public delegate void ProgressCallback(int machineIndex, int totalMachines, Machine currentMachine, int currentPercent);
 
@@ -45,9 +43,17 @@ namespace Imagine.Library
             get { return destinationMachine; }
         }
 
-
-        public ImagineFacade()
+        private string workingDirectory = ".";
+        public string WorkingDirectory
         {
+            get { return workingDirectory; }
+        }
+
+
+        public ImagineFacade(string workingDirectory)
+        {
+            this.workingDirectory = System.IO.Path.GetFullPath(workingDirectory);
+
             LoadMachines();
 
             graph = new Graph<Machine>();
@@ -62,9 +68,8 @@ namespace Imagine.Library
         private void LoadMachines()
         {
             machineTypes = new Dictionary<string, Type>();
-            String path = Environment.CurrentDirectory;
-            //String path = Directory.GetParent(Assembly.GetExecutingAssembly().Location).FullName;
-            foreach (String fileName in Directory.GetFiles(path, "*.dll", SearchOption.AllDirectories))
+            
+            foreach (String fileName in Directory.GetFiles(workingDirectory, "*.dll", SearchOption.AllDirectories))
                 if (System.IO.Path.GetFileName(fileName).ToLower() != System.IO.Path.GetFileName(Assembly.GetExecutingAssembly().Location.ToLower()))
                     foreach (Type type in Assembly.LoadFile(fileName).GetTypes())
                         if (type.IsSubclassOf(typeof(Machine)))
@@ -81,17 +86,11 @@ namespace Imagine.Library
         public void OpenSource(string filename)
         {
             sourceMachine.Filename = filename;
-
-            if (!disableEvents && GraphChanged != null)
-                GraphChanged.Invoke(sourceMachine, null);
         }
 
         public void OpenDestination(string filename)
         {
             destinationMachine.Filename = filename;
-
-            if (!disableEvents && GraphChanged != null)
-                GraphChanged.Invoke(destinationMachine, null);
         }
 
         public string GetSourceFilename()
