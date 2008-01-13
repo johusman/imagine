@@ -38,7 +38,7 @@ namespace Imagine.StandardMachines
             // btnOK
             // 
             this.btnOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnOK.Location = new System.Drawing.Point(10, 56);
+            this.btnOK.Location = new System.Drawing.Point(12, 38);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(75, 23);
             this.btnOK.TabIndex = 0;
@@ -49,7 +49,7 @@ namespace Imagine.StandardMachines
             // btnCancel
             // 
             this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnCancel.Location = new System.Drawing.Point(91, 56);
+            this.btnCancel.Location = new System.Drawing.Point(102, 38);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 1;
@@ -59,20 +59,20 @@ namespace Imagine.StandardMachines
             // 
             // numericBox
             // 
-            this.numericBox.DecimalPlaces = 1;
+            this.numericBox.DecimalPlaces = 2;
             this.numericBox.Increment = new decimal(new int[] {
-            1,
+            5,
             0,
             0,
-            65536});
-            this.numericBox.Location = new System.Drawing.Point(15, 25);
+            131072});
+            this.numericBox.Location = new System.Drawing.Point(127, 7);
             this.numericBox.Maximum = new decimal(new int[] {
             10,
             0,
             0,
             0});
             this.numericBox.Name = "numericBox";
-            this.numericBox.Size = new System.Drawing.Size(120, 20);
+            this.numericBox.Size = new System.Drawing.Size(47, 20);
             this.numericBox.TabIndex = 2;
             // 
             // label
@@ -80,20 +80,26 @@ namespace Imagine.StandardMachines
             this.label.AutoSize = true;
             this.label.Location = new System.Drawing.Point(12, 9);
             this.label.Name = "label";
-            this.label.Size = new System.Drawing.Size(109, 13);
+            this.label.Size = new System.Drawing.Size(112, 13);
             this.label.TabIndex = 3;
-            this.label.Text = "Please give a number";
+            this.label.Text = "Please give a number:";
             // 
             // NumberInput
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(178, 91);
+            this.ClientSize = new System.Drawing.Size(189, 73);
+            this.ControlBox = false;
             this.Controls.Add(this.label);
             this.Controls.Add(this.numericBox);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnOK);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "NumberInput";
+            this.ShowIcon = false;
+            this.ShowInTaskbar = false;
             this.Text = "NumberInput";
             ((System.ComponentModel.ISupportInitialize)(this.numericBox)).EndInit();
             this.ResumeLayout(false);
