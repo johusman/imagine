@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using Imagine.Library;
 using System.Diagnostics;
 using System.IO;
+using Imagine.GUI.Properties;
 
 namespace Imagine.GUI
 {
@@ -28,6 +29,9 @@ namespace Imagine.GUI
             
             showTooltipsToolStripMenuItem.Checked = graphArea1.ShowTooltips;
             showPreviewToolStripMenuItem.Checked = panelPreview.Visible;
+
+            webBrowser.DocumentText = Resources.help;
+                
         }
 
         private void CreateNewFacade()
@@ -225,6 +229,12 @@ namespace Imagine.GUI
 
             if (showPreviewToolStripMenuItem.Checked)
                 DoPreview();
+        }
+
+        private void showHelpToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            showHelpToolStripMenuItem.Checked = !showHelpToolStripMenuItem.Checked;
+            webBrowser.Visible = showHelpToolStripMenuItem.Checked;
         }
     }
 }

@@ -67,6 +67,29 @@ namespace Imagine.GUI.Properties {
             }
         }
         
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0 Transitional//EN&quot;&gt;
+        ///&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
+        ///&lt;head&gt;
+        ///    &lt;title&gt;&lt;/title&gt;
+        ///&lt;/head&gt;
+        ///&lt;body style=&apos;background-color: #FFFFE0; font-family: sans-serif; font-size: 8pt;
+        ///    border: 1px solid black&apos;&gt;
+        ///    &lt;h4&gt;
+        ///        Quick reference&lt;/h4&gt;
+        ///    &lt;p&gt;
+        ///        &lt;b&gt;In empty area&lt;/b&gt;
+        ///        &lt;ul style=&apos;margin-left: 2em; margin-top:0&apos;&gt;
+        ///            &lt;li&gt;&lt;i&gt;Right click in empty area&lt;/i&gt;&lt;br /&gt;
+        ///                Lets you choose a new machine to insert.&lt;/li&gt;
+        ///  [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string help {
+            get {
+                return ResourceManager.GetString("help", resourceCulture);
+            }
+        }
+        
         internal static System.Drawing.Bitmap Imagine_Destination {
             get {
                 object obj = ResourceManager.GetObject("Imagine_Destination", resourceCulture);

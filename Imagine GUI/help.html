@@ -1,0 +1,144 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+</head>
+<body style='background-color: #FFFFE0; font-family: sans-serif; font-size: 8pt;
+    border: 1px solid black'>
+    <h4>
+        Quick reference</h4>
+    <p>
+        <b>In empty area</b>
+        <ul style='margin-left: 2em; margin-top:0'>
+            <li><i>Right click in empty area</i><br />
+                Lets you choose a new machine to insert.</li>
+        </ul>
+        <b>Over machine</b>
+        <ul style='margin-left: 2em; margin-top:0'>
+            <li><i>Left mouse button drag</i><br />
+                Moves a machine.</li>
+            <li><i>Right mouse button drag</i><br />
+                Connects one machine to another.</li>
+            <li><i>Double left click</i><br />
+                Change settings for machine, if any.</li>
+            <li><i>Double right click</i><br />
+                Removes machine.</li>
+            <li><i>Hover</i><br />
+                Shows machine description.</li>
+        </ul>
+        <b>Over port</b>
+        <ul style='margin-left: 2em; margin-top:0'>
+            <li><i>Double right click</i><br />
+                Breaks connection.</li>
+            <li><i>Hover</i><br />
+                Shows port description.</li>
+        </ul>
+    </p>
+    <h4>
+        Imagine fundamentals</h4>
+    <p>
+        <b>Machines and ports</b><br />
+        Imagine works by adding and connecting <i>machines</i>, which are represented by
+        circles with the type of the machine inscribed. Each machine has a certain set of
+        input and output <i>ports</i>. Unconnected ports are not shown;
+        connected ports are represented by smaller black (output) and white (input) circles.
+        The exact number of input and output ports depends
+        on the type of the machine.<br />
+        Each connection from one machine to another starts in a certain output port of the
+        first machine, and ends in a certain input port of the second machine. Thus, you
+        are really connecting ports to one another.
+    </p>
+    <p>
+        <b>Opening and saving images</b><br />
+        Two machines are always present in Imagine: <i>Source</i> and <i>Destination</i>.<br />
+        The <i>Source</i> machine takes an image from a file and uses it as output on its single
+        output port.<br />
+        The <i>Destination</i> machine takes the image it receives on its single input port and
+        saves it to a file. <br />
+        You can determine which file is opened or saved by double clicking on the corresponding
+        Source or Destination machine.
+    </p>
+    <p>
+        <b>Generating: processing images</b><br />
+        When you choose <b>Generate!</b> from the menu, images will flow between your machines along the connections you have set up.
+        Different machines will process, extract or combine images in different ways, depending
+        on the type of the machine. For example, the <i>Inverter</i> machine (<i>Imagine->Img->Inverter</i>)
+        will take one input image and deliver as output an image that has the color and brightness
+        of each pixel inverted.<br />
+        The simplest thing you can do in Imagine is to connect the Source machine to the Destination
+        machine. This will have the effect of copying the image from the selected source file to
+        the selected destination file. More interesting image processing can be achieved by connecting
+        other machines between Source and Destination.
+    </p>
+    <p>
+        <b>Previewing</b><br />
+        By enabling it from the <b>Options</b> menu, you can turn on the <i>Preview pane</i>.
+        This pane shows a thumbnail of the image select as source image for the Source machine,
+        and also a thumbnail of what the image received and saved by the Destination machine
+        will look like. If there is no connecting path between Source and Destination, the
+        lower image will show the last image before the connection was broken.<br />
+        For clarity, the effects of some machines will be exagerated in the preview.
+    </p>
+    <p>
+        <b>Two kinds of images</b><br />
+        In Imagine, there are two kinds of images that can be passed between machines:
+        <i>full images</i> and <i>control images</i>.<br />
+        Full images are the kind of images
+        you save in files; a two-dimensional array of pixels with Alpha (opacity), Red, Green
+        and Blue channels. These types of images are normally the start and end product of
+        an Imagine generation.<br />
+        Some machines will have outputs that represent only <b>one</b> value per pixel; for
+        example, the HSL Split machine outputs on separate ports the Hue, Saturation and Lightness
+        of each pixel of the input image. These are not full images, for what would be the red, green
+        and blue of a Saturation value? Instead, these are control images. Control images have only
+        one value per pixel &mdash; they are <i>single-channel</i> images, intended to be used by
+        some other machine that expects a single-channel image as input on a port. This other machine
+        could perhaps be the HSL Join machine, which has input ports for Hue, Saturation and Lightness
+        and builds a new full image from these as output.<br />
+        Control images are internally coded as images where the red, green and blue channels have been
+        supressed to zero. The single-channel value of the control image is instead encoded in the alpha
+        (opacity) channel of the image.
+    </p>
+    <p>
+        <b>Two kinds of machines, sort of</b><br />
+        The partition into full images and control images &mdash; or, if you will, <i>full-channel</i> and
+        <i>single-channel</i> images &mdash; means that certain machines expect only control images as input,
+        while others expect full images as input; also, some machines give only control images as output, even
+        if the input is a full images.<br />
+        Because of this, some machines, such as the Inverter machine, come in two varieties: an Inverter and 
+        a Control Inverter (labeled [Inverter]). The Inverter machine leaves the alpha channel of the input intact.
+        The Control Inverter, on the other hand, looks <b>only</b> at the alpha channel of the input, as it
+        expects a control image.<br />
+        As noted above, control image versions of machines are usually labeled as the full image version, but
+        enclosed in square brackets, such as [Inverter], [Gain] and [Multiply].<br />
+        Choosing the correct version of the machine is critical. It is not an error to pass a full image to 
+        an input expecting a control image (or vice versa), but the results may not be what you intended. On
+        the other hand, if you are clever they may be <b>exactly</b> what you intended.<br />
+        Finally, note that some machines expect a full image on one port <b>and</b> a control image on another
+        port; this is where control images get their name, as they as then used to <i>control</i> some aspect
+        of the processing of the full image, per pixel.
+    </p>
+    <p>
+        <b>Graphs</b><br />
+        The machines you have added and their connections are collectively called a <i>graph</i>. You can open
+        and save graphs from the <b>File</b> menu, to reuse or share them with others.<br />
+        When opening a graph from file, the currently selected source and destination file names will be retained.
+    </p>
+    <p>
+        <b>More machines!</b><br />
+        Imagine is easily extendable with new types of machines! Creating new machines and their graphic representations
+        is a topic for a completely different help text, but if you have obtained a DLL-file containing extra
+        machines, you need only put it in the same directory as the Imagine.exe program, and (re)start Imagine.
+        Imagine will automatically recognize and load the new machines.<br />
+        If you load a graph from file which uses machines that you do not have on your system, Imagine will
+        ignore them and warn you about which machines you were missing. You will almost certainly end up with
+        a strangely disconnected graph, though.
+    </p>
+    <p>
+        <b>No feedback, please</b><br />
+        One thing Imagine cannot (to date) handle is connections that form a <i>cycle</i> (also known as a <i>feedback loop</i>)
+        where images are eternally returning to effect machines they came from. Mathematically, Imagine graphs are
+        <i>Directed Acyclic Graphs (DAGs)</i>. Imagine will complain loudly if you try to construct such a cycle.
+    </p>
+</body>
+</html>

@@ -30,13 +30,9 @@ namespace Imagine.GUI
         {
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.lblSourceFile = new System.Windows.Forms.LinkLabel();
-            this.lblDestinationFile = new System.Windows.Forms.LinkLabel();
-            this.lblDestination = new System.Windows.Forms.Label();
-            this.lblSource = new System.Windows.Forms.Label();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.newGraphToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openGraphToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveGraphToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
@@ -49,6 +45,7 @@ namespace Imagine.GUI
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.showTooltipsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.showPreviewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.webBrowser = new System.Windows.Forms.WebBrowser();
             this.panelPreview = new System.Windows.Forms.Panel();
             this.lblTiming = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
@@ -57,81 +54,27 @@ namespace Imagine.GUI
             this.pictureDestinationPreview = new System.Windows.Forms.PictureBox();
             this.pictureSourcePreview = new System.Windows.Forms.PictureBox();
             this.graphArea1 = new Imagine.GUI.GraphArea();
-            this.newGraphToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.panel1.SuspendLayout();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.lblSourceFile = new System.Windows.Forms.LinkLabel();
+            this.lblDestinationFile = new System.Windows.Forms.LinkLabel();
+            this.lblDestination = new System.Windows.Forms.Label();
+            this.lblSource = new System.Windows.Forms.Label();
+            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.showHelpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.panelPreview.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureDestinationPreview)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureSourcePreview)).BeginInit();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // panel1
-            // 
-            this.panel1.BackgroundImage = global::Imagine.GUI.Properties.Resources.gradient;
-            this.panel1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.panel1.Controls.Add(this.lblSourceFile);
-            this.panel1.Controls.Add(this.lblDestinationFile);
-            this.panel1.Controls.Add(this.lblDestination);
-            this.panel1.Controls.Add(this.lblSource);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel1.Location = new System.Drawing.Point(0, 450);
-            this.panel1.Margin = new System.Windows.Forms.Padding(1);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(714, 35);
-            this.panel1.TabIndex = 0;
-            // 
-            // lblSourceFile
-            // 
-            this.lblSourceFile.AutoSize = true;
-            this.lblSourceFile.BackColor = System.Drawing.Color.Transparent;
-            this.lblSourceFile.Location = new System.Drawing.Point(107, 4);
-            this.lblSourceFile.Name = "lblSourceFile";
-            this.lblSourceFile.Size = new System.Drawing.Size(67, 13);
-            this.lblSourceFile.TabIndex = 3;
-            this.lblSourceFile.TabStop = true;
-            this.lblSourceFile.Text = "lblSourceFile";
-            this.lblSourceFile.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkClicked);
-            // 
-            // lblDestinationFile
-            // 
-            this.lblDestinationFile.AutoSize = true;
-            this.lblDestinationFile.BackColor = System.Drawing.Color.Transparent;
-            this.lblDestinationFile.Location = new System.Drawing.Point(107, 17);
-            this.lblDestinationFile.Name = "lblDestinationFile";
-            this.lblDestinationFile.Size = new System.Drawing.Size(86, 13);
-            this.lblDestinationFile.TabIndex = 2;
-            this.lblDestinationFile.TabStop = true;
-            this.lblDestinationFile.Text = "lblDestinationFile";
-            this.lblDestinationFile.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkClicked);
-            // 
-            // lblDestination
-            // 
-            this.lblDestination.AutoSize = true;
-            this.lblDestination.BackColor = System.Drawing.Color.Transparent;
-            this.lblDestination.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblDestination.Location = new System.Drawing.Point(4, 17);
-            this.lblDestination.Name = "lblDestination";
-            this.lblDestination.Size = new System.Drawing.Size(96, 13);
-            this.lblDestination.TabIndex = 1;
-            this.lblDestination.Text = "Destination file:";
-            // 
-            // lblSource
-            // 
-            this.lblSource.AutoSize = true;
-            this.lblSource.BackColor = System.Drawing.Color.Transparent;
-            this.lblSource.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblSource.Location = new System.Drawing.Point(4, 4);
-            this.lblSource.Name = "lblSource";
-            this.lblSource.Size = new System.Drawing.Size(72, 13);
-            this.lblSource.TabIndex = 0;
-            this.lblSource.Text = "Source file:";
             // 
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
             this.generateToolStripMenuItem,
-            this.optionsToolStripMenuItem});
+            this.optionsToolStripMenuItem,
+            this.helpToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(714, 24);
@@ -153,18 +96,25 @@ namespace Imagine.GUI
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(35, 20);
             this.fileToolStripMenuItem.Text = "File";
             // 
+            // newGraphToolStripMenuItem
+            // 
+            this.newGraphToolStripMenuItem.Name = "newGraphToolStripMenuItem";
+            this.newGraphToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.newGraphToolStripMenuItem.Text = "New Graph";
+            this.newGraphToolStripMenuItem.Click += new System.EventHandler(this.newGraphToolStripMenuItem_Click);
+            // 
             // openGraphToolStripMenuItem
             // 
             this.openGraphToolStripMenuItem.Name = "openGraphToolStripMenuItem";
-            this.openGraphToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
-            this.openGraphToolStripMenuItem.Text = "Open graph...";
+            this.openGraphToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.openGraphToolStripMenuItem.Text = "Open Graph...";
             this.openGraphToolStripMenuItem.Click += new System.EventHandler(this.openGraphToolStripMenuItem_Click);
             // 
             // saveGraphToolStripMenuItem
             // 
             this.saveGraphToolStripMenuItem.Name = "saveGraphToolStripMenuItem";
-            this.saveGraphToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
-            this.saveGraphToolStripMenuItem.Text = "Save graph...";
+            this.saveGraphToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveGraphToolStripMenuItem.Text = "Save Graph...";
             this.saveGraphToolStripMenuItem.Click += new System.EventHandler(this.saveGraphToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
@@ -175,15 +125,15 @@ namespace Imagine.GUI
             // openSourceToolStripMenuItem
             // 
             this.openSourceToolStripMenuItem.Name = "openSourceToolStripMenuItem";
-            this.openSourceToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
-            this.openSourceToolStripMenuItem.Text = "Open source...";
+            this.openSourceToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.openSourceToolStripMenuItem.Text = "Open Source...";
             this.openSourceToolStripMenuItem.Click += new System.EventHandler(this.openSourceToolStripMenuItem_Click);
             // 
             // openDestinationToolStripMenuItem
             // 
             this.openDestinationToolStripMenuItem.Name = "openDestinationToolStripMenuItem";
-            this.openDestinationToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
-            this.openDestinationToolStripMenuItem.Text = "Open destination...";
+            this.openDestinationToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.openDestinationToolStripMenuItem.Text = "Open Destination...";
             this.openDestinationToolStripMenuItem.Click += new System.EventHandler(this.openDestinationToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
@@ -236,6 +186,21 @@ namespace Imagine.GUI
             this.showPreviewToolStripMenuItem.Text = "Show Preview";
             this.showPreviewToolStripMenuItem.Click += new System.EventHandler(this.showPreviewToolStripMenuItem_Click);
             // 
+            // webBrowser
+            // 
+            this.webBrowser.AllowNavigation = false;
+            this.webBrowser.AllowWebBrowserDrop = false;
+            this.webBrowser.Dock = System.Windows.Forms.DockStyle.Right;
+            this.webBrowser.IsWebBrowserContextMenuEnabled = false;
+            this.webBrowser.Location = new System.Drawing.Point(423, 24);
+            this.webBrowser.MinimumSize = new System.Drawing.Size(20, 20);
+            this.webBrowser.Name = "webBrowser";
+            this.webBrowser.ScriptErrorsSuppressed = true;
+            this.webBrowser.Size = new System.Drawing.Size(291, 426);
+            this.webBrowser.TabIndex = 4;
+            this.webBrowser.Visible = false;
+            this.webBrowser.WebBrowserShortcutsEnabled = false;
+            // 
             // panelPreview
             // 
             this.panelPreview.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
@@ -246,7 +211,7 @@ namespace Imagine.GUI
             this.panelPreview.Controls.Add(this.pictureDestinationPreview);
             this.panelPreview.Controls.Add(this.pictureSourcePreview);
             this.panelPreview.Dock = System.Windows.Forms.DockStyle.Right;
-            this.panelPreview.Location = new System.Drawing.Point(587, 24);
+            this.panelPreview.Location = new System.Drawing.Point(296, 24);
             this.panelPreview.Name = "panelPreview";
             this.panelPreview.Size = new System.Drawing.Size(127, 426);
             this.panelPreview.TabIndex = 3;
@@ -317,12 +282,81 @@ namespace Imagine.GUI
             this.graphArea1.Size = new System.Drawing.Size(714, 426);
             this.graphArea1.TabIndex = 2;
             // 
-            // newGraphToolStripMenuItem
+            // panel1
             // 
-            this.newGraphToolStripMenuItem.Name = "newGraphToolStripMenuItem";
-            this.newGraphToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
-            this.newGraphToolStripMenuItem.Text = "New graph";
-            this.newGraphToolStripMenuItem.Click += new System.EventHandler(this.newGraphToolStripMenuItem_Click);
+            this.panel1.BackgroundImage = global::Imagine.GUI.Properties.Resources.gradient;
+            this.panel1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.panel1.Controls.Add(this.lblSourceFile);
+            this.panel1.Controls.Add(this.lblDestinationFile);
+            this.panel1.Controls.Add(this.lblDestination);
+            this.panel1.Controls.Add(this.lblSource);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.panel1.Location = new System.Drawing.Point(0, 450);
+            this.panel1.Margin = new System.Windows.Forms.Padding(1);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(714, 35);
+            this.panel1.TabIndex = 0;
+            // 
+            // lblSourceFile
+            // 
+            this.lblSourceFile.AutoSize = true;
+            this.lblSourceFile.BackColor = System.Drawing.Color.Transparent;
+            this.lblSourceFile.Location = new System.Drawing.Point(107, 4);
+            this.lblSourceFile.Name = "lblSourceFile";
+            this.lblSourceFile.Size = new System.Drawing.Size(67, 13);
+            this.lblSourceFile.TabIndex = 3;
+            this.lblSourceFile.TabStop = true;
+            this.lblSourceFile.Text = "lblSourceFile";
+            this.lblSourceFile.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkClicked);
+            // 
+            // lblDestinationFile
+            // 
+            this.lblDestinationFile.AutoSize = true;
+            this.lblDestinationFile.BackColor = System.Drawing.Color.Transparent;
+            this.lblDestinationFile.Location = new System.Drawing.Point(107, 17);
+            this.lblDestinationFile.Name = "lblDestinationFile";
+            this.lblDestinationFile.Size = new System.Drawing.Size(86, 13);
+            this.lblDestinationFile.TabIndex = 2;
+            this.lblDestinationFile.TabStop = true;
+            this.lblDestinationFile.Text = "lblDestinationFile";
+            this.lblDestinationFile.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkClicked);
+            // 
+            // lblDestination
+            // 
+            this.lblDestination.AutoSize = true;
+            this.lblDestination.BackColor = System.Drawing.Color.Transparent;
+            this.lblDestination.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblDestination.Location = new System.Drawing.Point(4, 17);
+            this.lblDestination.Name = "lblDestination";
+            this.lblDestination.Size = new System.Drawing.Size(96, 13);
+            this.lblDestination.TabIndex = 1;
+            this.lblDestination.Text = "Destination file:";
+            // 
+            // lblSource
+            // 
+            this.lblSource.AutoSize = true;
+            this.lblSource.BackColor = System.Drawing.Color.Transparent;
+            this.lblSource.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblSource.Location = new System.Drawing.Point(4, 4);
+            this.lblSource.Name = "lblSource";
+            this.lblSource.Size = new System.Drawing.Size(72, 13);
+            this.lblSource.TabIndex = 0;
+            this.lblSource.Text = "Source file:";
+            // 
+            // helpToolStripMenuItem
+            // 
+            this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.showHelpToolStripMenuItem});
+            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(40, 20);
+            this.helpToolStripMenuItem.Text = "Help";
+            // 
+            // showHelpToolStripMenuItem
+            // 
+            this.showHelpToolStripMenuItem.Name = "showHelpToolStripMenuItem";
+            this.showHelpToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.showHelpToolStripMenuItem.Text = "Show Help";
+            this.showHelpToolStripMenuItem.Click += new System.EventHandler(this.showHelpToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -330,19 +364,20 @@ namespace Imagine.GUI
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(714, 485);
             this.Controls.Add(this.panelPreview);
+            this.Controls.Add(this.webBrowser);
             this.Controls.Add(this.graphArea1);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.menuStrip1);
             this.Name = "MainForm";
             this.Text = "Imagine";
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.panelPreview.ResumeLayout(false);
             this.panelPreview.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureDestinationPreview)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureSourcePreview)).EndInit();
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -380,6 +415,9 @@ namespace Imagine.GUI
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripMenuItem openGraphToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem newGraphToolStripMenuItem;
+        private System.Windows.Forms.WebBrowser webBrowser;
+        private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem showHelpToolStripMenuItem;
     }
 }
 
