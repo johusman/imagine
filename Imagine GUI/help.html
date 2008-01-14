@@ -37,6 +37,13 @@
     <h4>
         Imagine fundamentals</h4>
     <p>
+        <b>What is Imagine?</b><br />
+        Imagine is an image processing tool, suitable for both batch transformations and creative
+        speculation. The system lets you combine different image manipulation operations in
+        complex sequences using a directed graph metaphor. Imagine is reminiscent of and
+        inspired by audio processing systems such as FX, Buzz and Reactor.
+    </p>
+    <p>
         <b>Machines and ports</b><br />
         Imagine works by adding and connecting <i>machines</i>, which are represented by
         circles with the type of the machine inscribed. Each machine has a certain set of
@@ -68,12 +75,12 @@
         The simplest thing you can do in Imagine is to connect the Source machine to the Destination
         machine. This will have the effect of copying the image from the selected source file to
         the selected destination file. More interesting image processing can be achieved by connecting
-        other machines between Source and Destination.
+        other machines in-between Source and Destination.
     </p>
     <p>
         <b>Previewing</b><br />
         By enabling it from the <b>Options</b> menu, you can turn on the <i>Preview pane</i>.
-        This pane shows a thumbnail of the image select as source image for the Source machine,
+        This pane shows a thumbnail of the image selected as source image for the Source machine,
         and also a thumbnail of what the image received and saved by the Destination machine
         will look like. If there is no connecting path between Source and Destination, the
         lower image will show the last image before the connection was broken.<br />
@@ -83,19 +90,19 @@
         <b>Two kinds of images</b><br />
         In Imagine, there are two kinds of images that can be passed between machines:
         <i>full images</i> and <i>control images</i>.<br />
-        Full images are the kind of images
+        <i>Full images</i> are the kind of images
         you save in files; a two-dimensional array of pixels with Alpha (opacity), Red, Green
         and Blue channels. These types of images are normally the start and end product of
         an Imagine generation.<br />
         Some machines will have outputs that represent only <b>one</b> value per pixel; for
         example, the HSL Split machine outputs on separate ports the Hue, Saturation and Lightness
-        of each pixel of the input image. These are not full images, for what would be the red, green
-        and blue of a Saturation value? Instead, these are control images. Control images have only
+        of each pixel of the input image. These are not full images, for what would the red, green
+        and blue components of a Saturation value be? Instead, these are <i>control images</i>. Control images have only
         one value per pixel &mdash; they are <i>single-channel</i> images, intended to be used by
         some other machine that expects a single-channel image as input on a port. This other machine
         could perhaps be the HSL Join machine, which has input ports for Hue, Saturation and Lightness
         and builds a new full image from these as output.<br />
-        Control images are internally coded as images where the red, green and blue channels have been
+        Control images are internally represented as images where the red, green and blue channels have been
         supressed to zero. The single-channel value of the control image is instead encoded in the alpha
         (opacity) channel of the image.
     </p>
@@ -115,14 +122,14 @@
         an input expecting a control image (or vice versa), but the results may not be what you intended. On
         the other hand, if you are clever they may be <b>exactly</b> what you intended.<br />
         Finally, note that some machines expect a full image on one port <b>and</b> a control image on another
-        port; this is where control images get their name, as they as then used to <i>control</i> some aspect
+        port; this is where control images get their name, as they are then used to <i>control</i> some aspect
         of the processing of the full image, per pixel.
     </p>
     <p>
         <b>Graphs</b><br />
         The machines you have added and their connections are collectively called a <i>graph</i>. You can open
-        and save graphs from the <b>File</b> menu, to reuse or share them with others.<br />
-        When opening a graph from file, the currently selected source and destination file names will be retained.
+        and save complete graphs from the <b>File</b> menu, to reuse or share them with others.<br />
+        When opening a graph from file, the currently selected image source and image destination file names will be retained.
     </p>
     <p>
         <b>More machines!</b><br />
@@ -131,7 +138,7 @@
         machines, you need only put it in the same directory as the Imagine.exe program, and (re)start Imagine.
         Imagine will automatically recognize and load the new machines.<br />
         If you load a graph from file which uses machines that you do not have on your system, Imagine will
-        ignore them and warn you about which machines you were missing. You will almost certainly end up with
+        ignore them when creating the graph, and warn you about which machines you were missing. You will almost certainly end up with
         a strangely disconnected graph, though.
     </p>
     <p>
