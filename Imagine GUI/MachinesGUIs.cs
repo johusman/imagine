@@ -18,12 +18,20 @@ namespace Imagine.GUI
             set { node = value; }
         }
 
-        private Bitmap bitmap = null;
+        private Bitmap halfDimmedBitmap = null;
 
-        public Bitmap Bitmap
+        public Bitmap HalfDimmedBitmap
         {
-            get { return bitmap; }
-            set { bitmap = value; }
+            get { return halfDimmedBitmap; }
+            set { halfDimmedBitmap = value; }
+        }
+
+        private Bitmap dimmedBitmap = null;
+
+        public Bitmap DimmedBitmap
+        {
+            get { return dimmedBitmap; }
+            set { dimmedBitmap = value; }
         }
 
         public virtual Brush Background
@@ -33,14 +41,17 @@ namespace Imagine.GUI
 
         protected void SetBitmap(Bitmap newBitmap)
         {
-            Bitmap alphaBitmap = (Bitmap) newBitmap.Clone();
-            for(int x = 0; x < alphaBitmap.Width; x++)
-                for(int y = 0; y < alphaBitmap.Height; y++)
+            Bitmap newDimmedBitmap = (Bitmap) newBitmap.Clone();
+            Bitmap newHalfDimmedBitmap = (Bitmap)newBitmap.Clone();
+            for(int x = 0; x < newDimmedBitmap.Width; x++)
+                for(int y = 0; y < newDimmedBitmap.Height; y++)
                 {
-                    double b = 1.0 - alphaBitmap.GetPixel(x, y).GetBrightness();
-                    alphaBitmap.SetPixel(x, y, Color.FromArgb((int)(20 * b), Color.Black)); 
+                    double b = 1.0 - newDimmedBitmap.GetPixel(x, y).GetBrightness();
+                    newDimmedBitmap.SetPixel(x, y, Color.FromArgb((int)(20 * b), Color.Black));
+                    newHalfDimmedBitmap.SetPixel(x, y, Color.FromArgb((int)(128 * b), Color.Black)); 
                 }
-            bitmap = alphaBitmap;
+            dimmedBitmap = newDimmedBitmap;
+            halfDimmedBitmap = newHalfDimmedBitmap;
         }
 
         public virtual void LaunchSettings(GraphArea graphArea) { }

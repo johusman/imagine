@@ -101,5 +101,12 @@ namespace Standard_Machines {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
+        
+        internal static System.Drawing.Bitmap Imagine_Img_Proximity {
+            get {
+                object obj = ResourceManager.GetObject("Imagine_Img_Proximity", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
     }
 }

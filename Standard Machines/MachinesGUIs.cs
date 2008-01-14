@@ -116,6 +116,11 @@ namespace Imagine.StandardMachines
     [GUIForMachine("Imagine.Img.ColorProximity")]
     public class ColorProximityGUI : MachineGUI
     {
+        public ColorProximityGUI()
+        {
+            SetBitmap(Resources.Imagine_Img_Proximity);
+        }
+
         public ColorProximityMachine MyMachine
         {
             get { return (ColorProximityMachine)Node.Machine; }
@@ -140,6 +145,11 @@ namespace Imagine.StandardMachines
     [GUIForMachine("Imagine.Img.HueProximity")]
     public class HueProximityGUI : MachineGUI
     {
+        public HueProximityGUI()
+        {
+            SetBitmap(Resources.Imagine_Img_Proximity);
+        }
+
         public HueProximityMachine MyMachine
         {
             get { return (HueProximityMachine)Node.Machine; }

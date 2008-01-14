@@ -90,9 +90,10 @@ namespace Imagine.GUI
                     List<string> uniqueNames = new List<string>(facade.MachineTypes.Keys);
                     uniqueNames.Remove("Imagine.Source");
                     uniqueNames.Remove("Imagine.Destination");
-                    ConstructNewMachineMenu(uniqueNames);
 
                     LoadMachineGUITypes(facade.WorkingDirectory);
+
+                    ConstructNewMachineMenu(uniqueNames);
                 }
             }
         }
@@ -142,9 +143,15 @@ namespace Imagine.GUI
                     currentParentCollection = newGroupItem.DropDownItems;
                 }
 
+                Image image = null;
+                if(machineGUITypes.ContainsKey(facade.MachineTypes[uniqueName]))
+                    image = ((MachineGUI)Activator.CreateInstance(machineGUITypes[facade.MachineTypes[uniqueName]])).HalfDimmedBitmap;
+                
                 ToolStripMenuItem item = new ToolStripMenuItem();
                 item.Tag = uniqueName;
                 item.Text = text;
+                item.Image = image;
+                item.ImageScaling = ToolStripItemImageScaling.SizeToFit;
                 item.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
                 currentParentCollection.Add(item);
 
@@ -277,8 +284,8 @@ namespace Imagine.GUI
             graphics.DrawEllipse(machinepen, p.X - MACHINE_R, p.Y - MACHINE_R, MACHINE_R * 2, MACHINE_R * 2);
             
             
-            if(gui.Bitmap != null)
-                graphics.DrawImage(GUIForNode(node).Bitmap, p.X - 16, p.Y - 16);
+            if(gui.DimmedBitmap != null)
+                graphics.DrawImage(GUIForNode(node).DimmedBitmap, p.X - 16, p.Y - 16);
             
             SizeF textSize = graphics.MeasureString(node.Machine.Caption, Font);
             graphics.DrawString(node.Machine.Caption, Font, arrowbrush, p.X - textSize.Width/2 + 1, p.Y - textSize.Height/2);
