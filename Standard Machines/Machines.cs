@@ -387,6 +387,19 @@ namespace Imagine.StandardMachines
             get { return "Dyn Blur"; }
         }
 
+        public override void LoadSettings(string settings)
+        {
+            Dictionary<string, string> properties = ParseSettings(settings);
+            int? iterationsSetting = GetInt(properties, "iterations");
+            if (iterationsSetting != null)
+                iterations = iterationsSetting.Value;
+        }
+
+        public override string SaveSettings()
+        {
+            return CompileSettings(Set(null, "iterations", iterations));
+        }
+
         protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
         {
             FullImage result = NewFull(inputs[0]);
@@ -458,6 +471,19 @@ namespace Imagine.StandardMachines
             get { return "[SContrast]"; }
         }
 
+        public override void LoadSettings(string settings)
+        {
+            Dictionary<string, string> properties = ParseSettings(settings);
+            double? amountSetting = GetDouble(properties, "amount");
+            if (amountSetting != null)
+                amount = amountSetting.Value;
+        }
+
+        public override string SaveSettings()
+        {
+            return CompileSettings(Set(null, "amount", amount));
+        }
+
         protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
         {
             ControlImage result = NewControl(inputs[0]);
@@ -502,6 +528,19 @@ namespace Imagine.StandardMachines
         public override string Caption
         {
             get { return "[HContrast]"; }
+        }
+
+        public override void LoadSettings(string settings)
+        {
+            Dictionary<string, string> properties = ParseSettings(settings);
+            double? amountSetting = GetDouble(properties, "amount");
+            if (amountSetting != null)
+                amount = amountSetting.Value;
+        }
+
+        public override string SaveSettings()
+        {
+            return CompileSettings(Set(null, "amount", amount));
         }
 
         protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
@@ -550,6 +589,19 @@ namespace Imagine.StandardMachines
             get { return "Gain"; }
         }
 
+        public override void LoadSettings(string settings)
+        {
+            Dictionary<string, string> properties = ParseSettings(settings);
+            double? gainSetting = GetDouble(properties, "gain");
+            if (gainSetting != null)
+                gain = gainSetting.Value;
+        }
+
+        public override string SaveSettings()
+        {
+            return CompileSettings(Set(null, "gain", gain));
+        }
+
         protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
         {
             FullImage result = NewFull(inputs[0]);
@@ -594,6 +646,19 @@ namespace Imagine.StandardMachines
             get { return "[Gain]"; }
         }
 
+        public override void LoadSettings(string settings)
+        {
+            Dictionary<string, string> properties = ParseSettings(settings);
+            double? gainSetting = GetDouble(properties, "gain");
+            if (gainSetting != null)
+                gain = gainSetting.Value;
+        }
+
+        public override string SaveSettings()
+        {
+            return CompileSettings(Set(null, "gain", gain));
+        }
+
         protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
         {
             ControlImage result = NewControl(inputs[0]);
@@ -635,6 +700,28 @@ namespace Imagine.StandardMachines
         public override string Caption
         {
             get { return "Color prox."; }
+        }
+
+        public override void LoadSettings(string settings)
+        {
+            Dictionary<string, string> properties = ParseSettings(settings);
+            int? redSetting = GetInt(properties, "red");
+            int? greenSetting = GetInt(properties, "green");
+            int? blueSetting = GetInt(properties, "blue");
+            if (redSetting != null && greenSetting != null && blueSetting != null)
+                targetColor = new ImagineColor(ImagineColor.MAX,
+                    ImagineColor.MAX / 256 * redSetting.Value,
+                    ImagineColor.MAX / 256 * greenSetting.Value,
+                    ImagineColor.MAX / 256 * blueSetting.Value);
+        }
+
+        public override string SaveSettings()
+        {
+            Dictionary<string, string> properties = new Dictionary<string, string>();
+            Set(properties, "red", targetColor.R * 256 / ImagineColor.MAX);
+            Set(properties, "green", targetColor.G * 256 / ImagineColor.MAX);
+            Set(properties, "blue", targetColor.B * 256 / ImagineColor.MAX);
+            return CompileSettings(properties);
         }
 
         protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
@@ -685,6 +772,28 @@ namespace Imagine.StandardMachines
         public override string Caption
         {
             get { return "Hue prox."; }
+        }
+
+        public override void LoadSettings(string settings)
+        {
+            Dictionary<string, string> properties = ParseSettings(settings);
+            int? redSetting = GetInt(properties, "red");
+            int? greenSetting = GetInt(properties, "green");
+            int? blueSetting = GetInt(properties, "blue");
+            if (redSetting != null && greenSetting != null && blueSetting != null)
+                targetColor = new ImagineColor(ImagineColor.MAX,
+                    ImagineColor.MAX / 256 * redSetting.Value,
+                    ImagineColor.MAX / 256 * greenSetting.Value,
+                    ImagineColor.MAX / 256 * blueSetting.Value);
+        }
+
+        public override string SaveSettings()
+        {
+            Dictionary<string, string> properties = new Dictionary<string, string>();
+            Set(properties, "red", targetColor.R * 256 / ImagineColor.MAX);
+            Set(properties, "green", targetColor.G * 256 / ImagineColor.MAX);
+            Set(properties, "blue", targetColor.B * 256 / ImagineColor.MAX);
+            return CompileSettings(properties);
         }
 
         protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)

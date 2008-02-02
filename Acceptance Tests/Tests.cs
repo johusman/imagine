@@ -413,6 +413,125 @@ namespace Imagine.AcceptanceTests
             Assert.AreEqual(7, graph.ConnectionCount);
         }
 
+        [Test]
+        public void that_we_can_load_simple_machine_settings_from_a_file()
+        {
+            facade.MachineTypes["Test.LoadSave"] = typeof(LoadSaveMachine);
+
+            string serialize =
+                "Graph {\n" +
+                "\tImagine.Source 'machine0' {}\n" +
+
+                "\tTest.LoadSave 'machine1' {\n" +
+                "\t\t'machine0' -> \n" +
+                "\t\t[\n" +
+                "\t\t\tValue = '2'\n" +
+                "\t\t]\n" +
+                "\t}\n" +
+
+                "\tImagine.Destination 'machine2' {\n" +
+                "\t\t'machine1' -> \n" +
+                "\t}\n" +
+                "}";
+            facade.DeserializeGraph(serialize);
+            
+            Graph<Machine> graph = facade.Graph;
+            // See that the settings section didn't destroy the rest of the parsing
+            Assert.IsNotNull(facade.SourceMachine, "Facade.SourceMachine");
+            Assert.IsNotNull(facade.DestinationMachine, "Facade.DestinationMachine");
+            Assert.AreEqual(1, graph.GetNodeFor(facade.SourceMachine).OutputCount, "SourceMachine.OutputCount");
+            Assert.AreEqual(1, graph.GetNodeFor(facade.DestinationMachine).InputCount, "DestinationMachine.InputCount");
+            Assert.AreEqual(3, graph.NodeCount, "Graph.NodeCount");
+            Assert.AreEqual(2, graph.ConnectionCount, "Graph.ConnectionCount");
+
+            LoadSaveMachine machine = ((LoadSaveMachine) graph.GetTopologicalOrdering()[1].Machine);
+            Assert.IsNotNull(machine.settings, "Dummy machine settings");
+            Assert.AreEqual("Value = '2'", machine.settings.Trim());
+            Assert.AreEqual(2, machine.DummyValue);
+        }
+
+        [Test]
+        public void that_we_can_load_complex_machine_settings_from_a_file()
+        {
+            facade.MachineTypes["Test.ComplexLoadSave"] = typeof(ComplexLoadSaveMachine);
+
+            string serialize =
+                "Graph {\n" +
+                "\tImagine.Source 'machine0' {}\n" +
+
+                "\tTest.ComplexLoadSave 'machine1' {\n" +
+                "\t\t'machine0' -> \n" +
+                "\t\t[\n" +
+                "\t\t\tred = '2'\n" +
+                "\t\t\tgreen = '50'\n" +
+                "\t\t\tblue = '10'\n" +
+                "\t\t\ttext = ' hello '\n" +
+                "\t\t\tdouble = '0.2'\n" +
+                "\t\t]\n" +
+                "\t}\n" +
+
+                "\tImagine.Destination 'machine2' {\n" +
+                "\t\t'machine1' -> \n" +
+                "\t}\n" +
+                "}";
+            facade.DeserializeGraph(serialize);
+
+            Graph<Machine> graph = facade.Graph;
+            // See that the settings section didn't destroy the rest of the parsing
+            Assert.IsNotNull(facade.SourceMachine, "Facade.SourceMachine");
+            Assert.IsNotNull(facade.DestinationMachine, "Facade.DestinationMachine");
+            Assert.AreEqual(1, graph.GetNodeFor(facade.SourceMachine).OutputCount, "SourceMachine.OutputCount");
+            Assert.AreEqual(1, graph.GetNodeFor(facade.DestinationMachine).InputCount, "DestinationMachine.InputCount");
+            Assert.AreEqual(3, graph.NodeCount, "Graph.NodeCount");
+            Assert.AreEqual(2, graph.ConnectionCount, "Graph.ConnectionCount");
+
+            ComplexLoadSaveMachine machine = ((ComplexLoadSaveMachine)graph.GetTopologicalOrdering()[1].Machine);
+            Assert.IsNotNull(machine.settings, "Dummy machine settings");
+            Assert.IsTrue(machine.settings.Contains("red = '2'"), "red");
+            Assert.IsTrue(machine.settings.Contains("green = '50'"), "green");
+            Assert.IsTrue(machine.settings.Contains("blue = '10'"), "blue");
+            Assert.IsTrue(machine.settings.Contains("text = ' hello '"), "text");
+            Assert.IsTrue(machine.settings.Contains("double = '0.2'"), "double");
+            Assert.AreEqual("2", machine.properties["red"], "red");
+            Assert.AreEqual("50", machine.properties["green"], "green");
+            Assert.AreEqual("10", machine.properties["blue"], "blue");
+            Assert.AreEqual(" hello ", machine.properties["text"], "text");
+            Assert.AreEqual("0.2", machine.properties["double"], "double");
+        }
+
+        [Test]
+        public void that_we_can_save_machine_settings_to_a_file()
+        {
+            facade.MachineTypes["Test.ComplexLoadSave"] = typeof(ComplexLoadSaveMachine);
+            
+            facade.Disconnect(facade.SourceMachine, 0, facade.DestinationMachine, 0);
+            Machine machine = facade.NewMachine("Test.ComplexLoadSave");
+            facade.Connect(facade.SourceMachine, 0, machine, 0);
+            facade.Connect(machine, 0, facade.DestinationMachine, 0);
+
+            Dictionary<string, string> properties = new Dictionary<string,string>();
+            properties["red"] = "-2";
+            properties["green"] = "50.11";
+            properties["blue"] = "3232432323";
+            properties["text"] = "\tyahoo!";
+            properties["double"] = "3.14159265";
+            ((ComplexLoadSaveMachine) machine).properties = properties;
+
+            string serialize = facade.SerializeGraph();
+            Assert.AreEqual("Graph {\n" +
+                "\tImagine.Source 'machine0' {}\n" +
+
+                "\tTest.ComplexLoadSave 'machine1' {\n" +
+                "\t\t'machine0' -> \n" +
+                "\t\t[ red='-2' green='50.11' blue='3232432323' text='\tyahoo!' double='3.14159265' ]\n" +
+                "\t}\n" +
+
+                "\tImagine.Destination 'machine2' {\n" +
+                "\t\t'machine1' -> \n" +
+                "\t}\n" +
+                "}", serialize);
+        }
+
         private void AssertBitmapsAreEqual(Bitmap bitmap1, Bitmap bitmap2)
         {
             Assert.AreEqual(bitmap1.Width, bitmap2.Width, "Width");
@@ -447,6 +566,7 @@ namespace Imagine.AcceptanceTests
         public int currentPercent;
     }
 
+    [UniqueName("Test.Dummy")]
     public class DummyMachine : Machine
     {
         public DummyMachine()
@@ -473,6 +593,44 @@ namespace Imagine.AcceptanceTests
         protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
         {
             return null;
+        }
+    }
+
+    [UniqueName("Test.LoadSave")]
+    public class LoadSaveMachine : DummyMachine
+    {
+        public LoadSaveMachine() : base() {}
+
+        public string settings = null;
+
+        public override void LoadSettings(string settings)
+        {
+            this.settings = settings;
+            Dictionary<string, string> properties = ParseSettings(settings);
+            int? value = GetInt(properties, "Value");
+            if (value != null)
+                DummyValue = value.Value;
+        }
+    }
+
+    [UniqueName("Test.ComplexLoadSave")]
+    public class ComplexLoadSaveMachine : DummyMachine
+    {
+        public ComplexLoadSaveMachine() : base() {}
+
+        public string settings = null;
+        public Dictionary<string, string> properties = null;
+
+
+        public override void LoadSettings(string settings)
+        {
+            this.settings = settings;
+            this.properties = ParseSettings(settings);
+        }
+
+        public override string SaveSettings()
+        {
+            return CompileSettings(this.properties);
         }
     }
 }

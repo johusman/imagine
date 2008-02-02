@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Text.RegularExpressions;
+using System.Globalization;
 
 namespace Imagine.Library
 {
@@ -84,6 +86,83 @@ namespace Imagine.Library
         public override string ToString()
         {
             return ((UniqueName) GetType().GetCustomAttributes(typeof(UniqueName), false)[0]).Value;
+        }
+
+        public virtual void LoadSettings(string settings)
+        {
+            // By default do nothing
+        }
+
+        public virtual string SaveSettings()
+        {
+            // By default return null
+            return null;
+        }
+
+        protected Dictionary<string, string> ParseSettings(string settings)
+        {
+            Dictionary<string, string> properties = new Dictionary<string, string>();
+
+            Group settingsGroup = Regex.Match(settings, "^(?<setting>\\s*\\w+\\s*=\\s*'[^']*'\\s*)+$").Groups["setting"];
+            foreach (Capture settingCapture in settingsGroup.Captures)
+            {
+                string settingData = settingCapture.Value;
+                Match settingMatch = Regex.Match(settingData, "^\\s*(?<key>\\w+)\\s*=\\s*'(?<value>[^']*)'\\s*$");
+                string key = settingMatch.Groups["key"].Value;
+                string value = settingMatch.Groups["value"].Value;
+                properties.Add(key, value);
+            }
+
+            return properties;
+        }
+
+        protected string CompileSettings(Dictionary<string, string> properties)
+        {
+            string settings = "";
+            foreach (string property in properties.Keys)
+                settings = String.Format("{0} {1}='{2}'", settings, property, properties[property]);
+
+            return settings.Trim();
+        }
+
+        protected int? GetInt(Dictionary<string, string> properties, string property)
+        {
+            string value = null;
+            int intValue;
+            if (properties.TryGetValue(property, out value))
+                if (int.TryParse(value, out intValue))
+                    return intValue;
+
+            return null;
+        }
+
+        protected double? GetDouble(Dictionary<string, string> properties, string property)
+        {
+            string value = null;
+            double doubleValue;
+            if (properties.TryGetValue(property, out value))
+                if (double.TryParse(value, System.Globalization.NumberStyles.Float, new CultureInfo("en-US"), out doubleValue))
+                    return doubleValue;
+
+            return null;
+        }
+
+        protected Dictionary<string, string> Set(Dictionary<string, string> properties, string property, string value)
+        {
+            if (properties == null)
+                properties = new Dictionary<string, string>();
+            properties[property] = value;
+            return properties;
+        }
+
+        protected Dictionary<string, string> Set(Dictionary<string, string> properties, string property, object value)
+        {
+            return Set(properties, property, value.ToString());
+        }
+
+        protected Dictionary<string, string> Set(Dictionary<string, string> properties, string property, double value)
+        {
+            return Set(properties, property, value.ToString(new CultureInfo("en-US")));
         }
 
         protected ImagineImage FindFirstImage(ImagineImage[] images)

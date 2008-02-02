@@ -244,10 +244,17 @@ namespace Imagine.Library
                             thisCode == ' ' ? "" : thisCode.ToString());
                     }
 
-                    machineString = String.Format("\t{0} 'machine{1}' {{\n{2}\t}}\n",
+                    
+                    string settingsText = "";
+                    string settings = node.Machine.SaveSettings();
+                    if (settings != null)
+                        settingsText = String.Format("\t\t[ {0} ]\n", settings);
+
+                    machineString = String.Format("\t{0} 'machine{1}' {{\n{2}{3}\t}}\n",
                         node.Machine.ToString(),
                         ordering.IndexOf(node),
-                        connections);
+                        connections,
+                        settingsText);
                 }
 
                 text += machineString;
@@ -290,9 +297,9 @@ namespace Imagine.Library
                     if (machineType.Trim() == "Imagine.Destination")
                         destinationMachine = (SinkMachine)machine;
 
-                    if (!Regex.IsMatch(connectionsData, "^\\s*{\\s*}\\s*$"))
+                    if (!Regex.IsMatch(connectionsData, "^\\s*{\\s*(\\[.*\\])?\\s*}\\s*$"))
                     {
-                        Group connectionsGroup = Regex.Match(connectionsData, "^(\\s*(?<connection>'[^']+'(\\s*:\\S)?\\s*->(\\s*\\S)?)\\s*)+$").Groups["connection"];
+                        Group connectionsGroup = Regex.Match(connectionsData, "^(\\s*(?<connection>'[^']+'(\\s*:\\S)?\\s*->(\\s*\\S)?)\\s*)+(\\[.*\\])?\\s*$").Groups["connection"];
                         foreach (Capture connectionCapture in connectionsGroup.Captures)
                         {
                             string connectionData = connectionCapture.Value;
@@ -314,6 +321,12 @@ namespace Imagine.Library
                                 Connect(fromMachine, fromPortIndex, machine, toPortIndex);
                             }
                         }
+                    }
+
+                    if (Regex.IsMatch(connectionsData, "^[^\\[]*\\[(\\s*\\w+\\s*=\\s*'[^']*'\\s*)+\\][^\\]]*$"))
+                    {
+                        Match settingsMatch = Regex.Match(connectionsData, "^[^\\[]*\\[(?<settings>(\\s*\\w+\\s*=\\s*'[^']*'\\s*)+)\\][^\\]]*$");
+                        machine.LoadSettings(settingsMatch.Groups["settings"].Value);
                     }
                 }
                 else
