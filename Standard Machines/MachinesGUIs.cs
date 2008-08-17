@@ -211,4 +211,25 @@ namespace Imagine.StandardMachines
             get { return Brushes.AntiqueWhite; }
         }
     }
+
+    [GUIForMachine("Imagine.Img.Pixelator")]
+    public class PixelateGUI : MachineGUI
+    {
+        public PixelateMachine MyMachine
+        {
+            get { return (PixelateMachine)Node.Machine; }
+        }
+
+        public override void LaunchSettings(GraphArea graphArea)
+        {
+            NumberInput numberInput = new NumberInput();
+            numberInput.Value = MyMachine.Size;
+            numberInput.Caption = "Size";
+            if (numberInput.ShowDialog() == DialogResult.OK)
+            {
+                MyMachine.Size = (int) numberInput.Value;
+            }
+            numberInput.Dispose();
+        }
+    }
 }

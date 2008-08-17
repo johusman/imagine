@@ -24,41 +24,20 @@ namespace Imagine.GUI
             workingDirectory = Environment.CurrentDirectory;
 
             CreateNewFacade();
-            lblSourceFile.Text = "";
-            lblDestinationFile.Text = "";
             
             showTooltipsToolStripMenuItem.Checked = graphArea1.ShowTooltips;
             showPreviewToolStripMenuItem.Checked = panelPreview.Visible;
 
             webBrowser.DocumentText = Resources.help;
-                
+
+            RefreshSourcesAndDestinations(null);    
         }
 
         private void CreateNewFacade()
         {
             facade = new ImagineFacade(workingDirectory);
-            facade.Disconnect(facade.SourceMachine, 0, facade.DestinationMachine, 0);
-
             facade.GraphChanged += graphChanged;
-
             graphArea1.Facade = facade;
-        }
-
-        private void openSourceToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            openFileDialog.Filter = "Images|*.jpg;*.png;*.gif;*.bmp|JPEG (*.jpg)|*.jpg|Ping (*.png)|*.png|GIF (*.gif)|*.gif|Bitmap (*.bmp)|*.bmp";
-            DialogResult result = openFileDialog.ShowDialog();
-            if(result == DialogResult.OK)
-                facade.OpenSource(openFileDialog.FileName);
-        }
-
-        private void openDestinationToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            saveFileDialog.DefaultExt = "png";
-            saveFileDialog.Filter = "Ping (*.png)|*.png";
-            DialogResult result = saveFileDialog.ShowDialog();
-            if(result == DialogResult.OK)
-                facade.OpenDestination(saveFileDialog.FileName);
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -77,9 +56,9 @@ namespace Imagine.GUI
             Cursor lastCursor = Cursor.Current;
             Cursor.Current = Cursors.WaitCursor;
 
-            facade.SourceMachine.Preview = facade.DestinationMachine.Preview = false;
+            TogglePreview(false);
             facade.Generate(
-                new ImagineFacade.ProgressCallback(
+                new ImagineFacade.TotalProgressCallback(
                     delegate(int machineIndex, int totalMachines, Machine currentMachine, int currentPercent)
                     {
                         double percent = currentPercent / 100.0;
@@ -88,46 +67,101 @@ namespace Imagine.GUI
                         window.SetText(currentMachine.ToString() + " [" + (machineIndex + 1) + "/" + totalMachines + "]");
                         window.Refresh();
                     }));
-            facade.SourceMachine.Preview = facade.DestinationMachine.Preview = true;
+            TogglePreview(true);
 
             window.Close();
 
             Cursor.Current = lastCursor;
         }
 
+        private void TogglePreview(bool preview)
+        {
+            foreach (SourceMachine machine in facade.Sources)
+                machine.Preview = preview;
+            foreach (SinkMachine machine in facade.Destinations)
+                machine.Preview = preview;
+        }
+
         private void graphChanged(object sender, EventArgs e)
         {
-            if (sender == facade.SourceMachine)
-            {
-                lblSourceFile.Text = facade.SourceMachine.Filename;
-                lblSourceFile.Links.Clear();
-                lblSourceFile.Links.Add(new LinkLabel.Link(0, lblSourceFile.Text.Length, lblSourceFile.Text));
-            }
-            if (sender == facade.DestinationMachine)
-            {
-                lblDestinationFile.Text = facade.DestinationMachine.Filename;
-                lblDestinationFile.Links.Clear();
-                lblDestinationFile.Links.Add(new LinkLabel.Link(0, lblDestinationFile.Text.Length, lblDestinationFile.Text));
-            }
-
-
+            RefreshSourcesAndDestinations(sender);
+            
             if (showPreviewToolStripMenuItem.Checked)
                 DoPreview();
         }
 
+        private void RefreshSourcesAndDestinations(object sender)
+        {
+            object selectedItem = null;
+            SourceMachine lastSourceMachine = cobSources.SelectedItem != null ? ((SourceMachineItem)cobSources.SelectedItem).Machine : null;
+            SinkMachine lastDestinationMachine = cobDestinations.SelectedItem != null ? ((DestinationMachineItem)cobDestinations.SelectedItem).Machine : null;
+            object lastSourceItem = null;
+            object lastDestinationItem = null;
+
+            cobSources.Items.Clear();
+
+            foreach (SourceMachine machine in facade.Sources)
+            {
+                MachineItem item = new SourceMachineItem(machine);
+                cobSources.Items.Add(item);
+                if (machine == sender)
+                    selectedItem = item;
+                if (machine == lastSourceMachine)
+                    lastSourceItem = item;
+            }
+
+            if (selectedItem != null)
+                cobSources.SelectedItem = selectedItem;
+            else
+                cobSources.SelectedItem = lastSourceItem;
+
+            if (cobSources.SelectedItem == null && cobSources.Items.Count > 0)
+                cobSources.SelectedIndex = 0;
+
+            selectedItem = null;
+
+
+            cobDestinations.Items.Clear();
+
+            foreach (SinkMachine machine in facade.Destinations)
+            {
+                MachineItem item = new DestinationMachineItem(machine);
+                cobDestinations.Items.Add(item);
+                if (machine == sender)
+                    selectedItem = item;
+                if (machine == lastDestinationMachine)
+                    lastDestinationItem = item;
+            }
+
+            if (selectedItem != null)
+                cobDestinations.SelectedItem = selectedItem;
+            else
+                cobDestinations.SelectedItem = lastDestinationItem;
+
+            if (cobDestinations.SelectedItem == null && cobDestinations.Items.Count > 0)
+                cobDestinations.SelectedIndex = 0;
+
+        }
+
         private void DoPreview()
         {
-            facade.SourceMachine.Preview = facade.DestinationMachine.Preview = true;
+            TogglePreview(true);
             long startTime = DateTime.Now.Ticks;
             facade.Generate();
             long stopTime = DateTime.Now.Ticks;
-            facade.SourceMachine.Preview = facade.DestinationMachine.Preview = false;
+            TogglePreview(false);
 
-            ImagineImage sourcePreview = facade.SourceMachine.LastPreviewImage;
-            ImagineImage destinationPreview = facade.DestinationMachine.LastPreviewImage;
+            ShowPreviews();
+
+            lblTiming.Text = String.Format("{0} ms", (stopTime - startTime) / 10000);
+        }
+
+        private void ShowPreviews()
+        {
+            ImagineImage sourcePreview = ((SourceMachineItem)cobSources.SelectedItem).Machine.LastPreviewImage;
+            ImagineImage destinationPreview = ((DestinationMachineItem)cobDestinations.SelectedItem).Machine.LastPreviewImage;
             pictureSourcePreview.Image = sourcePreview == null ? null : sourcePreview.GetBitmap();
             pictureDestinationPreview.Image = destinationPreview == null ? null : destinationPreview.GetBitmap();
-            lblTiming.Text = String.Format("{0} ms", (stopTime - startTime) / 10000);
         }
 
         private void showTooltipsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -144,9 +178,21 @@ namespace Imagine.GUI
                 DoPreview();
         }
 
-        private void linkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        private void sourceLinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            ProcessStartInfo process = new ProcessStartInfo((String) e.Link.LinkData);
+            if(cobSources.SelectedItem != null)
+                ViewImage(((MachineItem) cobSources.SelectedItem).Filename);
+        }
+
+        private void destinationLinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            if (cobDestinations.SelectedItem != null)
+                ViewImage(((MachineItem)cobDestinations.SelectedItem).Filename);
+        }
+
+        private static void ViewImage(string file)
+        {
+            ProcessStartInfo process = new ProcessStartInfo(file);
             process.UseShellExecute = true;
             try
             {
@@ -184,17 +230,21 @@ namespace Imagine.GUI
                     data = reader.ReadToEnd();
                 }
 
-                string source = facade.GetSourceFilename();
-                string destination = facade.GetDestinationFilename();
+                string[] sources = new string[facade.Sources.Count];
+                for(int i = 0; i < sources.Length; i++)
+                    sources[i] = facade.Sources[i].Filename;
+                string[] destinations = new string[facade.Destinations.Count];
+                for (int i = 0; i < destinations.Length; i++)
+                    destinations[i] = facade.Destinations[i].Filename;
 
                 List<string> unrecognizedTypes = facade.DeserializeGraph(data);
 
                 graphArea1.Facade = facade;
                 graphArea1.DeserializeLayout(data);
-                if(source != null)
-                    facade.OpenSource(source);
-                if(destination != null)
-                    facade.OpenDestination(destination);
+                for (int i = 0; i < sources.Length && i < facade.Sources.Count; i++)
+                    facade.Sources[i].Filename = sources[i];
+                for (int i = 0; i < destinations.Length && i < facade.Destinations.Count; i++)
+                    facade.Destinations[i].Filename = destinations[i];
 
                 if (unrecognizedTypes.Count > 0)
                 {
@@ -216,15 +266,15 @@ namespace Imagine.GUI
 
         private void newGraphToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            string source = facade.GetSourceFilename();
-            string destination = facade.GetDestinationFilename();
+            string source = facade.Sources[0].Filename;
+            string destination = facade.Destinations[0].Filename;
 
             CreateNewFacade();
 
             if (source != null)
-                facade.OpenSource(source);
+                facade.Sources[0].Filename = source;
             if (destination != null)
-                facade.OpenDestination(destination);
+                facade.Destinations[0].Filename = destination;
             graphArea1.Refresh();
 
             if (showPreviewToolStripMenuItem.Checked)
@@ -235,6 +285,74 @@ namespace Imagine.GUI
         {
             showHelpToolStripMenuItem.Checked = !showHelpToolStripMenuItem.Checked;
             webBrowser.Visible = showHelpToolStripMenuItem.Checked;
+        }
+
+        private void cobSources_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (showPreviewToolStripMenuItem.Checked)
+                ShowPreviews();
+        }
+
+        private void cobDestinations_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (showPreviewToolStripMenuItem.Checked)
+                ShowPreviews();
+        }
+    }
+
+    class MachineItem
+    {
+        protected string filename;
+        protected string text;
+
+        public string Filename
+        {
+            get { return filename; }
+            set { filename = value; }
+        }
+
+        public string Text
+        {
+            get { return text; }
+            set { text = value; }
+        }
+    }
+
+    class SourceMachineItem : MachineItem
+    {
+        private SourceMachine machine;
+
+        public SourceMachine Machine
+        {
+            get { return machine; }
+            set { machine = value; }
+        }
+
+        public SourceMachineItem(SourceMachine machine)
+        {
+            this.machine = machine;
+            text = filename = machine.Filename;
+            if (filename == null)
+                text = "[source]";
+        }
+    }
+
+    class DestinationMachineItem : MachineItem
+    {
+        private SinkMachine machine;
+
+        public SinkMachine Machine
+        {
+            get { return machine; }
+            set { machine = value; }
+        }
+
+        public DestinationMachineItem(SinkMachine machine)
+        {
+            this.machine = machine;
+            text = filename = machine.Filename;
+            if (filename == null)
+                text = "[destination]";
         }
     }
 }

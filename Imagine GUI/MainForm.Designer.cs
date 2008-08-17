@@ -36,15 +36,14 @@ namespace Imagine.GUI
             this.openGraphToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveGraphToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.openSourceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.openDestinationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.generateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.doGenerateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.showTooltipsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.showPreviewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.showHelpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.webBrowser = new System.Windows.Forms.WebBrowser();
             this.panelPreview = new System.Windows.Forms.Panel();
             this.lblTiming = new System.Windows.Forms.Label();
@@ -53,14 +52,14 @@ namespace Imagine.GUI
             this.label1 = new System.Windows.Forms.Label();
             this.pictureDestinationPreview = new System.Windows.Forms.PictureBox();
             this.pictureSourcePreview = new System.Windows.Forms.PictureBox();
-            this.graphArea1 = new Imagine.GUI.GraphArea();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.lblSourceFile = new System.Windows.Forms.LinkLabel();
-            this.lblDestinationFile = new System.Windows.Forms.LinkLabel();
+            this.cobDestinations = new System.Windows.Forms.ComboBox();
+            this.cobSources = new System.Windows.Forms.ComboBox();
+            this.lblViewSourceFile = new System.Windows.Forms.LinkLabel();
+            this.lblViewDestinationFile = new System.Windows.Forms.LinkLabel();
             this.lblDestination = new System.Windows.Forms.Label();
             this.lblSource = new System.Windows.Forms.Label();
-            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.showHelpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.graphArea1 = new Imagine.GUI.GraphArea();
             this.menuStrip1.SuspendLayout();
             this.panelPreview.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureDestinationPreview)).BeginInit();
@@ -88,9 +87,6 @@ namespace Imagine.GUI
             this.openGraphToolStripMenuItem,
             this.saveGraphToolStripMenuItem,
             this.toolStripSeparator1,
-            this.openSourceToolStripMenuItem,
-            this.openDestinationToolStripMenuItem,
-            this.toolStripSeparator2,
             this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(35, 20);
@@ -99,52 +95,33 @@ namespace Imagine.GUI
             // newGraphToolStripMenuItem
             // 
             this.newGraphToolStripMenuItem.Name = "newGraphToolStripMenuItem";
-            this.newGraphToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.newGraphToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
             this.newGraphToolStripMenuItem.Text = "New Graph";
             this.newGraphToolStripMenuItem.Click += new System.EventHandler(this.newGraphToolStripMenuItem_Click);
             // 
             // openGraphToolStripMenuItem
             // 
             this.openGraphToolStripMenuItem.Name = "openGraphToolStripMenuItem";
-            this.openGraphToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.openGraphToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
             this.openGraphToolStripMenuItem.Text = "Open Graph...";
             this.openGraphToolStripMenuItem.Click += new System.EventHandler(this.openGraphToolStripMenuItem_Click);
             // 
             // saveGraphToolStripMenuItem
             // 
             this.saveGraphToolStripMenuItem.Name = "saveGraphToolStripMenuItem";
-            this.saveGraphToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveGraphToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
             this.saveGraphToolStripMenuItem.Text = "Save Graph...";
             this.saveGraphToolStripMenuItem.Click += new System.EventHandler(this.saveGraphToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(176, 6);
-            // 
-            // openSourceToolStripMenuItem
-            // 
-            this.openSourceToolStripMenuItem.Name = "openSourceToolStripMenuItem";
-            this.openSourceToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.openSourceToolStripMenuItem.Text = "Open Source...";
-            this.openSourceToolStripMenuItem.Click += new System.EventHandler(this.openSourceToolStripMenuItem_Click);
-            // 
-            // openDestinationToolStripMenuItem
-            // 
-            this.openDestinationToolStripMenuItem.Name = "openDestinationToolStripMenuItem";
-            this.openDestinationToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.openDestinationToolStripMenuItem.Text = "Open Destination...";
-            this.openDestinationToolStripMenuItem.Click += new System.EventHandler(this.openDestinationToolStripMenuItem_Click);
-            // 
-            // toolStripSeparator2
-            // 
-            this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(176, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(141, 6);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(179, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -159,7 +136,7 @@ namespace Imagine.GUI
             // doGenerateToolStripMenuItem
             // 
             this.doGenerateToolStripMenuItem.Name = "doGenerateToolStripMenuItem";
-            this.doGenerateToolStripMenuItem.Size = new System.Drawing.Size(134, 22);
+            this.doGenerateToolStripMenuItem.Size = new System.Drawing.Size(123, 22);
             this.doGenerateToolStripMenuItem.Text = "Generate!";
             this.doGenerateToolStripMenuItem.Click += new System.EventHandler(this.doGenerateToolStripMenuItem_Click);
             // 
@@ -175,16 +152,31 @@ namespace Imagine.GUI
             // showTooltipsToolStripMenuItem
             // 
             this.showTooltipsToolStripMenuItem.Name = "showTooltipsToolStripMenuItem";
-            this.showTooltipsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.showTooltipsToolStripMenuItem.Size = new System.Drawing.Size(141, 22);
             this.showTooltipsToolStripMenuItem.Text = "Show Tooltips";
             this.showTooltipsToolStripMenuItem.Click += new System.EventHandler(this.showTooltipsToolStripMenuItem_Click);
             // 
             // showPreviewToolStripMenuItem
             // 
             this.showPreviewToolStripMenuItem.Name = "showPreviewToolStripMenuItem";
-            this.showPreviewToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.showPreviewToolStripMenuItem.Size = new System.Drawing.Size(141, 22);
             this.showPreviewToolStripMenuItem.Text = "Show Preview";
             this.showPreviewToolStripMenuItem.Click += new System.EventHandler(this.showPreviewToolStripMenuItem_Click);
+            // 
+            // helpToolStripMenuItem
+            // 
+            this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.showHelpToolStripMenuItem});
+            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(40, 20);
+            this.helpToolStripMenuItem.Text = "Help";
+            // 
+            // showHelpToolStripMenuItem
+            // 
+            this.showHelpToolStripMenuItem.Name = "showHelpToolStripMenuItem";
+            this.showHelpToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.showHelpToolStripMenuItem.Text = "Show Help";
+            this.showHelpToolStripMenuItem.Click += new System.EventHandler(this.showHelpToolStripMenuItem_Click);
             // 
             // webBrowser
             // 
@@ -196,7 +188,7 @@ namespace Imagine.GUI
             this.webBrowser.MinimumSize = new System.Drawing.Size(20, 20);
             this.webBrowser.Name = "webBrowser";
             this.webBrowser.ScriptErrorsSuppressed = true;
-            this.webBrowser.Size = new System.Drawing.Size(291, 426);
+            this.webBrowser.Size = new System.Drawing.Size(291, 404);
             this.webBrowser.TabIndex = 4;
             this.webBrowser.Visible = false;
             this.webBrowser.WebBrowserShortcutsEnabled = false;
@@ -213,7 +205,7 @@ namespace Imagine.GUI
             this.panelPreview.Dock = System.Windows.Forms.DockStyle.Right;
             this.panelPreview.Location = new System.Drawing.Point(296, 24);
             this.panelPreview.Name = "panelPreview";
-            this.panelPreview.Size = new System.Drawing.Size(127, 426);
+            this.panelPreview.Size = new System.Drawing.Size(127, 404);
             this.panelPreview.TabIndex = 3;
             this.panelPreview.Visible = false;
             // 
@@ -268,6 +260,99 @@ namespace Imagine.GUI
             this.pictureSourcePreview.TabIndex = 0;
             this.pictureSourcePreview.TabStop = false;
             // 
+            // panel1
+            // 
+            this.panel1.BackgroundImage = global::Imagine.GUI.Properties.Resources.gradient;
+            this.panel1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.panel1.Controls.Add(this.cobDestinations);
+            this.panel1.Controls.Add(this.cobSources);
+            this.panel1.Controls.Add(this.lblViewSourceFile);
+            this.panel1.Controls.Add(this.lblViewDestinationFile);
+            this.panel1.Controls.Add(this.lblDestination);
+            this.panel1.Controls.Add(this.lblSource);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.panel1.Location = new System.Drawing.Point(0, 428);
+            this.panel1.Margin = new System.Windows.Forms.Padding(1);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(714, 57);
+            this.panel1.TabIndex = 0;
+            // 
+            // cobDestinations
+            // 
+            this.cobDestinations.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.cobDestinations.DisplayMember = "Text";
+            this.cobDestinations.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cobDestinations.FormattingEnabled = true;
+            this.cobDestinations.Location = new System.Drawing.Point(91, 28);
+            this.cobDestinations.Name = "cobDestinations";
+            this.cobDestinations.Size = new System.Drawing.Size(556, 21);
+            this.cobDestinations.TabIndex = 5;
+            this.cobDestinations.ValueMember = "Text";
+            this.cobDestinations.SelectedIndexChanged += new System.EventHandler(this.cobDestinations_SelectedIndexChanged);
+            // 
+            // cobSources
+            // 
+            this.cobSources.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.cobSources.DisplayMember = "Text";
+            this.cobSources.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cobSources.FormattingEnabled = true;
+            this.cobSources.Location = new System.Drawing.Point(91, 6);
+            this.cobSources.Name = "cobSources";
+            this.cobSources.Size = new System.Drawing.Size(556, 21);
+            this.cobSources.TabIndex = 4;
+            this.cobSources.ValueMember = "Text";
+            this.cobSources.SelectedIndexChanged += new System.EventHandler(this.cobSources_SelectedIndexChanged);
+            // 
+            // lblViewSourceFile
+            // 
+            this.lblViewSourceFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblViewSourceFile.AutoSize = true;
+            this.lblViewSourceFile.BackColor = System.Drawing.Color.Transparent;
+            this.lblViewSourceFile.Location = new System.Drawing.Point(653, 9);
+            this.lblViewSourceFile.Name = "lblViewSourceFile";
+            this.lblViewSourceFile.Size = new System.Drawing.Size(49, 13);
+            this.lblViewSourceFile.TabIndex = 3;
+            this.lblViewSourceFile.TabStop = true;
+            this.lblViewSourceFile.Text = "View File";
+            this.lblViewSourceFile.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.sourceLinkClicked);
+            // 
+            // lblViewDestinationFile
+            // 
+            this.lblViewDestinationFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblViewDestinationFile.AutoSize = true;
+            this.lblViewDestinationFile.BackColor = System.Drawing.Color.Transparent;
+            this.lblViewDestinationFile.Location = new System.Drawing.Point(653, 31);
+            this.lblViewDestinationFile.Name = "lblViewDestinationFile";
+            this.lblViewDestinationFile.Size = new System.Drawing.Size(49, 13);
+            this.lblViewDestinationFile.TabIndex = 2;
+            this.lblViewDestinationFile.TabStop = true;
+            this.lblViewDestinationFile.Text = "View File";
+            this.lblViewDestinationFile.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.destinationLinkClicked);
+            // 
+            // lblDestination
+            // 
+            this.lblDestination.AutoSize = true;
+            this.lblDestination.BackColor = System.Drawing.Color.Transparent;
+            this.lblDestination.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblDestination.Location = new System.Drawing.Point(4, 31);
+            this.lblDestination.Name = "lblDestination";
+            this.lblDestination.Size = new System.Drawing.Size(81, 13);
+            this.lblDestination.TabIndex = 1;
+            this.lblDestination.Text = "Destinations:";
+            // 
+            // lblSource
+            // 
+            this.lblSource.AutoSize = true;
+            this.lblSource.BackColor = System.Drawing.Color.Transparent;
+            this.lblSource.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblSource.Location = new System.Drawing.Point(4, 9);
+            this.lblSource.Name = "lblSource";
+            this.lblSource.Size = new System.Drawing.Size(57, 13);
+            this.lblSource.TabIndex = 0;
+            this.lblSource.Text = "Sources:";
+            // 
             // graphArea1
             // 
             this.graphArea1.BackColor = System.Drawing.Color.OldLace;
@@ -279,84 +364,8 @@ namespace Imagine.GUI
             this.graphArea1.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.graphArea1.Name = "graphArea1";
             this.graphArea1.ShowTooltips = true;
-            this.graphArea1.Size = new System.Drawing.Size(714, 426);
+            this.graphArea1.Size = new System.Drawing.Size(714, 404);
             this.graphArea1.TabIndex = 2;
-            // 
-            // panel1
-            // 
-            this.panel1.BackgroundImage = global::Imagine.GUI.Properties.Resources.gradient;
-            this.panel1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.panel1.Controls.Add(this.lblSourceFile);
-            this.panel1.Controls.Add(this.lblDestinationFile);
-            this.panel1.Controls.Add(this.lblDestination);
-            this.panel1.Controls.Add(this.lblSource);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel1.Location = new System.Drawing.Point(0, 450);
-            this.panel1.Margin = new System.Windows.Forms.Padding(1);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(714, 35);
-            this.panel1.TabIndex = 0;
-            // 
-            // lblSourceFile
-            // 
-            this.lblSourceFile.AutoSize = true;
-            this.lblSourceFile.BackColor = System.Drawing.Color.Transparent;
-            this.lblSourceFile.Location = new System.Drawing.Point(107, 4);
-            this.lblSourceFile.Name = "lblSourceFile";
-            this.lblSourceFile.Size = new System.Drawing.Size(67, 13);
-            this.lblSourceFile.TabIndex = 3;
-            this.lblSourceFile.TabStop = true;
-            this.lblSourceFile.Text = "lblSourceFile";
-            this.lblSourceFile.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkClicked);
-            // 
-            // lblDestinationFile
-            // 
-            this.lblDestinationFile.AutoSize = true;
-            this.lblDestinationFile.BackColor = System.Drawing.Color.Transparent;
-            this.lblDestinationFile.Location = new System.Drawing.Point(107, 17);
-            this.lblDestinationFile.Name = "lblDestinationFile";
-            this.lblDestinationFile.Size = new System.Drawing.Size(86, 13);
-            this.lblDestinationFile.TabIndex = 2;
-            this.lblDestinationFile.TabStop = true;
-            this.lblDestinationFile.Text = "lblDestinationFile";
-            this.lblDestinationFile.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkClicked);
-            // 
-            // lblDestination
-            // 
-            this.lblDestination.AutoSize = true;
-            this.lblDestination.BackColor = System.Drawing.Color.Transparent;
-            this.lblDestination.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblDestination.Location = new System.Drawing.Point(4, 17);
-            this.lblDestination.Name = "lblDestination";
-            this.lblDestination.Size = new System.Drawing.Size(96, 13);
-            this.lblDestination.TabIndex = 1;
-            this.lblDestination.Text = "Destination file:";
-            // 
-            // lblSource
-            // 
-            this.lblSource.AutoSize = true;
-            this.lblSource.BackColor = System.Drawing.Color.Transparent;
-            this.lblSource.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblSource.Location = new System.Drawing.Point(4, 4);
-            this.lblSource.Name = "lblSource";
-            this.lblSource.Size = new System.Drawing.Size(72, 13);
-            this.lblSource.TabIndex = 0;
-            this.lblSource.Text = "Source file:";
-            // 
-            // helpToolStripMenuItem
-            // 
-            this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.showHelpToolStripMenuItem});
-            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-            this.helpToolStripMenuItem.Size = new System.Drawing.Size(40, 20);
-            this.helpToolStripMenuItem.Text = "Help";
-            // 
-            // showHelpToolStripMenuItem
-            // 
-            this.showHelpToolStripMenuItem.Name = "showHelpToolStripMenuItem";
-            this.showHelpToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.showHelpToolStripMenuItem.Text = "Show Help";
-            this.showHelpToolStripMenuItem.Click += new System.EventHandler(this.showHelpToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -390,15 +399,13 @@ namespace Imagine.GUI
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem openSourceToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem openDestinationToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem generateToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem doGenerateToolStripMenuItem;
         private System.Windows.Forms.Label lblSource;
-        private System.Windows.Forms.LinkLabel lblDestinationFile;
+        private System.Windows.Forms.LinkLabel lblViewDestinationFile;
         private System.Windows.Forms.Label lblDestination;
-        private System.Windows.Forms.LinkLabel lblSourceFile;
+        private System.Windows.Forms.LinkLabel lblViewSourceFile;
         private GraphArea graphArea1;
         private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem showTooltipsToolStripMenuItem;
@@ -412,12 +419,13 @@ namespace Imagine.GUI
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem saveGraphToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripMenuItem openGraphToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem newGraphToolStripMenuItem;
         private System.Windows.Forms.WebBrowser webBrowser;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem showHelpToolStripMenuItem;
+        private System.Windows.Forms.ComboBox cobDestinations;
+        private System.Windows.Forms.ComboBox cobSources;
     }
 }
 

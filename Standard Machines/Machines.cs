@@ -27,7 +27,7 @@ namespace Imagine.StandardMachines
         protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
         {
             int MAX = ImagineColor.MAX;
-            ImagineImage result = NewFull(inputs[0]);
+            ImagineImage result = NewFull(inputs);
             for (int x = 0; x < result.Width; x++)
             {
                 for (int y = 0; y < result.Height; y++)
@@ -63,7 +63,7 @@ namespace Imagine.StandardMachines
         protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
         {
             int MAX = ImagineColor.MAX;
-            ControlImage result = NewControl(inputs[0]);
+            ControlImage result = NewControl(inputs);
             for (int x = 0; x < result.Width; x++)
             {
                 for (int y = 0; y < result.Height; y++)
@@ -98,7 +98,7 @@ namespace Imagine.StandardMachines
         protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
         {
             ImagineImage original = inputs[0];
-            ControlImage[] controls = { NewControl(original), NewControl(original), NewControl(original) };
+            ControlImage[] controls = NewControlArray(inputs, 3);
 
             for (int x = 0; x < original.Width; x++)
             {
@@ -136,7 +136,7 @@ namespace Imagine.StandardMachines
 
         protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
         {
-            ImagineImage result = NewFull(FindFirstImage(inputs));
+            ImagineImage result = NewFull(inputs);
 
             for (int x = 0; x < result.Width; x++)
             {
@@ -211,7 +211,7 @@ namespace Imagine.StandardMachines
 
         protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
         {
-            ImagineImage result = NewFull(FindFirstImage(inputs));
+            ImagineImage result = NewFull(inputs);
 
             for (int x = 0; x < result.Width; x++)
             {
@@ -254,7 +254,7 @@ namespace Imagine.StandardMachines
 
         protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
         {
-            ControlImage[] results = { NewControl(inputs[0]), NewControl(inputs[0]), NewControl(inputs[0]) };
+            ControlImage[] results = NewControlArray(inputs, 3);
 
             for (int x = 0; x < results[0].Width; x++)
             {
@@ -295,7 +295,7 @@ namespace Imagine.StandardMachines
         {
             int MAX = ImagineColor.MAX;
 
-            ImagineImage result = NewFull(FindFirstImage(inputs));
+            ImagineImage result = NewFull(inputs);
 
             for (int x = 0; x < result.Width; x++)
             {
@@ -338,7 +338,7 @@ namespace Imagine.StandardMachines
 
         protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
         {
-            ControlImage result = NewControl(FindFirstImage(inputs));
+            ControlImage result = NewControl(inputs);
 
             for (int x = 0; x < result.Width; x++)
             {
@@ -402,7 +402,7 @@ namespace Imagine.StandardMachines
 
         protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
         {
-            FullImage result = NewFull(inputs[0]);
+            FullImage result = NewFull(inputs);
             if (inputs[0] == null)
                 return new ImagineImage[1];
             if (inputs[1] == null)
@@ -486,7 +486,7 @@ namespace Imagine.StandardMachines
 
         protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
         {
-            ControlImage result = NewControl(inputs[0]);
+            ControlImage result = NewControl(inputs);
 
             for (int x = 0; x < result.Width; x++)
             {
@@ -545,7 +545,7 @@ namespace Imagine.StandardMachines
 
         protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
         {
-            ControlImage result = NewControl(inputs[0]);
+            ControlImage result = NewControl(inputs);
 
             for (int x = 0; x < result.Width; x++)
             {
@@ -604,7 +604,7 @@ namespace Imagine.StandardMachines
 
         protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
         {
-            FullImage result = NewFull(inputs[0]);
+            FullImage result = NewFull(inputs);
 
             for (int x = 0; x < result.Width; x++)
             {
@@ -661,7 +661,7 @@ namespace Imagine.StandardMachines
 
         protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
         {
-            ControlImage result = NewControl(inputs[0]);
+            ControlImage result = NewControl(inputs);
 
             for (int x = 0; x < result.Width; x++)
             {
@@ -726,7 +726,7 @@ namespace Imagine.StandardMachines
 
         protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
         {
-            ControlImage result = NewControl(inputs[0]);
+            ControlImage result = NewControl(inputs);
 
             double MAX = ImagineColor.MAX;
             double MAX_DISTANCE = Math.Sqrt(3);
@@ -798,7 +798,7 @@ namespace Imagine.StandardMachines
 
         protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
         {
-            ControlImage result = NewControl(inputs[0]);
+            ControlImage result = NewControl(inputs);
 
             double MAX = ImagineColor.MAX;
             double MAX_DISTANCE = Math.Sqrt(3);
@@ -812,6 +812,197 @@ namespace Imagine.StandardMachines
                     if (dH > 1.0)
                         dH = 2.0 - dH;
                     result.SetValue(x, y, (int) ((1.0 - dH) * MAX));
+                }
+
+                StandardCallback(x, result.Width, callback);
+            }
+
+            return new ImagineImage[] { result };
+        }
+    }
+
+    [UniqueName("Imagine.Img.Blender")]
+    public class BlendMachine : Machine
+    {
+        public BlendMachine()
+        {
+            inputNames = new string[] { "image 1", "image 2", "blend (control)" };
+            outputNames = new string[] { "output" };
+            inputCodes = new char[] { '1', '2', 'c' };
+            outputCodes = new char[] { ' ' };
+            description = "";
+        }
+
+        public override string Caption
+        {
+            get { return "Blend"; }
+        }
+
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
+        {
+            if (inputs[0] == null && inputs[1] == null)
+                return new ImagineImage[1];
+            if (inputs[0] != null && inputs[1] == null)
+                return new ImagineImage[] { inputs[0].Copy() };
+            if (inputs[0] == null && inputs[1] != null)
+                return new ImagineImage[] { inputs[1].Copy() };
+            if(inputs[2] == null)
+                return new ImagineImage[] { inputs[0].Copy() };
+            
+            FullImage result = NewFull(inputs);
+
+            for (int x = 0; x < result.Width; x++)
+            {
+                for (int y = 0; y < result.Height; y++)
+                {
+                    ImagineColor color1 = inputs[0].GetPixel(x, y);
+                    ImagineColor color2 = inputs[1].GetPixel(x, y);
+                    double factor = ((double)inputs[2].GetPixel(x, y).A) / ImagineColor.MAX;
+                    result.SetPixel(x, y, ImagineColor.MAX,
+                        (int)(color1.R * (1.0 - factor) + color2.R * factor),
+                        (int)(color1.G * (1.0 - factor) + color2.G * factor),
+                        (int)(color1.B * (1.0 - factor) + color2.B * factor));
+                }
+
+                StandardCallback(x, result.Width, callback);
+            }
+
+            return new ImagineImage[] { result };
+        }
+    }
+
+    [UniqueName("Imagine.Img.Pixelator")]
+    public class PixelateMachine : Machine
+    {
+        private int size = 1;
+
+        public int Size
+        {
+            get { return size; }
+            set { size = value; OnMachineChanged(); }
+        }
+
+        public PixelateMachine()
+        {
+            inputNames = new string[] { "input" };
+            outputNames = new string[] { "output" };
+            inputCodes = new char[] { ' ' };
+            outputCodes = new char[] { ' ' };
+            description = "";
+        }
+
+        public override string Caption
+        {
+            get { return "Pixelate"; }
+        }
+
+        public override void LoadSettings(string settings)
+        {
+            Dictionary<string, string> properties = ParseSettings(settings);
+            int? sizeSetting = GetInt(properties, "size");
+            if (sizeSetting != null)
+                size = sizeSetting.Value;
+        }
+
+        public override string SaveSettings()
+        {
+            return CompileSettings(Set(null, "size", size));
+        }
+
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
+        {
+            FullImage result = NewFull(inputs);
+
+            for (int x = 0; x < result.Width; x += size)
+            {
+                for (int y = 0; y < result.Height; y += size)
+                {
+                    int ysize = (y + size > result.Height ? result.Height - y : size);
+                    int xsize = (x + size > result.Width ? result.Width - x : size);
+
+                    ImagineColor color = inputs[0].GetPixel(x, y);
+                    for (int x1 = 0; x1 < xsize; x1++)
+                        for (int y1 = 0; y1 < ysize; y1++)
+                            result.SetPixel(x + x1, y + y1, color);
+                }
+
+                StandardCallback(x, result.Width, callback);
+            }
+
+            return new ImagineImage[] { result };
+        }
+    }
+
+    [UniqueName("Imagine.Img.Crop")]
+    public class CropMachine : Machine
+    {
+        public CropMachine()
+        {
+            inputNames = new string[] { "image", "reference" };
+            outputNames = new string[] { "output" };
+            inputCodes = new char[] { 'i', 'c' };
+            outputCodes = new char[] { ' ' };
+            description = "Crops the input image to the size specified by the reference image (control or full)";
+        }
+
+        public override string Caption
+        {
+            get { return "Crop"; }
+        }
+
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
+        {
+            if (inputs[1] == null || inputs[0] == null)
+                return new ImagineImage[1];
+            
+            FullImage result = NewFull(inputs[1]);
+
+            for (int x = 0; x < result.Width; x++)
+            {
+                for (int y = 0; y < result.Height; y++)
+                {
+                    result.SetPixel(x, y, inputs[0].GetPixel(x, y));
+                }
+
+                StandardCallback(x, result.Width, callback);
+            }
+
+            return new ImagineImage[] { result };
+        }
+    }
+
+    [UniqueName("Imagine.Img.Resize")]
+    public class ResizeMachine : Machine
+    {
+        public ResizeMachine()
+        {
+            inputNames = new string[] { "image", "reference" };
+            outputNames = new string[] { "output" };
+            inputCodes = new char[] { 'i', 'c' };
+            outputCodes = new char[] { ' ' };
+            description = "Resizes the input image to the size specified by the reference image (control or full). Uses nearest-neighbour.";
+        }
+
+        public override string Caption
+        {
+            get { return "Resize"; }
+        }
+
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
+        {
+            if (inputs[1] == null || inputs[0] == null)
+                return new ImagineImage[1];
+
+            FullImage result = NewFull(inputs[1]);
+
+            double dx = ((double)inputs[0].Width) / result.Width;
+            double dy = ((double)inputs[0].Height) / result.Height;
+
+            for (int x = 0; x < result.Width; x++)
+            {
+                for (int y = 0; y < result.Height; y++)
+                {
+                    result.SetPixel(x, y, inputs[0].GetPixel((int) Math.Round(x*dx), (int) Math.Round(y*dy)));
                 }
 
                 StandardCallback(x, result.Width, callback);

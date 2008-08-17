@@ -94,6 +94,7 @@ namespace Imagine.GUI
                     LoadMachineGUITypes(facade.WorkingDirectory);
 
                     ConstructNewMachineMenu(uniqueNames);
+                    AddSourceAndDestinationToMachineMenu();
                 }
             }
         }
@@ -158,6 +159,25 @@ namespace Imagine.GUI
                 lastLevel = level;
                 lastParts = nameParts;
             }
+        }
+
+        private void AddSourceAndDestinationToMachineMenu()
+        {
+            ToolStripMenuItem sourceItem = new ToolStripMenuItem();
+            sourceItem.Tag = "Imagine.Source";
+            sourceItem.Text = "Source";
+            sourceItem.Image = (new SourceMachineGUI()).HalfDimmedBitmap;
+            sourceItem.ImageScaling = ToolStripItemImageScaling.SizeToFit;
+            sourceItem.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
+            this.contextMenu.Items.Add(sourceItem);
+
+            ToolStripMenuItem destinationItem = new ToolStripMenuItem();
+            destinationItem.Tag = "Imagine.Destination";
+            destinationItem.Text = "Destination";
+            destinationItem.Image = (new SinkMachineGUI()).HalfDimmedBitmap;
+            destinationItem.ImageScaling = ToolStripItemImageScaling.SizeToFit;
+            destinationItem.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
+            this.contextMenu.Items.Add(destinationItem);
         }
 
         private void LoadMachineGUITypes(string workingDirectory)

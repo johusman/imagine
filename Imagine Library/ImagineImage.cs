@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace Imagine.Library
 {
@@ -13,8 +14,9 @@ namespace Imagine.Library
         public abstract void SetPixel(int x, int y, int a, int r, int g, int b);
         public abstract ImagineColor GetPixel(int x, int y);
         
-        public abstract Bitmap GetBitmap();
-        
+        public abstract Bitmap GetBitmap(ProgressCallback callback);
+        public Bitmap GetBitmap() { return GetBitmap(null); }
+
         public int Width
         {
             get { return width; }
@@ -50,12 +52,16 @@ namespace Imagine.Library
 
         public void SetValue(int x, int y, int a)
         {
-            image[x, y] = (a > ImagineColor.MAX) ? ImagineColor.MAX : (a < 0 ? 0 : a);
+            if (x < width && y < height)
+                image[x, y] = (a > ImagineColor.MAX) ? ImagineColor.MAX : (a < 0 ? 0 : a);
         }
 
         public override ImagineColor GetPixel(int x, int y)
         {
-            return new ImagineColor(image[x, y], 0, 0, 0);
+            if (x < width && y < height)
+                return new ImagineColor(image[x, y], 0, 0, 0);
+            else
+                return new ImagineColor(0, 0, 0, 0);
         }
 
         public override ImagineImage Copy()
@@ -65,15 +71,32 @@ namespace Imagine.Library
             return copy;
         }
 
-        public override Bitmap GetBitmap()
+        public unsafe override Bitmap GetBitmap(ProgressCallback callback)
         {
             Bitmap bitmap = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            for(int x = 0; x < width; x++)
-                for(int y = 0; y < height; y++)
+
+            BitmapData bmd = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), System.Drawing.Imaging.ImageLockMode.WriteOnly, bitmap.PixelFormat);
+
+            for (int y = 0; y < bitmap.Height; y++)
+            {
+                byte* row = (byte*)bmd.Scan0 + (y * bmd.Stride);
+                for (int x = 0; x < bitmap.Width; x++)
                 {
-                    int a = image[x,y];
-                    bitmap.SetPixel(x, y, (new ImagineColor(ImagineColor.MAX, a, a, a)).Color);
+                    int idx = x << 2;
+                    int a = image[x, y];
+                    Color color = (new ImagineColor(ImagineColor.MAX, a, a, a)).Color;
+                    row[idx] = color.B;
+                    row[idx + 1] = color.G;
+                    row[idx + 2] = color.R;
+                    row[idx + 3] = color.A;
                 }
+
+                if (callback != null)
+                    callback.Invoke(100 * y / bitmap.Height);
+            }
+
+            bitmap.UnlockBits(bmd);
+
             return bitmap;
         }
     }
@@ -89,16 +112,50 @@ namespace Imagine.Library
             this.height = height;
         }
 
-        public FullImage(Bitmap bitmap) : this(bitmap.Width, bitmap.Height)
+        public FullImage(Bitmap bitmap) : this(bitmap, null) { }
+
+        public unsafe FullImage(Bitmap bitmap, ProgressCallback callback) : this(bitmap.Width, bitmap.Height)
         {
-            for (int x = 0; x < width; x++)
-                for (int y = 0; y < height; y++)
-                    image[x, y] = new ImagineColor(bitmap.GetPixel(x, y));
+            RowDecoder decoder = RowDecoder.GetDecoder(bitmap.PixelFormat);
+            if (decoder == null)
+            {
+                //throw new Exception("Found unsupported pixel format: " + bitmap.PixelFormat);
+                //FIXME: This one should throw some kind of warning since processing will be slow.
+                for (int y = 0; y < bitmap.Height; y++)
+                {
+                    for (int x = 0; x < bitmap.Width; x++)
+                        image[x, y] = new ImagineColor(bitmap.GetPixel(x, y));
+                    if (callback != null)
+                        callback.Invoke(100 * y / bitmap.Height);
+                }
+            }
+            else
+            {
+                BitmapData bmd = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), System.Drawing.Imaging.ImageLockMode.ReadOnly, bitmap.PixelFormat);
+
+                for (int y = 0; y < bitmap.Height; y++)
+                {
+                    byte* row = (byte*)bmd.Scan0 + (y * bmd.Stride);
+                    for (int x = 0; x < bitmap.Width; x++)
+                        image[x, y] = decoder.GetColor(row, x);
+
+                    if (callback != null)
+                        callback.Invoke(100 * y / bitmap.Height);
+                }
+
+                bitmap.UnlockBits(bmd);
+            }
+
+            bitmap.Dispose();
+
+            if (callback != null)
+                callback.Invoke(100);
         }
 
         public override void SetPixel(int x, int y, ImagineColor color)
         {
-            image[x, y] = color;
+            if (x < width && y < height)
+                image[x, y] = color;
         }
 
         public override void SetPixel(int x, int y, int a, int r, int g, int b)
@@ -113,7 +170,10 @@ namespace Imagine.Library
 
         public override ImagineColor GetPixel(int x, int y)
         {
-            return image[x, y];
+            if (x < width && y < height)
+                return image[x, y];
+            else
+                return new ImagineColor(0, 0, 0, 0);
         }
 
         public override ImagineImage Copy()
@@ -123,12 +183,30 @@ namespace Imagine.Library
             return copy;
         }
 
-        public override Bitmap GetBitmap()
+        public unsafe override Bitmap GetBitmap(ProgressCallback callback)
         {
             Bitmap bitmap = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            for(int x = 0; x < width; x++)
-                for(int y = 0; y < height; y++)
-                    bitmap.SetPixel(x, y, image[x, y].Color);
+            
+            BitmapData bmd = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), System.Drawing.Imaging.ImageLockMode.WriteOnly, bitmap.PixelFormat);
+
+            for (int y = 0; y < bitmap.Height; y++)
+            {
+                byte* row = (byte*)bmd.Scan0 + (y * bmd.Stride);
+                for (int x = 0; x < bitmap.Width; x++)
+                {
+                    int idx = x << 2;
+                    Color color = image[x, y].Color;
+                    row[idx] = color.B;
+                    row[idx + 1] = color.G;
+                    row[idx + 2] = color.R;
+                    row[idx + 3] = color.A;
+                }
+
+                if (callback != null)
+                    callback.Invoke(100 * y / bitmap.Height);
+            }
+
+            bitmap.UnlockBits(bmd);
 
             return bitmap;
         }
@@ -148,7 +226,9 @@ namespace Imagine.Library
             }
 
             Bitmap thumbnail = (Bitmap) bitmap.GetThumbnailImage(width, height, new Image.GetThumbnailImageAbort(delegate() { return false; }), System.IntPtr.Zero);
-            return new FullImage(thumbnail);
+            FullImage image = new FullImage(thumbnail);
+            thumbnail.Dispose();
+            return image;
         }
     }
 
@@ -196,6 +276,11 @@ namespace Imagine.Library
             this.r = r;
             this.g = g;
             this.b = b;
+        }
+
+        public static ImagineColor FromARGB255(int a, int r, int g, int b)
+        {
+            return new ImagineColor(a * 256, r * 256, g * 256, b * 256);
         }
 
         public static ImagineColor FromHSV(double h, double s, double v)
@@ -277,8 +362,55 @@ namespace Imagine.Library
         {
             get
             {
-                return Color.FromArgb(a/256, r/256, g/256, b/256);
+                return Color.FromArgb(a >= 0 ? a/256 : 0, r >= 0 ? r/256 : 0, g >= 0 ? g/256 : 0, b >= 0 ? b/256 : 0);
             }
+        }
+    }
+
+    abstract class RowDecoder
+    {
+        public unsafe abstract ImagineColor GetColor(byte* row, int x);
+        public static RowDecoder GetDecoder(PixelFormat format)
+        {
+            switch (format)
+            {
+                case PixelFormat.Format32bppPArgb:
+                    return new Format32bppPArgbRowDecoder();
+                case PixelFormat.Format32bppArgb:
+                    return new Format32bppArgbRowDecoder();
+                case PixelFormat.Format24bppRgb:
+                    return new Format24bppRgbRowDecoder();
+                default:
+                    return null;
+            }
+        }
+    }
+
+    class Format32bppPArgbRowDecoder : RowDecoder
+    {
+        public override unsafe ImagineColor GetColor(byte* row, int x)
+        {
+            int idx = x << 2;
+            int alpha = row[idx + 3];
+            return ImagineColor.FromARGB255(alpha, row[idx + 2] * 255 / alpha, row[idx + 1] * 255 / alpha, row[idx] * 255 / alpha);
+        }
+    }
+
+    class Format32bppArgbRowDecoder : RowDecoder
+    {
+        public override unsafe ImagineColor GetColor(byte* row, int x)
+        {
+            int idx = x << 2;
+            return ImagineColor.FromARGB255(row[idx + 3], row[idx + 2], row[idx + 1], row[idx]);
+        }
+    }
+
+    class Format24bppRgbRowDecoder : RowDecoder
+    {
+        public override unsafe ImagineColor GetColor(byte* row, int x)
+        {
+            int idx = x * 3;
+            return ImagineColor.FromARGB255(255, row[idx + 2], row[idx + 1], row[idx]);
         }
     }
 }

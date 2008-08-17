@@ -31,8 +31,6 @@ namespace Imagine.Library
             }
         }
 
-        public delegate void ProgressCallback(int percent);
-
         protected abstract ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback);
 
         public event System.EventHandler MachineChanged;
@@ -184,6 +182,65 @@ namespace Imagine.Library
             return (image == null) ? null : new ControlImage(image.Width, image.Height);
         }
 
+        protected FullImage NewFull(ImagineImage[] images)
+        {
+            ImageSize max = GetMaxDimensions(images);
+            if (max.height == 0 && max.width == 0)
+                return null;
+            return new FullImage(max.width, max.height);
+        }
+
+        protected ControlImage NewControl(ImagineImage[] images)
+        {
+            ImageSize max = GetMaxDimensions(images);
+            if (max.height == 0 && max.width == 0)
+                return null;
+            return new ControlImage(max.width, max.height);
+        }
+
+        protected FullImage[] NewFullArray(ImagineImage[] images, int arraySize)
+        {
+            ImageSize max = GetMaxDimensions(images);
+            FullImage[] array = new FullImage[arraySize];
+            if (max.height == 0 && max.width == 0)
+                return array;
+            for (int i = 0; i < arraySize; i++)
+                array[i] = new FullImage(max.width, max.height);
+            return array;
+        }
+
+        protected ControlImage[] NewControlArray(ImagineImage[] images, int arraySize)
+        {
+            ImageSize max = GetMaxDimensions(images);
+            ControlImage[] array = new ControlImage[arraySize];
+            if (max.height == 0 && max.width == 0)
+                return array;
+            for (int i = 0; i < arraySize; i++)
+                array[i] = new ControlImage(max.width, max.height);
+            return array;
+        }
+
+        private static ImageSize GetMaxDimensions(ImagineImage[] images)
+        {
+            ImageSize max = new ImageSize();
+
+            foreach (ImagineImage image in images)
+                if (image is FullImage)
+                {
+                    max.width = image.Width > max.width ? image.Width : max.width;
+                    max.height = image.Height > max.height ? image.Height : max.height;
+                }
+
+            if (max.width == 0 && max.height == 0)
+                foreach (ImagineImage image in images)
+                    if (image is ControlImage)
+                    {
+                        max.width = image.Width > max.width ? image.Width : max.width;
+                        max.height = image.Height > max.height ? image.Height : max.height;
+                    }
+            return max;
+        }
+
         protected void StandardCallback(int index, int outOf, ProgressCallback callback)
         {
             if (callback != null && (index & 0x3F) == 0)
@@ -204,6 +261,12 @@ namespace Imagine.Library
         public IncorrectNumberOfMachineInputsException() : base() { }
         public IncorrectNumberOfMachineInputsException(string message) : base(message) { }
         public IncorrectNumberOfMachineInputsException(string message, Exception innerException) : base(message, innerException) { }
+    }
+
+    public struct ImageSize
+    {
+        public int width;
+        public int height;
     }
 
     [AttributeUsage(AttributeTargets.Class)]
@@ -263,23 +326,31 @@ namespace Imagine.Library
 
         public ImagineImage Load()
         {
+            return Load(null);
+        }
+
+        public ImagineImage Load(ProgressCallback callback)
+        {
             ImagineImage image = null;
             if (filename != null)
             {
                 Bitmap bitmap = (Bitmap)Image.FromFile(filename, false);
                 if (!preview)
-                    image = new FullImage(bitmap);
+                    image = new FullImage(bitmap, callback);
                 else
+                {
                     image = FullImage.CreatePreview(bitmap);
+                    lastPreviewImage = image;
+                }
                 bitmap.Dispose();
             }
-            lastPreviewImage = image;
+            
             return image;
         }
 
         protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
         {
-            return new ImagineImage[] { Load() };
+            return new ImagineImage[] { Load(callback) };
         }
     }
     
@@ -329,7 +400,7 @@ namespace Imagine.Library
             {
                 if (filename != null)
                 {
-                    Bitmap bitmap = inputs[0].GetBitmap();
+                    Bitmap bitmap = inputs[0].GetBitmap(callback);
                     ImageCodecInfo codec = FindPngCodec();
                     EncoderParameters parameters = new EncoderParameters(0);
                     bitmap.Save(filename, codec, parameters);

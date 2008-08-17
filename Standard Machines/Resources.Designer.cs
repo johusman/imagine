@@ -108,5 +108,46 @@ namespace Standard_Machines {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
+        
+        internal static System.Drawing.Bitmap Imagine_PythonScript {
+            get {
+                object obj = ResourceManager.GetObject("Imagine_PythonScript", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to import clr
+        ///clr.AddReference(&apos;Imagine Library&apos;)
+        ///from Imagine.Library import *
+        ///from math import *
+        ///
+        ///max = ImagineColor.MAX
+        ///
+        ///def get(input, x, y):
+        ///	col = input.GetPixel(x, y)
+        ///	return [ col.A, col.R, col.G, col.B ]
+        ///
+        ///def set(input, x, y, a, r, g, b):
+        ///	input.SetPixel(x, y, a, r, g, b)
+        ///
+        ///def fnorm(val):
+        ///	return float(val) / max
+        ///
+        ///def isinside(input, x, y):
+        ///	if (x &gt;= 0 and x &lt; input.Width and y &gt;= 0 and y &lt; input.Height):
+        ///		return true
+        ///	else:
+        ///		return false
+        ///
+        ///def callback(val, total):
+        ///	try:
+        ///		_ [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string pythonlib {
+            get {
+                return ResourceManager.GetString("pythonlib", resourceCulture);
+            }
+        }
     }
 }

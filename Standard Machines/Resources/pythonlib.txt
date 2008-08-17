@@ -1,0 +1,58 @@
+import clr
+clr.AddReference('Imagine Library')
+from Imagine.Library import *
+from math import *
+
+max = ImagineColor.MAX
+
+def get(input, x, y):
+	col = input.GetPixel(x, y)
+	return [ col.A, col.R, col.G, col.B ]
+
+def set(input, x, y, a, r, g, b):
+	input.SetPixel(x, y, a, r, g, b)
+
+def fnorm(val):
+	return float(val) / max
+
+def isinside(input, x, y):
+	if (x >= 0 and x < input.Width and y >= 0 and y < input.Height):
+		return true
+	else:
+		return false
+
+def callback(val, total):
+	try:
+		_callback
+	except NameError:
+		_callback = None
+	
+	if not (_callback == None) and (val & 0x3F) == 0:
+		_callback.Invoke(100 * float(val) / total)
+
+def getz(input, x, y):
+	if (x >= 0 and x < input.Width and y >= 0 and y < input.Height):
+		col = input.GetPixel(x, y)
+		return [ col.A, col.R, col.G, col.B ]
+	else:
+		return [0, 0, 0, 0]
+
+def addCols(cols):
+	newcol = [0, 0, 0, 0]
+	for col in cols:
+		for i in range(4):
+			newcol[i] = newcol[i] + col[i]
+	return newcol
+
+def mulCol(col, val):
+	newcol = [0, 0, 0, 0]
+	for i in range(4):
+		newcol[i] = col[i] * val
+	return newcol
+
+def divCol(col, val):
+	newcol = [0, 0, 0, 0]
+	for i in range(4):
+		newcol[i] = col[i] / val
+	return newcol
+

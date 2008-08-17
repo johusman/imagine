@@ -14,6 +14,7 @@ namespace Imagine.AcceptanceTests
 
         string SRC_FILE = System.IO.Directory.GetCurrentDirectory() + "\\nausicaa.png";
         string DEST_FILE = System.IO.Directory.GetCurrentDirectory() + "\\test.png";
+        string DEST_FILE2 = System.IO.Directory.GetCurrentDirectory() + "\\test2.png";
         string COMP_FILE = System.IO.Directory.GetCurrentDirectory() + "\\nausicaa.png";
         string INV_FILE = System.IO.Directory.GetCurrentDirectory() + "\\nausicaa_inverted.png";
         string BLUE_FILE = System.IO.Directory.GetCurrentDirectory() + "\\nausicaa_blue.png";
@@ -23,8 +24,9 @@ namespace Imagine.AcceptanceTests
         public void Init()
         {
             facade = new ImagineFacade(".");
-            facade.OpenSource(SRC_FILE);
-            facade.OpenDestination(DEST_FILE);
+            facade.Sources[0].Filename = SRC_FILE;
+            facade.Destinations[0].Filename = DEST_FILE;
+            facade.Connect(facade.Sources[0], 0, facade.Destinations[0], 0);
         }
 
         [Test]
@@ -44,8 +46,8 @@ namespace Imagine.AcceptanceTests
         [Test]
         public void that_you_can_retrieve_current_source_and_destination()
         {
-            Assert.AreEqual(SRC_FILE, facade.GetSourceFilename());
-            Assert.AreEqual(DEST_FILE, facade.GetDestinationFilename());
+            Assert.AreEqual(SRC_FILE, facade.Sources[0].Filename);
+            Assert.AreEqual(DEST_FILE, facade.Destinations[0].Filename);
         }
 
         [Test]
@@ -61,12 +63,12 @@ namespace Imagine.AcceptanceTests
                 delegate(object sender, EventArgs args)
                 { called++; });
 
-            facade.OpenSource(SRC);
-            facade.OpenDestination(DEST);
+            facade.Sources[0].Filename = SRC;
+            facade.Destinations[0].Filename = DEST;
 
             Assert.AreEqual(2, called);
-            Assert.AreEqual(SRC, facade.SourceMachine.Filename);
-            Assert.AreEqual(DEST, facade.DestinationMachine.Filename);
+            Assert.AreEqual(SRC, facade.Sources[0].Filename);
+            Assert.AreEqual(DEST, facade.Destinations[0].Filename);
         }
 
         [Test]
@@ -89,8 +91,8 @@ namespace Imagine.AcceptanceTests
         [Test]
         public void that_source_and_destination_are_represented_as_machines()
         {
-            Machine source = facade.SourceMachine;
-            Machine destination = facade.DestinationMachine;
+            Machine source = facade.Sources[0];
+            Machine destination = facade.Destinations[0];
 
             Assert.IsNotNull(source);
             Assert.IsNotNull(destination);
@@ -99,10 +101,12 @@ namespace Imagine.AcceptanceTests
         }
 
         [Test]
-        public void that_source_and_destination_are_connected()
+        public void that_source_and_destination_are_connectable()
         {
-            GraphNode<Machine> source = facade.Graph.GetNodeFor(facade.SourceMachine);
-            GraphNode<Machine> destination = facade.Graph.GetNodeFor(facade.DestinationMachine);
+            // Already connected in Setup
+
+            GraphNode<Machine> source = facade.Graph.GetNodeFor(facade.Sources[0]);
+            GraphNode<Machine> destination = facade.Graph.GetNodeFor(facade.Destinations[0]);
 
             Assert.AreSame(destination, source.Outports[0].RemotePort.Node, "Source knows destination");
             Assert.AreSame(source, destination.Inports[0].RemotePort.Node, "Destination knows source");
@@ -111,10 +115,12 @@ namespace Imagine.AcceptanceTests
         [Test]
         public void that_nodes_are_disconnectable()
         {
-            GraphNode<Machine> source = facade.Graph.GetNodeFor(facade.SourceMachine);
-            GraphNode<Machine> destination = facade.Graph.GetNodeFor(facade.DestinationMachine);
+            // Already connected in Setup
 
-            facade.Disconnect(facade.SourceMachine, 0, facade.DestinationMachine, 0);
+            GraphNode<Machine> source = facade.Graph.GetNodeFor(facade.Sources[0]);
+            GraphNode<Machine> destination = facade.Graph.GetNodeFor(facade.Destinations[0]);
+
+            facade.Disconnect(facade.Sources[0], 0, facade.Destinations[0], 0);
 
             Assert.AreEqual(0, source.Outports.Count);
             Assert.AreEqual(0, destination.Inports.Count);
@@ -123,11 +129,11 @@ namespace Imagine.AcceptanceTests
         [Test]
         public void that_we_can_put_an_image_inverter_between_source_and_destination()
         {
-            facade.Disconnect(facade.SourceMachine, 0, facade.DestinationMachine, 0);
+            facade.Disconnect(facade.Sources[0], 0, facade.Destinations[0], 0);
 
             Machine inverter = facade.NewMachine("Imagine.Img.Inverter");
-            facade.Connect(facade.SourceMachine, 0, inverter, 0);
-            facade.Connect(inverter, 0, facade.DestinationMachine, 0);
+            facade.Connect(facade.Sources[0], 0, inverter, 0);
+            facade.Connect(inverter, 0, facade.Destinations[0], 0);
 
             try
             {
@@ -143,13 +149,13 @@ namespace Imagine.AcceptanceTests
         [Test]
         public void that_we_can_connect_to_different_ports()
         {
-            facade.Disconnect(facade.SourceMachine, 0, facade.DestinationMachine, 0);
+            facade.Disconnect(facade.Sources[0], 0, facade.Destinations[0], 0);
 
             Machine splitter = facade.NewMachine("Imagine.Img.RGBSplitter");
             Machine composer = facade.NewMachine("Imagine.Ctrl.RGBJoiner");
-            facade.Connect(facade.SourceMachine, 0, splitter, 0);
+            facade.Connect(facade.Sources[0], 0, splitter, 0);
             facade.Connect(splitter, 2, composer, 2);
-            facade.Connect(composer, 0, facade.DestinationMachine, 0);
+            facade.Connect(composer, 0, facade.Destinations[0], 0);
             
 
             try
@@ -174,28 +180,76 @@ namespace Imagine.AcceptanceTests
             {
                 System.IO.File.Delete(DEST_FILE);
             }
-
         }
 
         [Test]
+        public void that_we_support_multiple_sources_and_destinations()
+        {
+            facade.AddMachine(new SourceMachine());
+            facade.AddMachine(new SinkMachine());
+
+            facade.Disconnect(facade.Sources[0], 0, facade.Destinations[0], 0);
+
+            Assert.AreEqual(2, facade.Sources.Count);
+            Assert.AreEqual(2, facade.Destinations.Count);
+
+            facade.Sources[0].Filename = BLUE_FILE;
+            facade.Sources[1].Filename = RED_FILE;
+            facade.Connect(facade.Sources[0], 0, facade.Destinations[1], 0);
+            facade.Connect(facade.Sources[1], 0, facade.Destinations[0], 0);
+            facade.Destinations[0].Filename = DEST_FILE;
+            facade.Destinations[1].Filename = DEST_FILE2;
+
+            try
+            {
+                facade.Generate();
+                AssertBitmapFilesAreEqual(RED_FILE, DEST_FILE);
+                AssertBitmapFilesAreEqual(BLUE_FILE, DEST_FILE2);
+            }
+            finally
+            {
+                System.IO.File.Delete(DEST_FILE);
+                System.IO.File.Delete(DEST_FILE2);
+            }
+
+            facade.RemoveMachine(facade.Sources[0]);
+            facade.RemoveMachine(facade.Destinations[0]);
+
+            Assert.AreEqual(1, facade.Sources.Count);
+            Assert.AreEqual(1, facade.Destinations.Count);
+        }
+
+        [Test]
+        public void that_we_support_zero_sources_and_destinations()
+        {
+            facade.RemoveMachine(facade.Sources[0]);
+            facade.RemoveMachine(facade.Destinations[0]);
+
+            Assert.AreEqual(0, facade.Sources.Count);
+            Assert.AreEqual(0, facade.Destinations.Count);
+
+            facade.Generate();
+        }
+            
+        [Test]
         public void that_generation_reports_on_progress()
         {
-            facade.Disconnect(facade.SourceMachine, 0, facade.DestinationMachine, 0);
+            facade.Disconnect(facade.Sources[0], 0, facade.Destinations[0], 0);
 
             Machine inverter = facade.NewMachine("Imagine.Img.Inverter");
-            facade.Connect(facade.SourceMachine, 0, inverter, 0);
-            facade.Connect(inverter, 0, facade.DestinationMachine, 0);
+            facade.Connect(facade.Sources[0], 0, inverter, 0);
+            facade.Connect(inverter, 0, facade.Destinations[0], 0);
 
             try
             {
                 facade.Generate(ReportProgress);
                 AssertBitmapFilesAreEqual(INV_FILE, DEST_FILE);
-                Assert.Contains(new ProgressReport(0, 3, facade.SourceMachine, 0), reports);
-                Assert.Contains(new ProgressReport(0, 3, facade.SourceMachine, 100), reports);
+                Assert.Contains(new ProgressReport(0, 3, facade.Sources[0], 0), reports);
+                Assert.Contains(new ProgressReport(0, 3, facade.Sources[0], 100), reports);
                 Assert.Contains(new ProgressReport(1, 3, inverter, 0), reports);
                 Assert.Contains(new ProgressReport(1, 3, inverter, 100), reports);
-                Assert.Contains(new ProgressReport(2, 3, facade.DestinationMachine, 0), reports);
-                Assert.Contains(new ProgressReport(2, 3, facade.DestinationMachine, 100), reports);
+                Assert.Contains(new ProgressReport(2, 3, facade.Destinations[0], 0), reports);
+                Assert.Contains(new ProgressReport(2, 3, facade.Destinations[0], 100), reports);
             }
             finally
             {
@@ -203,333 +257,11 @@ namespace Imagine.AcceptanceTests
             }
         }
 
+
         List<ProgressReport> reports = new List<ProgressReport>();
         public void ReportProgress(int machineIndex, int totalMachines, Machine currentMachine, int currentPercent)
         {
             reports.Add(new ProgressReport(machineIndex, totalMachines, currentMachine, currentPercent));
-        }
-
-        [Test]
-        public void that_we_can_save_a_simple_graph()
-        {
-            string serialize = facade.SerializeGraph();
-            Assert.AreEqual("Graph {\n" +
-                "\tImagine.Source 'machine0' {}\n" +
-                "\tImagine.Destination 'machine1' {\n" +
-                "\t\t'machine0' -> \n" +
-                "\t}\n" +
-                "}",
-                serialize);
-        }
-
-        [Test]
-        public void that_we_can_save_a_complex_graph()
-        {
-            facade.Disconnect(facade.SourceMachine, 0, facade.DestinationMachine, 0);
-
-            Machine inverter = facade.NewMachine("Imagine.Img.Inverter");
-            facade.Connect(facade.SourceMachine, 0, inverter, 0);
-
-            Machine splitter = facade.NewMachine("Imagine.Img.RGBSplitter");
-            facade.Connect(inverter, 0, splitter, 0);
-
-            Machine branch = facade.NewMachine("Imagine.Branch4");
-            facade.Connect(splitter, 0, branch, 0);
-
-            Machine joiner = facade.NewMachine("Imagine.Ctrl.RGBJoiner");
-            facade.Connect(branch, 0, joiner, 0);
-            facade.Connect(branch, 1, joiner, 1);
-            facade.Connect(splitter, 2, joiner, 2);
-
-            facade.Connect(joiner, 0, facade.DestinationMachine, 0);
-
-            string serialize = facade.SerializeGraph();
-            Assert.AreEqual("Graph {\n" +
-                "\tImagine.Source 'machine0' {}\n" +
-
-                "\tImagine.Img.Inverter 'machine1' {\n" +
-                "\t\t'machine0' -> \n" +
-                "\t}\n" +
-
-                "\tImagine.Img.RGBSplitter 'machine2' {\n" +
-                "\t\t'machine1' -> \n" +
-                "\t}\n" +
-
-                "\tImagine.Branch4 'machine3' {\n" +
-                "\t\t'machine2':r -> \n" +
-                "\t}\n" +
-
-                "\tImagine.Ctrl.RGBJoiner 'machine4' {\n" +
-                "\t\t'machine3':1 -> r\n" +
-                "\t\t'machine3':2 -> g\n" +
-                "\t\t'machine2':b -> b\n" +
-                "\t}\n" +
-
-                "\tImagine.Destination 'machine5' {\n" +
-                "\t\t'machine4' -> \n" +
-                "\t}\n" +
-                "}",
-                serialize);
-        }
-
-        [Test]
-        public void that_we_can_save_an_unconnected_graph()
-        {
-            facade.Disconnect(facade.SourceMachine, 0, facade.DestinationMachine, 0);
-
-            string serialize = facade.SerializeGraph();
-            Assert.AreEqual("Graph {\n" +
-                "\tImagine.Source 'machine0' {}\n" +
-                "\tImagine.Destination 'machine1' {}\n" +
-                "}",
-                serialize);
-        }
-
-        [Test]
-        public void that_we_can_load_a_simple_graph()
-        {
-            Machine oldSource = facade.SourceMachine;
-            Machine oldDestination = facade.DestinationMachine;
-
-            string serialize =
-                "Graph {\n" +
-                "\tImagine.Source 'machine0' {}\n" +
-                "\tImagine.Destination 'machine1' {\n" +
-                "\t\t'machine0' -> \n" +
-                "\t}\n" +
-                "}";
-
-            facade.DeserializeGraph(serialize);
-            Assert.AreNotSame(oldSource, facade.SourceMachine);
-            Assert.AreNotSame(oldDestination, facade.DestinationMachine);
-            Assert.AreSame(facade.DestinationMachine, facade.Graph.GetNodeFor(facade.SourceMachine).Outports[0].RemotePort.Node.Machine);
-        }
-
-        [Test]
-        public void that_we_can_load_an_unconnected_graph()
-        {
-            Machine oldSource = facade.SourceMachine;
-            Machine oldDestination = facade.DestinationMachine;
-            
-            string serialize =
-                "Graph {\n" +
-                "\tImagine.Source 'machine0' {}\n" +
-                "\tImagine.Destination 'machine1' {}\n" +
-                "}";
-            facade.DeserializeGraph(serialize);
-            Assert.AreNotSame(oldSource, facade.SourceMachine);
-            Assert.AreNotSame(oldDestination, facade.DestinationMachine);
-            Assert.AreEqual(0, facade.Graph.GetNodeFor(facade.SourceMachine).OutputCount);
-            Assert.AreEqual(0, facade.Graph.GetNodeFor(facade.DestinationMachine).InputCount);
-            Assert.AreEqual(2, facade.Graph.NodeCount);
-            Assert.AreEqual(0, facade.Graph.ConnectionCount);
-        }
-
-        [Test]
-        public void that_we_can_load_a_complex_graph()
-        {
-            Machine oldSource = facade.SourceMachine;
-            Machine oldDestination = facade.DestinationMachine;
-
-            string serialize =
-                "Graph {\n" +
-                "\tImagine.Source 'machine0' {}\n" +
-
-                "\tImagine.Img.Inverter 'machine1' {\n" +
-                "\t\t'machine0' -> \n" +
-                "\t}\n" +
-
-                "\tImagine.Img.RGBSplitter 'machine2' {\n" +
-                "\t\t'machine1' -> \n" +
-                "\t}\n" +
-
-                "\tImagine.Branch4 'machine3' {\n" +
-                "\t\t'machine2':r -> \n" +
-                "\t}\n" +
-
-                "\tImagine.Ctrl.RGBJoiner 'machine4' {\n" +
-                "\t\t'machine3':1 -> r\n" +
-                "\t\t'machine3':2 -> g\n" +
-                "\t\t'machine2':b -> b\n" +
-                "\t}\n" +
-
-                "\tImagine.Destination 'machine5' {\n" +
-                "\t\t'machine4' -> \n" +
-                "\t}\n" +
-                "}";
-            facade.DeserializeGraph(serialize);
-            Graph<Machine> graph = facade.Graph;
-            Assert.AreNotSame(oldSource, facade.SourceMachine);
-            Assert.AreNotSame(oldDestination, facade.DestinationMachine);
-            Assert.AreEqual(1, graph.GetNodeFor(facade.SourceMachine).OutputCount);
-            Assert.AreEqual(1, graph.GetNodeFor(facade.DestinationMachine).InputCount);
-            Assert.AreEqual(6, graph.NodeCount);
-            Assert.AreEqual(7, graph.ConnectionCount);
-        }
-
-        [Test]
-        public void that_we_can_load_from_correct_section()
-        {
-            Machine oldSource = facade.SourceMachine;
-            Machine oldDestination = facade.DestinationMachine;
-
-            string serialize =
-                "Blah { hej { } hopp {\n hejsan {\n}} }\n" +
-
-                "Graph {\n" +
-                "\tImagine.Source 'machine0' {}\n" +
-
-                "\tImagine.Img.Inverter 'machine1' {\n" +
-                "\t\t'machine0' -> \n" +
-                "\t}\n" +
-
-                "\tImagine.Img.RGBSplitter 'machine2' {\n" +
-                "\t\t'machine1' -> \n" +
-                "\t}\n" +
-
-                "\tImagine.Branch4 'machine3' {\n" +
-                "\t\t'machine2':r -> \n" +
-                "\t}\n" +
-
-                "\tImagine.Ctrl.RGBJoiner 'machine4' {\n" +
-                "\t\t'machine3':1 -> r\n" +
-                "\t\t'machine3':2 -> g\n" +
-                "\t\t'machine2':b -> b\n" +
-                "\t}\n" +
-
-                "\tImagine.Destination 'machine5' {\n" +
-                "\t\t'machine4' -> \n" +
-                "\t}\n" +
-                "}\n" +
-                
-                "Hoho { mjau { } hopp {\n hejsan {\n}} }\n";
-            facade.DeserializeGraph(serialize);
-            Graph<Machine> graph = facade.Graph;
-            Assert.AreNotSame(oldSource, facade.SourceMachine);
-            Assert.AreNotSame(oldDestination, facade.DestinationMachine);
-            Assert.AreEqual(1, graph.GetNodeFor(facade.SourceMachine).OutputCount);
-            Assert.AreEqual(1, graph.GetNodeFor(facade.DestinationMachine).InputCount);
-            Assert.AreEqual(6, graph.NodeCount);
-            Assert.AreEqual(7, graph.ConnectionCount);
-        }
-
-        [Test]
-        public void that_we_can_load_simple_machine_settings_from_a_file()
-        {
-            facade.MachineTypes["Test.LoadSave"] = typeof(LoadSaveMachine);
-
-            string serialize =
-                "Graph {\n" +
-                "\tImagine.Source 'machine0' {}\n" +
-
-                "\tTest.LoadSave 'machine1' {\n" +
-                "\t\t'machine0' -> \n" +
-                "\t\t[\n" +
-                "\t\t\tValue = '2'\n" +
-                "\t\t]\n" +
-                "\t}\n" +
-
-                "\tImagine.Destination 'machine2' {\n" +
-                "\t\t'machine1' -> \n" +
-                "\t}\n" +
-                "}";
-            facade.DeserializeGraph(serialize);
-            
-            Graph<Machine> graph = facade.Graph;
-            // See that the settings section didn't destroy the rest of the parsing
-            Assert.IsNotNull(facade.SourceMachine, "Facade.SourceMachine");
-            Assert.IsNotNull(facade.DestinationMachine, "Facade.DestinationMachine");
-            Assert.AreEqual(1, graph.GetNodeFor(facade.SourceMachine).OutputCount, "SourceMachine.OutputCount");
-            Assert.AreEqual(1, graph.GetNodeFor(facade.DestinationMachine).InputCount, "DestinationMachine.InputCount");
-            Assert.AreEqual(3, graph.NodeCount, "Graph.NodeCount");
-            Assert.AreEqual(2, graph.ConnectionCount, "Graph.ConnectionCount");
-
-            LoadSaveMachine machine = ((LoadSaveMachine) graph.GetTopologicalOrdering()[1].Machine);
-            Assert.IsNotNull(machine.settings, "Dummy machine settings");
-            Assert.AreEqual("Value = '2'", machine.settings.Trim());
-            Assert.AreEqual(2, machine.DummyValue);
-        }
-
-        [Test]
-        public void that_we_can_load_complex_machine_settings_from_a_file()
-        {
-            facade.MachineTypes["Test.ComplexLoadSave"] = typeof(ComplexLoadSaveMachine);
-
-            string serialize =
-                "Graph {\n" +
-                "\tImagine.Source 'machine0' {}\n" +
-
-                "\tTest.ComplexLoadSave 'machine1' {\n" +
-                "\t\t'machine0' -> \n" +
-                "\t\t[\n" +
-                "\t\t\tred = '2'\n" +
-                "\t\t\tgreen = '50'\n" +
-                "\t\t\tblue = '10'\n" +
-                "\t\t\ttext = ' hello '\n" +
-                "\t\t\tdouble = '0.2'\n" +
-                "\t\t]\n" +
-                "\t}\n" +
-
-                "\tImagine.Destination 'machine2' {\n" +
-                "\t\t'machine1' -> \n" +
-                "\t}\n" +
-                "}";
-            facade.DeserializeGraph(serialize);
-
-            Graph<Machine> graph = facade.Graph;
-            // See that the settings section didn't destroy the rest of the parsing
-            Assert.IsNotNull(facade.SourceMachine, "Facade.SourceMachine");
-            Assert.IsNotNull(facade.DestinationMachine, "Facade.DestinationMachine");
-            Assert.AreEqual(1, graph.GetNodeFor(facade.SourceMachine).OutputCount, "SourceMachine.OutputCount");
-            Assert.AreEqual(1, graph.GetNodeFor(facade.DestinationMachine).InputCount, "DestinationMachine.InputCount");
-            Assert.AreEqual(3, graph.NodeCount, "Graph.NodeCount");
-            Assert.AreEqual(2, graph.ConnectionCount, "Graph.ConnectionCount");
-
-            ComplexLoadSaveMachine machine = ((ComplexLoadSaveMachine)graph.GetTopologicalOrdering()[1].Machine);
-            Assert.IsNotNull(machine.settings, "Dummy machine settings");
-            Assert.IsTrue(machine.settings.Contains("red = '2'"), "red");
-            Assert.IsTrue(machine.settings.Contains("green = '50'"), "green");
-            Assert.IsTrue(machine.settings.Contains("blue = '10'"), "blue");
-            Assert.IsTrue(machine.settings.Contains("text = ' hello '"), "text");
-            Assert.IsTrue(machine.settings.Contains("double = '0.2'"), "double");
-            Assert.AreEqual("2", machine.properties["red"], "red");
-            Assert.AreEqual("50", machine.properties["green"], "green");
-            Assert.AreEqual("10", machine.properties["blue"], "blue");
-            Assert.AreEqual(" hello ", machine.properties["text"], "text");
-            Assert.AreEqual("0.2", machine.properties["double"], "double");
-        }
-
-        [Test]
-        public void that_we_can_save_machine_settings_to_a_file()
-        {
-            facade.MachineTypes["Test.ComplexLoadSave"] = typeof(ComplexLoadSaveMachine);
-            
-            facade.Disconnect(facade.SourceMachine, 0, facade.DestinationMachine, 0);
-            Machine machine = facade.NewMachine("Test.ComplexLoadSave");
-            facade.Connect(facade.SourceMachine, 0, machine, 0);
-            facade.Connect(machine, 0, facade.DestinationMachine, 0);
-
-            Dictionary<string, string> properties = new Dictionary<string,string>();
-            properties["red"] = "-2";
-            properties["green"] = "50.11";
-            properties["blue"] = "3232432323";
-            properties["text"] = "\tyahoo!";
-            properties["double"] = "3.14159265";
-            ((ComplexLoadSaveMachine) machine).properties = properties;
-
-            string serialize = facade.SerializeGraph();
-            Assert.AreEqual("Graph {\n" +
-                "\tImagine.Source 'machine0' {}\n" +
-
-                "\tTest.ComplexLoadSave 'machine1' {\n" +
-                "\t\t'machine0' -> \n" +
-                "\t\t[ red='-2' green='50.11' blue='3232432323' text='\tyahoo!' double='3.14159265' ]\n" +
-                "\t}\n" +
-
-                "\tImagine.Destination 'machine2' {\n" +
-                "\t\t'machine1' -> \n" +
-                "\t}\n" +
-                "}", serialize);
         }
 
         private void AssertBitmapsAreEqual(Bitmap bitmap1, Bitmap bitmap2)
@@ -593,44 +325,6 @@ namespace Imagine.AcceptanceTests
         protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
         {
             return null;
-        }
-    }
-
-    [UniqueName("Test.LoadSave")]
-    public class LoadSaveMachine : DummyMachine
-    {
-        public LoadSaveMachine() : base() {}
-
-        public string settings = null;
-
-        public override void LoadSettings(string settings)
-        {
-            this.settings = settings;
-            Dictionary<string, string> properties = ParseSettings(settings);
-            int? value = GetInt(properties, "Value");
-            if (value != null)
-                DummyValue = value.Value;
-        }
-    }
-
-    [UniqueName("Test.ComplexLoadSave")]
-    public class ComplexLoadSaveMachine : DummyMachine
-    {
-        public ComplexLoadSaveMachine() : base() {}
-
-        public string settings = null;
-        public Dictionary<string, string> properties = null;
-
-
-        public override void LoadSettings(string settings)
-        {
-            this.settings = settings;
-            this.properties = ParseSettings(settings);
-        }
-
-        public override string SaveSettings()
-        {
-            return CompileSettings(this.properties);
         }
     }
 }

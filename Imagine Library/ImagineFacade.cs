@@ -11,8 +11,8 @@ namespace Imagine.Library
 {
     public class ImagineFacade
     {
-        private SourceMachine sourceMachine;
-        private SinkMachine destinationMachine;
+        private List<SourceMachine> sourceMachines = new List<SourceMachine>();
+        private List<SinkMachine> destinationMachines = new List<SinkMachine>();
         private Dictionary<string, Type> machineTypes;
 
         public Dictionary<string, Type> MachineTypes
@@ -29,18 +29,18 @@ namespace Imagine.Library
         }
 
         public event System.EventHandler GraphChanged;
-        public delegate void ProgressCallback(int machineIndex, int totalMachines, Machine currentMachine, int currentPercent);
+        public delegate void TotalProgressCallback(int machineIndex, int totalMachines, Machine currentMachine, int currentPercent);
 
         private bool disableEvents = false;
 
-        public SourceMachine SourceMachine
+        public List<SourceMachine> Sources
         {
-            get { return sourceMachine; }
+            get { return new List<SourceMachine>(sourceMachines); }
         }
 
-        public SinkMachine DestinationMachine
+        public List<SinkMachine> Destinations
         {
-            get { return destinationMachine; }
+            get { return new List<SinkMachine>(destinationMachines); }
         }
 
         private string workingDirectory = ".";
@@ -57,12 +57,15 @@ namespace Imagine.Library
             LoadMachines();
 
             graph = new Graph<Machine>();
-            sourceMachine = new SourceMachine();
+            SourceMachine sourceMachine = new SourceMachine();
             sourceMachine.MachineChanged += MachineChangedHandler;
-            destinationMachine = new SinkMachine();
+            sourceMachines.Add(sourceMachine);
+            SinkMachine destinationMachine = new SinkMachine();
             destinationMachine.MachineChanged += MachineChangedHandler;
+            destinationMachines.Add(destinationMachine);
 
-            graph.Connect(graph.AddNode(sourceMachine), 0, graph.AddNode(destinationMachine), 0);
+            graph.AddNode(sourceMachine);
+            graph.AddNode(destinationMachine);
         }
 
         private void LoadMachines()
@@ -83,38 +86,6 @@ namespace Imagine.Library
             machineTypes["Imagine.Destination"] = typeof(SinkMachine);
         }
 
-        public void OpenSource(string filename)
-        {
-            sourceMachine.Filename = filename;
-        }
-
-        public void OpenDestination(string filename)
-        {
-            destinationMachine.Filename = filename;
-        }
-
-        public string GetSourceFilename()
-        {
-            return sourceMachine.Filename;
-        }
-
-        public string GetDestinationFilename()
-        {
-            return destinationMachine.Filename;
-        }
-
-        public void OverrideDestination(SinkMachine machine)
-        {
-            destinationMachine = machine;
-            graph.AddNode(machine);
-        }
-
-        public void OverrideSource(SourceMachine machine)
-        {
-            sourceMachine = machine;
-            graph.AddNode(machine);
-        }
-
         public Machine NewMachine(string type)
         {
             Machine machine = (Machine)Activator.CreateInstance(machineTypes[type]);
@@ -126,6 +97,12 @@ namespace Imagine.Library
         {
             machine.MachineChanged += MachineChangedHandler;
             graph.AddNode(machine);
+
+            if (machine is SourceMachine)
+                sourceMachines.Add((SourceMachine)machine);
+
+            if (machine is SinkMachine)
+                destinationMachines.Add((SinkMachine)machine);
 
             if(!disableEvents && GraphChanged != null)
                 GraphChanged.Invoke(this, null);
@@ -140,6 +117,12 @@ namespace Imagine.Library
         public void RemoveMachine(Machine machine)
         {
             graph.RemoveNode(graph.GetNodeFor(machine));
+
+            if (machine is SourceMachine)
+                sourceMachines.Remove((SourceMachine)machine);
+
+            if (machine is SinkMachine)
+                destinationMachines.Remove((SinkMachine)machine);
 
             if (!disableEvents && GraphChanged != null)
                 GraphChanged.Invoke(this, null);
@@ -171,7 +154,7 @@ namespace Imagine.Library
             Generate(null);
         }
 
-        public void Generate(ProgressCallback progressCallback)
+        public void Generate(TotalProgressCallback progressCallback)
         {
             Dictionary<GraphPort<Machine>, ImagineImage> resultMap = new Dictionary<GraphPort<Machine>, ImagineImage>();
 
@@ -181,7 +164,7 @@ namespace Imagine.Library
             int totalMachines = ordering.Count;
             Machine currentMachine = null;
 
-            Machine.ProgressCallback machineCallback = new Machine.ProgressCallback(delegate(int percent) {
+            ProgressCallback machineCallback = new ProgressCallback(delegate(int percent) {
                 if(progressCallback != null)
                     progressCallback.Invoke(machineIndex, totalMachines, currentMachine, percent);
             });
@@ -272,8 +255,8 @@ namespace Imagine.Library
             disableEvents = true;
 
             graph = new Graph<Machine>();
-            sourceMachine = null;
-            destinationMachine = null;
+            sourceMachines.Clear();
+            destinationMachines.Clear();
 
             Dictionary<string, Machine> machines = new Dictionary<string,Machine>();
 
@@ -292,10 +275,6 @@ namespace Imagine.Library
                 {
                     Machine machine = NewMachine(machineType);
                     machines[machineName] = machine;
-                    if (machineType.Trim() == "Imagine.Source")
-                        sourceMachine = (SourceMachine)machine;
-                    if (machineType.Trim() == "Imagine.Destination")
-                        destinationMachine = (SinkMachine)machine;
 
                     if (!Regex.IsMatch(connectionsData, "^\\s*{\\s*(\\[.*\\])?\\s*}\\s*$"))
                     {

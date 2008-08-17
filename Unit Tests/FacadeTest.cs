@@ -18,11 +18,11 @@ namespace Imagine.Library
         public void Init()
         {
             facade = new ImagineFacade(".");
-            facade.RemoveMachine(facade.SourceMachine);
-            facade.RemoveMachine(facade.DestinationMachine);
+            facade.RemoveMachine(facade.Sources[0]);
+            facade.RemoveMachine(facade.Destinations[0]);
 
-            facade.OverrideSource(sourceMachine = new InmemorySourceMachine());
-            facade.OverrideDestination(sinkMachine = new InmemorySinkMachine());
+            facade.AddMachine(sourceMachine = new InmemorySourceMachine());
+            facade.AddMachine(sinkMachine = new InmemorySinkMachine());
         }
 
         [Test]
@@ -45,7 +45,7 @@ namespace Imagine.Library
         [Test]
         public void that_we_can_generate_something_simple()
         {
-            facade.Connect(facade.SourceMachine, 0, facade.DestinationMachine, 0);
+            facade.Connect(facade.Sources[0], 0, facade.Destinations[0], 0);
             sourceMachine.source = new FullImage(2, 2);
             facade.Generate();
 
@@ -90,14 +90,14 @@ namespace Imagine.Library
         {
             try
             {
-                facade.Connect(facade.SourceMachine, 0, facade.DestinationMachine, 1);
+                facade.Connect(facade.Sources[0], 0, facade.Destinations[0], 1);
                 Assert.Fail("Expected MachineInputIndexOutOfRangeException");
             }
             catch(MachineInputIndexOutOfRangeException) { }
 
             try
             {
-                facade.Connect(facade.SourceMachine, 1, facade.DestinationMachine, 0);
+                facade.Connect(facade.Sources[0], 1, facade.Destinations[0], 0);
                 Assert.Fail("Expected MachineInputIndexOutOfRangeException");
             }
             catch(MachineOutputIndexOutOfRangeException) { }
