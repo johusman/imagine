@@ -47,6 +47,11 @@ namespace Imagine.GUI
 
         private void doGenerateToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            Generate();
+        }
+
+        private void Generate()
+        {
             ProgressWindow window = new ProgressWindow();
             window.Left = this.Left + (this.Width - window.Width) / 2;
             window.Top = this.Top + (this.Height - window.Height) / 2;
@@ -63,7 +68,7 @@ namespace Imagine.GUI
                     {
                         double percent = currentPercent / 100.0;
                         double oneMachine = 1.0 / totalMachines;
-                        window.SetPercent((int) ((machineIndex + percent) * oneMachine * 100.0));
+                        window.SetPercent((int)((machineIndex + percent) * oneMachine * 100.0));
                         window.SetText(currentMachine.ToString() + " [" + (machineIndex + 1) + "/" + totalMachines + "]");
                         window.Refresh();
                     }));
@@ -297,6 +302,11 @@ namespace Imagine.GUI
         {
             if (showPreviewToolStripMenuItem.Checked)
                 ShowPreviews();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            Generate();
         }
     }
 

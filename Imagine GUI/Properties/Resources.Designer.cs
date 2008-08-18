@@ -60,6 +60,13 @@ namespace Imagine.GUI.Properties {
             }
         }
         
+        internal static System.Drawing.Bitmap generate {
+            get {
+                object obj = ResourceManager.GetObject("generate", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         internal static System.Drawing.Bitmap gradient {
             get {
                 object obj = ResourceManager.GetObject("gradient", resourceCulture);
@@ -101,6 +108,13 @@ namespace Imagine.GUI.Properties {
             get {
                 object obj = ResourceManager.GetObject("Imagine_Source", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Icon ImagineIcon {
+            get {
+                object obj = ResourceManager.GetObject("ImagineIcon", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
             }
         }
     }

@@ -1,3 +1,4 @@
+using Imagine.GUI.Properties;
 namespace Imagine.GUI
 {
     partial class MainForm
@@ -28,6 +29,7 @@ namespace Imagine.GUI
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
@@ -53,6 +55,7 @@ namespace Imagine.GUI
             this.pictureDestinationPreview = new System.Windows.Forms.PictureBox();
             this.pictureSourcePreview = new System.Windows.Forms.PictureBox();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.btnGenerate = new System.Windows.Forms.Button();
             this.cobDestinations = new System.Windows.Forms.ComboBox();
             this.cobSources = new System.Windows.Forms.ComboBox();
             this.lblViewSourceFile = new System.Windows.Forms.LinkLabel();
@@ -264,6 +267,7 @@ namespace Imagine.GUI
             // 
             this.panel1.BackgroundImage = global::Imagine.GUI.Properties.Resources.gradient;
             this.panel1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.panel1.Controls.Add(this.btnGenerate);
             this.panel1.Controls.Add(this.cobDestinations);
             this.panel1.Controls.Add(this.cobSources);
             this.panel1.Controls.Add(this.lblViewSourceFile);
@@ -277,6 +281,16 @@ namespace Imagine.GUI
             this.panel1.Size = new System.Drawing.Size(714, 57);
             this.panel1.TabIndex = 0;
             // 
+            // btnGenerate
+            // 
+            this.btnGenerate.Image = global::Imagine.GUI.Properties.Resources.generate;
+            this.btnGenerate.Location = new System.Drawing.Point(3, 3);
+            this.btnGenerate.Name = "btnGenerate";
+            this.btnGenerate.Size = new System.Drawing.Size(42, 51);
+            this.btnGenerate.TabIndex = 6;
+            this.btnGenerate.UseVisualStyleBackColor = true;
+            this.btnGenerate.Click += new System.EventHandler(this.button1_Click);
+            // 
             // cobDestinations
             // 
             this.cobDestinations.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
@@ -284,9 +298,9 @@ namespace Imagine.GUI
             this.cobDestinations.DisplayMember = "Text";
             this.cobDestinations.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cobDestinations.FormattingEnabled = true;
-            this.cobDestinations.Location = new System.Drawing.Point(91, 28);
+            this.cobDestinations.Location = new System.Drawing.Point(138, 28);
             this.cobDestinations.Name = "cobDestinations";
-            this.cobDestinations.Size = new System.Drawing.Size(556, 21);
+            this.cobDestinations.Size = new System.Drawing.Size(509, 21);
             this.cobDestinations.TabIndex = 5;
             this.cobDestinations.ValueMember = "Text";
             this.cobDestinations.SelectedIndexChanged += new System.EventHandler(this.cobDestinations_SelectedIndexChanged);
@@ -298,9 +312,9 @@ namespace Imagine.GUI
             this.cobSources.DisplayMember = "Text";
             this.cobSources.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cobSources.FormattingEnabled = true;
-            this.cobSources.Location = new System.Drawing.Point(91, 6);
+            this.cobSources.Location = new System.Drawing.Point(138, 6);
             this.cobSources.Name = "cobSources";
-            this.cobSources.Size = new System.Drawing.Size(556, 21);
+            this.cobSources.Size = new System.Drawing.Size(509, 21);
             this.cobSources.TabIndex = 4;
             this.cobSources.ValueMember = "Text";
             this.cobSources.SelectedIndexChanged += new System.EventHandler(this.cobSources_SelectedIndexChanged);
@@ -336,7 +350,7 @@ namespace Imagine.GUI
             this.lblDestination.AutoSize = true;
             this.lblDestination.BackColor = System.Drawing.Color.Transparent;
             this.lblDestination.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblDestination.Location = new System.Drawing.Point(4, 31);
+            this.lblDestination.Location = new System.Drawing.Point(51, 31);
             this.lblDestination.Name = "lblDestination";
             this.lblDestination.Size = new System.Drawing.Size(81, 13);
             this.lblDestination.TabIndex = 1;
@@ -347,7 +361,7 @@ namespace Imagine.GUI
             this.lblSource.AutoSize = true;
             this.lblSource.BackColor = System.Drawing.Color.Transparent;
             this.lblSource.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblSource.Location = new System.Drawing.Point(4, 9);
+            this.lblSource.Location = new System.Drawing.Point(51, 9);
             this.lblSource.Name = "lblSource";
             this.lblSource.Size = new System.Drawing.Size(57, 13);
             this.lblSource.TabIndex = 0;
@@ -377,6 +391,7 @@ namespace Imagine.GUI
             this.Controls.Add(this.graphArea1);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.menuStrip1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainForm";
             this.Text = "Imagine";
             this.menuStrip1.ResumeLayout(false);
@@ -426,6 +441,7 @@ namespace Imagine.GUI
         private System.Windows.Forms.ToolStripMenuItem showHelpToolStripMenuItem;
         private System.Windows.Forms.ComboBox cobDestinations;
         private System.Windows.Forms.ComboBox cobSources;
+        private System.Windows.Forms.Button btnGenerate;
     }
 }
 
