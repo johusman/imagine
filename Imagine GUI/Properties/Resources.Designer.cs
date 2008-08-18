@@ -67,6 +67,20 @@ namespace Imagine.GUI.Properties {
             }
         }
         
+        internal static System.Drawing.Bitmap generate_bright {
+            get {
+                object obj = ResourceManager.GetObject("generate_bright", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap generate_dim {
+            get {
+                object obj = ResourceManager.GetObject("generate_dim", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         internal static System.Drawing.Bitmap gradient {
             get {
                 object obj = ResourceManager.GetObject("gradient", resourceCulture);

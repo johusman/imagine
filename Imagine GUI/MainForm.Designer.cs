@@ -289,7 +289,7 @@ namespace Imagine.GUI
             this.btnGenerate.Size = new System.Drawing.Size(42, 51);
             this.btnGenerate.TabIndex = 6;
             this.btnGenerate.UseVisualStyleBackColor = true;
-            this.btnGenerate.Click += new System.EventHandler(this.button1_Click);
+            this.btnGenerate.Click += new System.EventHandler(this.btnGenerate_Click);
             // 
             // cobDestinations
             // 

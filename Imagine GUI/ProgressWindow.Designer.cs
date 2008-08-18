@@ -30,13 +30,15 @@ namespace Imagine.GUI
         {
             this.progressBar = new System.Windows.Forms.ProgressBar();
             this.lblText = new System.Windows.Forms.Label();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // progressBar
             // 
-            this.progressBar.Location = new System.Drawing.Point(12, 30);
+            this.progressBar.Location = new System.Drawing.Point(72, 30);
             this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(268, 23);
+            this.progressBar.Size = new System.Drawing.Size(260, 23);
             this.progressBar.TabIndex = 0;
             this.progressBar.UseWaitCursor = true;
             this.progressBar.Value = 50;
@@ -45,18 +47,31 @@ namespace Imagine.GUI
             // 
             this.lblText.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblText.Location = new System.Drawing.Point(12, 9);
+            this.lblText.Location = new System.Drawing.Point(69, 9);
             this.lblText.Name = "lblText";
-            this.lblText.Size = new System.Drawing.Size(268, 18);
+            this.lblText.Size = new System.Drawing.Size(263, 18);
             this.lblText.TabIndex = 1;
             this.lblText.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblText.UseWaitCursor = true;
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Image = global::Imagine.GUI.Properties.Resources.generate_dim;
+            this.pictureBox1.InitialImage = null;
+            this.pictureBox1.Location = new System.Drawing.Point(12, 9);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(51, 50);
+            this.pictureBox1.TabIndex = 2;
+            this.pictureBox1.TabStop = false;
+            this.pictureBox1.UseWaitCursor = true;
             // 
             // ProgressWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(292, 65);
+            this.ClientSize = new System.Drawing.Size(344, 65);
             this.ControlBox = false;
+            this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.lblText);
             this.Controls.Add(this.progressBar);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
@@ -70,6 +85,7 @@ namespace Imagine.GUI
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "ProgressWindow";
             this.UseWaitCursor = true;
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -78,5 +94,6 @@ namespace Imagine.GUI
 
         private System.Windows.Forms.ProgressBar progressBar;
         private System.Windows.Forms.Label lblText;
+        private System.Windows.Forms.PictureBox pictureBox1;
     }
 }

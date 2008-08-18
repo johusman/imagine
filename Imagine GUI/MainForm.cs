@@ -9,6 +9,7 @@ using Imagine.Library;
 using System.Diagnostics;
 using System.IO;
 using Imagine.GUI.Properties;
+using System.Threading;
 
 namespace Imagine.GUI
 {
@@ -16,6 +17,7 @@ namespace Imagine.GUI
     {
         private ImagineFacade facade;
         private string workingDirectory;
+        private Cursor lastCursor;
 
         public MainForm()
         {
@@ -52,31 +54,60 @@ namespace Imagine.GUI
 
         private void Generate()
         {
+            ProgressWindow window = SetupForGeneration();
+
+            Thread genThread = new Thread(new ParameterizedThreadStart(GenerateJob));
+            genThread.Start(window);
+        }
+
+        private ProgressWindow SetupForGeneration()
+        {
             ProgressWindow window = new ProgressWindow();
             window.Left = this.Left + (this.Width - window.Width) / 2;
             window.Top = this.Top + (this.Height - window.Height) / 2;
             window.Show(this);
             window.Refresh();
 
-            Cursor lastCursor = Cursor.Current;
+            this.Enabled = false;
+
+            lastCursor = Cursor.Current;
             Cursor.Current = Cursors.WaitCursor;
 
             TogglePreview(false);
+
+            return window;
+        }
+
+        public void CleanupAfterGeneration(ProgressWindow window)
+        {
+            TogglePreview(true);
+
+            window.Close();
+
+            Cursor.Current = lastCursor;
+
+            this.Enabled = true;
+        }
+
+        private void GenerateJob(object obj)
+        {
+            ProgressWindow window = (ProgressWindow)obj;
+
+            GenerationCallbackObject callbackObject = new GenerationCallbackObject(window, this);
+
             facade.Generate(
                 new ImagineFacade.TotalProgressCallback(
                     delegate(int machineIndex, int totalMachines, Machine currentMachine, int currentPercent)
                     {
                         double percent = currentPercent / 100.0;
                         double oneMachine = 1.0 / totalMachines;
-                        window.SetPercent((int)((machineIndex + percent) * oneMachine * 100.0));
-                        window.SetText(currentMachine.ToString() + " [" + (machineIndex + 1) + "/" + totalMachines + "]");
-                        window.Refresh();
+                        
+                        callbackObject.SetPercent((int)((machineIndex + percent) * oneMachine * 100.0));
+                        callbackObject.SetText(currentMachine.ToString() + " [" + (machineIndex + 1) + "/" + totalMachines + "]");
+                        callbackObject.Refresh();
                     }));
-            TogglePreview(true);
 
-            window.Close();
-
-            Cursor.Current = lastCursor;
+            callbackObject.Cleanup();
         }
 
         private void TogglePreview(bool preview)
@@ -304,7 +335,7 @@ namespace Imagine.GUI
                 ShowPreviews();
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void btnGenerate_Click(object sender, EventArgs e)
         {
             Generate();
         }
@@ -363,6 +394,53 @@ namespace Imagine.GUI
             text = filename = machine.Filename;
             if (filename == null)
                 text = "[destination]";
+        }
+    }
+
+    class GenerationCallbackObject
+    {
+        private delegate void SetPercentDel(int myInt);
+        private delegate void SetTextDel(string myString);
+        private delegate void RefreshDel();
+        private delegate void CleanupDel(ProgressWindow window);
+
+        private SetPercentDel setPercent;
+        private SetTextDel setText;
+        private RefreshDel refresh;
+        private CleanupDel cleanup;
+
+        private ProgressWindow window;
+        private MainForm mainForm;
+
+        public GenerationCallbackObject(ProgressWindow window, MainForm mainForm)
+        {
+            this.window = window;
+            this.mainForm = mainForm;
+
+            setPercent = new SetPercentDel(window.SetPercent);
+            setText = new SetTextDel(window.SetText);
+            refresh = new RefreshDel(window.Refresh);
+            cleanup = new CleanupDel(mainForm.CleanupAfterGeneration);
+        }
+
+        public void SetPercent(int percent)
+        {
+            window.Invoke(setPercent, percent);
+        }
+
+        public void SetText(string text)
+        {
+            window.Invoke(setText, text);
+        }
+
+        public void Refresh()
+        {
+            window.Invoke(refresh);
+        }
+
+        public void Cleanup()
+        {
+            mainForm.Invoke(cleanup, window);
         }
     }
 }
