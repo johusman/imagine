@@ -34,6 +34,10 @@ namespace Imagine.StandardMachines
             this.btnCancel = new System.Windows.Forms.Button();
             this.txtErrors = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
+            this.btnLoad = new System.Windows.Forms.Button();
+            this.btnSave = new System.Windows.Forms.Button();
+            this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
+            this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.SuspendLayout();
             // 
             // txtScript
@@ -89,6 +93,7 @@ namespace Imagine.StandardMachines
             // 
             this.txtErrors.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtErrors.ForeColor = System.Drawing.Color.Maroon;
             this.txtErrors.Location = new System.Drawing.Point(16, 428);
             this.txtErrors.Multiline = true;
             this.txtErrors.Name = "txtErrors";
@@ -106,11 +111,46 @@ namespace Imagine.StandardMachines
             this.label2.TabIndex = 5;
             this.label2.Text = "Errors from run/preview:";
             // 
+            // btnLoad
+            // 
+            this.btnLoad.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnLoad.Location = new System.Drawing.Point(16, 532);
+            this.btnLoad.Name = "btnLoad";
+            this.btnLoad.Size = new System.Drawing.Size(75, 23);
+            this.btnLoad.TabIndex = 6;
+            this.btnLoad.Text = "Load";
+            this.btnLoad.UseVisualStyleBackColor = true;
+            this.btnLoad.Click += new System.EventHandler(this.btnLoad_Click);
+            // 
+            // btnSave
+            // 
+            this.btnSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnSave.Location = new System.Drawing.Point(97, 532);
+            this.btnSave.Name = "btnSave";
+            this.btnSave.Size = new System.Drawing.Size(75, 23);
+            this.btnSave.TabIndex = 7;
+            this.btnSave.Text = "Save";
+            this.btnSave.UseVisualStyleBackColor = true;
+            this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
+            // 
+            // openFileDialog
+            // 
+            this.openFileDialog.Filter = "Python Scripts|*.py|All|*.*";
+            this.openFileDialog.Title = "Open Script...";
+            // 
+            // saveFileDialog
+            // 
+            this.saveFileDialog.DefaultExt = "py";
+            this.saveFileDialog.Filter = "Python Scripts|*.py|All|*.*";
+            this.saveFileDialog.Title = "Save Script...";
+            // 
             // ScriptInput
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(764, 565);
+            this.Controls.Add(this.btnSave);
+            this.Controls.Add(this.btnLoad);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.txtErrors);
             this.Controls.Add(this.btnCancel);
@@ -132,5 +172,9 @@ namespace Imagine.StandardMachines
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.TextBox txtErrors;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Button btnLoad;
+        private System.Windows.Forms.Button btnSave;
+        private System.Windows.Forms.OpenFileDialog openFileDialog;
+        private System.Windows.Forms.SaveFileDialog saveFileDialog;
     }
 }
