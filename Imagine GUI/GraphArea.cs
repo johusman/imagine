@@ -46,6 +46,7 @@ namespace Imagine.GUI
         private enum ManipulationState { None, Dragging, Inserting, Connecting };
         private ManipulationState manipulationState = ManipulationState.None;
         private GraphNode<Machine> manipulatedNode = null;
+        private GraphPort<Machine> manipulatedPort = null;
         private Point manipulationOffset;
         private GraphNode<Machine> manipulationDestination = null;
         private int choosenPort = -1;
@@ -471,28 +472,26 @@ namespace Imagine.GUI
                 GraphPort<Machine> port = GetPortAtCoordinate(e.Location);
                 if (port != null)
                 {
-                    if (e.Button == MouseButtons.Right && e.Clicks == 2)
+                    if (e.Button == MouseButtons.Right)
                     {
-                        if(Control.ModifierKeys != Keys.Shift)
+                        if (e.Clicks == 1)
                         {
-                            DialogResult result = MessageBox.Show(this.ParentForm, "Do you wish to break this connection?", "Break connection?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                            if (result == DialogResult.No)
-                                return;
+                            manipulatedPort = port;
+                            portContextMenu.Show(this, Point.Subtract(e.Location, new Size(10, -10)));
                         }
+                        else if (e.Clicks == 2)
+                        {
+                            portContextMenu.Hide();
+                            if (Control.ModifierKeys != Keys.Shift)
+                            {
+                                DialogResult result = MessageBox.Show(this.ParentForm, "Do you wish to break this connection?", "Break connection?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                                if (result == DialogResult.No)
+                                    return;
+                            }
 
-                        if (outportPositions.ContainsKey(port))
-                        {
-                            outportPositions.Remove(port);
-                            inportPositions.Remove(port.RemotePort);
-                            facade.Disconnect(port.Node.Machine, port.PortNumber, port.RemotePort.Node.Machine, port.RemotePort.PortNumber);
+                            BreakConnectionForPort(port);
+                            this.Invalidate();
                         }
-                        else
-                        {
-                            outportPositions.Remove(port.RemotePort);
-                            inportPositions.Remove(port);
-                            facade.Disconnect(port.RemotePort.Node.Machine, port.RemotePort.PortNumber, port.Node.Machine, port.PortNumber);
-                        }
-                        this.Invalidate();
                     }
                 }
                 else
@@ -504,6 +503,22 @@ namespace Imagine.GUI
                         contextMenu.Show(this, Point.Subtract(e.Location, new Size(10, 10)));
                     }
                 }                    
+            }
+        }
+
+        private void BreakConnectionForPort(GraphPort<Machine> port)
+        {
+            if (outportPositions.ContainsKey(port))
+            {
+                outportPositions.Remove(port);
+                inportPositions.Remove(port.RemotePort);
+                facade.Disconnect(port.Node.Machine, port.PortNumber, port.RemotePort.Node.Machine, port.RemotePort.PortNumber);
+            }
+            else
+            {
+                outportPositions.Remove(port.RemotePort);
+                inportPositions.Remove(port);
+                facade.Disconnect(port.RemotePort.Node.Machine, port.RemotePort.PortNumber, port.Node.Machine, port.PortNumber);
             }
         }
 
@@ -840,6 +855,46 @@ namespace Imagine.GUI
             }
 
             Refresh();
+        }
+
+        private void breakConnectionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            BreakConnectionForPort(manipulatedPort);
+            manipulatedPort = null;
+            this.Invalidate();
+        }
+
+        private void branchToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            InsertBranchInConnectionForPort(manipulatedPort);
+            manipulatedPort = null;
+            this.Invalidate();
+        }
+
+        private void InsertBranchInConnectionForPort(GraphPort<Machine> port)
+        {
+            GraphPort<Machine> fromPort = null;
+            GraphPort<Machine> toPort = null;
+            if (port.Node.Outports.ContainsValue(port)) // Is it an output port?
+            {
+                fromPort = port;
+                toPort = port.RemotePort;
+            }
+            else
+            {
+                fromPort = port.RemotePort;
+                toPort = port;
+            }
+
+            BreakConnectionForPort(port);
+            Branch4Machine brancher = new Branch4Machine();
+            GraphNode<Machine> branchNode = graph.AddNode(brancher);
+            graph.Connect(fromPort.Node, fromPort.PortNumber, branchNode, 0);
+            graph.Connect(branchNode, 0, toPort.Node, toPort.PortNumber);
+
+            Point fromPoint = machinePositions[fromPort.Node];
+            Point toPoint = machinePositions[toPort.Node];
+            machinePositions[branchNode] = new Point((fromPoint.X + toPoint.X)/2, (fromPoint.Y + toPoint.Y)/2);
         }
     }
 }

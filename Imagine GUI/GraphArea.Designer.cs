@@ -31,7 +31,11 @@ namespace Imagine.GUI
             this.components = new System.ComponentModel.Container();
             this.contextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.portContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.branchToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.breakConnectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenu.SuspendLayout();
+            this.portContextMenu.SuspendLayout();
             this.SuspendLayout();
             // 
             // contextMenu
@@ -39,13 +43,35 @@ namespace Imagine.GUI
             this.contextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.newToolStripMenuItem});
             this.contextMenu.Name = "contextMenu";
-            this.contextMenu.Size = new System.Drawing.Size(153, 48);
+            this.contextMenu.Size = new System.Drawing.Size(96, 26);
             // 
             // newToolStripMenuItem
             // 
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(95, 22);
             this.newToolStripMenuItem.Text = "New";
+            // 
+            // portContextMenu
+            // 
+            this.portContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.breakConnectionToolStripMenuItem,
+            this.branchToolStripMenuItem});
+            this.portContextMenu.Name = "portContextMenu";
+            this.portContextMenu.Size = new System.Drawing.Size(165, 70);
+            // 
+            // branchToolStripMenuItem
+            // 
+            this.branchToolStripMenuItem.Name = "branchToolStripMenuItem";
+            this.branchToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.branchToolStripMenuItem.Text = "Branch Connection";
+            this.branchToolStripMenuItem.Click += new System.EventHandler(this.branchToolStripMenuItem_Click);
+            // 
+            // breakConnectionToolStripMenuItem
+            // 
+            this.breakConnectionToolStripMenuItem.Name = "breakConnectionToolStripMenuItem";
+            this.breakConnectionToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.breakConnectionToolStripMenuItem.Text = "Break Connection";
+            this.breakConnectionToolStripMenuItem.Click += new System.EventHandler(this.breakConnectionToolStripMenuItem_Click);
             // 
             // GraphArea
             // 
@@ -62,6 +88,7 @@ namespace Imagine.GUI
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.GraphArea_MouseDown);
             this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.GraphArea_MouseUp);
             this.contextMenu.ResumeLayout(false);
+            this.portContextMenu.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -70,5 +97,8 @@ namespace Imagine.GUI
 
         private System.Windows.Forms.ContextMenuStrip contextMenu;
         private System.Windows.Forms.ToolStripMenuItem newToolStripMenuItem;
+        private System.Windows.Forms.ContextMenuStrip portContextMenu;
+        private System.Windows.Forms.ToolStripMenuItem branchToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem breakConnectionToolStripMenuItem;
     }
 }

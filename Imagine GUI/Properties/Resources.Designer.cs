@@ -111,6 +111,13 @@ namespace Imagine.GUI.Properties {
             }
         }
         
+        internal static System.Drawing.Bitmap Imagine_Branch {
+            get {
+                object obj = ResourceManager.GetObject("Imagine_Branch", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         internal static System.Drawing.Bitmap Imagine_Destination {
             get {
                 object obj = ResourceManager.GetObject("Imagine_Destination", resourceCulture);

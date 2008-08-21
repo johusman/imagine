@@ -84,6 +84,7 @@ namespace Imagine.Library
 
             machineTypes["Imagine.Source"] = typeof(SourceMachine);
             machineTypes["Imagine.Destination"] = typeof(SinkMachine);
+            machineTypes["Imagine.Branch4"] = typeof(Branch4Machine);
         }
 
         public Machine NewMachine(string type)

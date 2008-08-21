@@ -424,4 +424,32 @@ namespace Imagine.Library
             return null;
         }
     }
+
+    [UniqueName("Imagine.Branch4")]
+    public class Branch4Machine : Machine
+    {
+        public Branch4Machine()
+        {
+            inputNames = new string[] { "input" };
+            outputNames = new string[] { "output1", "output2", "output3", "output4" };
+            inputCodes = new char[] { ' ' };
+            outputCodes = new char[] { '1', '2', '3', '4' };
+            description = "Outputs up for four identical copies of the input image.";
+        }
+
+        public override string Caption
+        {
+            get { return "Branch"; }
+        }
+
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
+        {
+            return new ImagineImage[] { CloneFirst(inputs), CloneFirst(inputs), CloneFirst(inputs), CloneFirst(inputs) };
+        }
+
+        private ImagineImage CloneFirst(ImagineImage[] inputs)
+        {
+            return (inputs[0] == null) ? null : inputs[0].Copy();
+        }
+    }
 }

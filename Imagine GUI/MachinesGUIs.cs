@@ -136,4 +136,18 @@ namespace Imagine.GUI
             dialog.Dispose();
         }
     }
+
+    [GUIForMachine("Imagine.Branch4")]
+    public class BranchGUI : MachineGUI
+    {
+        public BranchGUI()
+        {
+            SetBitmap(Resources.Imagine_Branch);
+        }
+
+        public override System.Drawing.Brush Background
+        {
+            get { return Brushes.AntiqueWhite; }
+        }
+    }
 }
