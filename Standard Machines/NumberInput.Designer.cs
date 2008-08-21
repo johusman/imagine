@@ -66,11 +66,6 @@ namespace Imagine.StandardMachines
             0,
             131072});
             this.numericBox.Location = new System.Drawing.Point(127, 7);
-            this.numericBox.Maximum = new decimal(new int[] {
-            10,
-            0,
-            0,
-            0});
             this.numericBox.Name = "numericBox";
             this.numericBox.Size = new System.Drawing.Size(47, 20);
             this.numericBox.TabIndex = 2;

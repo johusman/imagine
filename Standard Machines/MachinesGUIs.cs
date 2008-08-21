@@ -180,6 +180,32 @@ namespace Imagine.StandardMachines
         }
     }
 
+    [GUIForMachine("Imagine.Img.GaussianBlur")]
+    public class GaussianBlurGUI : MachineGUI
+    {
+        public GaussianBlurGUI()
+        {
+            SetBitmap(Resources.Imagine_Img_Blur);
+        }
+
+        public GaussianBlurMachine MyMachine
+        {
+            get { return (GaussianBlurMachine)Node.Machine; }
+        }
+
+        public override void LaunchSettings(GraphArea graphArea)
+        {
+            NumberInput numberInput = new NumberInput();
+            numberInput.Value = MyMachine.Size;
+            numberInput.Caption = "Blur size (px)";
+            if (numberInput.ShowDialog() == DialogResult.OK)
+            {
+                MyMachine.Size = numberInput.Value;
+            }
+            numberInput.Dispose();
+        }
+    }
+
     [GUIForMachine("Imagine.Ctrl.ControlMultiplier4")]
     public class ControlMultiplierGUI : MachineGUI
     {

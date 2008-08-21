@@ -446,6 +446,109 @@ namespace Imagine.StandardMachines
         }
     }
 
+    public class Convolutor
+    {
+        public static FullImage Convolute(FramedImage source, double[] vector, bool vertically, ProgressCallback callback, double callbackOffset, double callbackFactor)
+        {
+            int cb_percentOffset = (int) (callbackOffset * 100);
+            double cb_factor = 100.0 * callbackFactor / source.Width;
+
+            FullImage result = new FullImage(source.Width, source.Height);
+
+            int offset = vector.Length / 2;
+            for (int x = 0; x < result.Width; x++)
+            {
+                for (int y = 0; y < result.Height; y++)
+                {
+                    double r = 0.0, g = 0.0, b = 0.0, a = 0.0;
+
+                    for (int i = 0; i < vector.Length; i++)
+                    {
+                        double factor = vector[i];
+                        ImagineColor col =
+                            vertically ?
+                                source.GetPixel(x, y - offset + i) :
+                                source.GetPixel(x - offset + i, y);
+                        r += col.R * factor;
+                        g += col.G * factor;
+                        b += col.B * factor;
+                        a += col.A * factor;
+                    }
+
+                    result.SetPixel(x, y, (int)a, (int)r, (int)g, (int)b);
+                }
+
+                callback.Invoke(cb_percentOffset + (int) (x * cb_factor));
+            }
+
+            return result;
+        }
+    }
+
+    [UniqueName("Imagine.Img.GaussianBlur")]
+    public class GaussianBlurMachine : Machine
+    {
+        private double size = 5.0;
+
+        public double Size
+        {
+            get { return size; }
+            set { size = value; OnMachineChanged(); }
+        }
+
+        public GaussianBlurMachine()
+        {
+            inputNames = new string[] { "input" };
+            outputNames = new string[] { "output" };
+            inputCodes = new char[] { ' ' };
+            outputCodes = new char[] { ' ' };
+            description = "Applies a gaussian blur to the input image.";
+        }
+
+        public override string Caption
+        {
+            get { return "GaussBlur"; }
+        }
+
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
+        {
+            if (inputs[0] == null)
+                return new ImagineImage[1];
+            FramedImage source = new EdgeRepeatFramedImage(inputs[0]);
+
+            double[] vector = GenerateGaussVector(size);
+            FullImage result = Convolutor.Convolute(source, vector, false, callback, 0.0, 0.5);
+            source = new EdgeRepeatFramedImage(result);
+            result = Convolutor.Convolute(source, vector, true, callback, 0.5, 0.5);
+
+            return new ImagineImage[] { result };
+        }
+
+        private double[] GenerateGaussVector(double pixelSize)
+        {
+            double sigma = pixelSize / 3.0;
+            int limit = (int) pixelSize;
+            int length = 1 + limit * 2;
+            double[] vector = new double[length];
+            
+            double offset = (length - 1) / 2.0;
+            double denominator = 2.0*sigma*sigma;
+            double totalEnergy = 0.0;
+            for (int i = 0; i < length; i++)
+            {
+                double x = i - offset;
+                double value = Math.Exp(-(x * x) / denominator);
+                vector[i] = value;
+                totalEnergy += value;
+            }
+
+            for (int i = 0; i < length; i++)
+                vector[i] /= totalEnergy;
+
+            return vector;
+        }
+    }
+
     [UniqueName("Imagine.Ctrl.SoftControlContrast")]
     public class SoftControlContrastMachine : Machine
     {

@@ -58,10 +58,7 @@ namespace Imagine.Library
 
         public override ImagineColor GetPixel(int x, int y)
         {
-            if (x < width && y < height)
-                return new ImagineColor(image[x, y], 0, 0, 0);
-            else
-                return new ImagineColor(0, 0, 0, 0);
+            return new ImagineColor(image[x, y], 0, 0, 0);
         }
 
         public override ImagineImage Copy()
@@ -170,10 +167,7 @@ namespace Imagine.Library
 
         public override ImagineColor GetPixel(int x, int y)
         {
-            if (x < width && y < height)
-                return image[x, y];
-            else
-                return new ImagineColor(0, 0, 0, 0);
+            return image[x, y];
         }
 
         public override ImagineImage Copy()
@@ -411,6 +405,86 @@ namespace Imagine.Library
         {
             int idx = x * 3;
             return ImagineColor.FromARGB255(255, row[idx + 2], row[idx + 1], row[idx]);
+        }
+    }
+
+    public abstract class FramedImage : ImagineImage
+    {
+        protected ImagineImage image;
+
+        public FramedImage(ImagineImage realImage)
+        {
+            image = realImage;
+            width = realImage.Width;
+            height = realImage.Height;
+        }
+
+        public override void SetPixel(int x, int y, ImagineColor color)
+        {
+            image.SetPixel(x, y, color);
+        }
+
+        public override void SetPixel(int x, int y, int a, int r, int g, int b)
+        {
+            image.SetPixel(x, y, a, r, g, b);
+        }
+
+        public override ImagineColor GetPixel(int x, int y)
+        {
+            if (x >= 0 && x < width && y >= 0 && y < height)
+                return image.GetPixel(x, y);
+            else
+                return GetFramePixel(x, y);
+        }
+
+        protected abstract ImagineColor GetFramePixel(int x, int y);
+
+        public override Bitmap GetBitmap(ProgressCallback callback)
+        {
+            return image.GetBitmap(callback);
+        }
+    }
+
+    public class StaticColorFramedImage : FramedImage
+    {
+        protected ImagineColor color;
+
+        public StaticColorFramedImage(ImagineImage realImage, ImagineColor color)
+            : base(realImage)
+        {
+            this.color = color;
+        }
+
+        protected override ImagineColor GetFramePixel(int x, int y)
+        {
+            return color;
+        }
+
+        public override ImagineImage Copy()
+        {
+            return new StaticColorFramedImage(image.Copy(), color);
+        }
+    }
+
+    public class EdgeRepeatFramedImage : FramedImage
+    {
+        public EdgeRepeatFramedImage(ImagineImage realImage)
+            : base(realImage)
+        {
+        }
+
+        protected override ImagineColor GetFramePixel(int x, int y)
+        {
+            if (x < 0) x = 0;
+            if (y < 0) y = 0;
+            if (x >= width) x = width - 1;
+            if (y >= height) y = height - 1;
+            return image.GetPixel(x, y);
+        }
+
+        public override ImagineImage Copy()
+        {
+            return new EdgeRepeatFramedImage(image.Copy());
         }
     }
 }
