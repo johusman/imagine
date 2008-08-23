@@ -1086,4 +1086,68 @@ namespace Imagine.StandardMachines
             return new ImagineImage[] { result };
         }
     }
+
+    [UniqueName("Imagine.Img.Color")]
+    public class ColorMachine : Machine
+    {
+        private ImagineColor targetColor = new ImagineColor(ImagineColor.MAX, ImagineColor.MAX, ImagineColor.MAX, ImagineColor.MAX);
+
+        public ImagineColor TargetColor
+        {
+            get { return targetColor; }
+            set { targetColor = value; OnMachineChanged(); }
+        }
+
+        public ColorMachine()
+        {
+            inputNames = new string[] { "reference" };
+            outputNames = new string[] { "output" };
+            inputCodes = new char[] { ' ' };
+            outputCodes = new char[] { ' ' };
+            description = "Produces an image filled with a single color, having the size specified by the reference image (control or full).";
+        }
+
+        public override string Caption
+        {
+            get { return "Color"; }
+        }
+
+        public override void LoadSettings(string settings)
+        {
+            Dictionary<string, string> properties = ParseSettings(settings);
+            int? redSetting = GetInt(properties, "red");
+            int? greenSetting = GetInt(properties, "green");
+            int? blueSetting = GetInt(properties, "blue");
+            if (redSetting != null && greenSetting != null && blueSetting != null)
+                targetColor = new ImagineColor(ImagineColor.MAX,
+                    ImagineColor.MAX / 256 * redSetting.Value,
+                    ImagineColor.MAX / 256 * greenSetting.Value,
+                    ImagineColor.MAX / 256 * blueSetting.Value);
+        }
+
+        public override string SaveSettings()
+        {
+            Dictionary<string, string> properties = new Dictionary<string, string>();
+            Set(properties, "red", targetColor.R * 256 / ImagineColor.MAX);
+            Set(properties, "green", targetColor.G * 256 / ImagineColor.MAX);
+            Set(properties, "blue", targetColor.B * 256 / ImagineColor.MAX);
+            return CompileSettings(properties);
+        }
+
+        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
+        {
+            ImagineImage result = NewFull(inputs);
+            for (int x = 0; x < result.Width; x++)
+            {
+                for (int y = 0; y < result.Height; y++)
+                {
+                    result.SetPixel(x, y, targetColor);
+                }
+
+                StandardCallback(x, result.Width, callback);
+            }
+
+            return new ImagineImage[] { result };
+        }
+    }
 }

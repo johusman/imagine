@@ -244,4 +244,28 @@ namespace Imagine.StandardMachines
             numberInput.Dispose();
         }
     }
+
+    [GUIForMachine("Imagine.Img.Color")]
+    public class ColorGUI : MachineGUI
+    {
+        public ColorMachine MyMachine
+        {
+            get { return (ColorMachine)Node.Machine; }
+        }
+
+        public override void LaunchSettings(GraphArea graphArea)
+        {
+            ColorDialog dialog = new ColorDialog();
+            dialog.FullOpen = true;
+            dialog.AnyColor = true;
+            dialog.AllowFullOpen = true;
+            dialog.Color = MyMachine.TargetColor.Color;
+
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                MyMachine.TargetColor = new ImagineColor(dialog.Color);
+            }
+            dialog.Dispose();
+        }
+    }
 }
