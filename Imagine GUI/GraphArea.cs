@@ -1,16 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Data;
-using System.Text;
 using System.Windows.Forms;
 using Imagine.Library;
-using System.Text.RegularExpressions;
-using System.Reflection;
-using System.IO;
 using System.Collections;
-using System.Drawing.Imaging;
 
 namespace Imagine.GUI
 {
@@ -25,8 +18,6 @@ namespace Imagine.GUI
         }
 
         private IGUIGraph guiGraph;
-        private Graph<Machine> graph;
-        private ImagineFacade facade;
 
         private Pen machinepen = new Pen(Color.Gray, 1);
         private Pen machinePenPotential = new Pen(Color.Gray, 1);
@@ -49,42 +40,18 @@ namespace Imagine.GUI
         private ToolTip tooltip = null;
         private Object tooltipObject = null;
 
-        public Graph<Machine> Graph
+        public void Initialize(ImagineFacade facade)
         {
-            get { return graph; }
-            set
-            { 
-                graph = value;
+            guiGraph = new GUIGraph(facade, this.Size);
 
-                if (graph != null)
-                {
-                    guiGraph = new GUIGraph();
-                    guiGraph.LoadMachineGUITypes(facade, facade.WorkingDirectory);
-                    guiGraph.AddAll(graph.GetTopologicalOrdering(), this.Size);
-                }
-            }
+            List<string> uniqueNames = new List<string>(facade.MachineTypes.Keys);
+            uniqueNames.Remove("Imagine.Source");
+            uniqueNames.Remove("Imagine.Destination");
+
+            ConstructNewMachineMenu(uniqueNames);
+            AddSourceAndDestinationToMachineMenu();
         }
-
-        public ImagineFacade Facade
-        {
-            get { return facade; }
-            set
-            {
-                facade = value;
-                if (facade != null)
-                {
-                    Graph = facade.Graph;
-
-                    List<string> uniqueNames = new List<string>(facade.MachineTypes.Keys);
-                    uniqueNames.Remove("Imagine.Source");
-                    uniqueNames.Remove("Imagine.Destination");
-                    
-                    ConstructNewMachineMenu(uniqueNames);
-                    AddSourceAndDestinationToMachineMenu();
-                }
-            }
-        }
-
+        
         private void ConstructNewMachineMenu(List<string> uniqueNames)
         {
             uniqueNames.Sort();
@@ -130,9 +97,7 @@ namespace Imagine.GUI
                     currentParentCollection = newGroupItem.DropDownItems;
                 }
 
-                Image image = null;
-                if(guiGraph.HasMachineGUIFor(facade.MachineTypes[uniqueName]))
-                    image = guiGraph.CreateMachineGUIFor(facade.MachineTypes[uniqueName]).HalfDimmedBitmap;
+                Image image = guiGraph.CreateMachineGUIFor(uniqueName).HalfDimmedBitmap;
                 
                 ToolStripMenuItem item = new ToolStripMenuItem();
                 item.Tag = uniqueName;
@@ -320,8 +285,7 @@ namespace Imagine.GUI
 
         private void GraphArea_Paint(object sender, PaintEventArgs e)
         {
-            if(graph != null)
-                DrawGraph(e.Graphics);
+            DrawGraph(e.Graphics);
         }
 
         private void GraphArea_MouseDown(object sender, MouseEventArgs e)
@@ -352,9 +316,7 @@ namespace Imagine.GUI
                             return;
                     }
 
-                    guiGraph.Remove(manipulatedNode.GraphNode);
-                    facade.RemoveMachine(manipulatedNode.GraphNode.Machine);
-
+                    guiGraph.Remove(manipulatedNode);
                     this.Invalidate();
                 }
             }
@@ -380,7 +342,7 @@ namespace Imagine.GUI
                                     return;
                             }
 
-                            BreakConnectionForPort(port);
+                            guiGraph.Disconnect(port);
                             this.Invalidate();
                         }
                     }
@@ -395,18 +357,6 @@ namespace Imagine.GUI
                     }
                 }
             }
-        }
-
-        private void BreakConnectionForPort(GUIPort port)
-        {
-            GraphPort<Machine> gPort = port.GraphPort;
-            GraphPort<Machine> remotePort = port.GraphPort.RemotePort;
-            guiGraph.Disconnect(port);
-
-            if (port.Direction == GUIPort.Directions.OUT)
-                facade.Disconnect(gPort.Node.Machine, gPort.PortNumber, remotePort.Node.Machine, remotePort.PortNumber);
-            else
-                facade.Disconnect(remotePort.Node.Machine, remotePort.PortNumber, gPort.Node.Machine, gPort.PortNumber);
         }
 
         private void GraphArea_MouseUp(object sender, MouseEventArgs e)
@@ -549,8 +499,7 @@ namespace Imagine.GUI
         {
             if(manipulationState == ManipulationState.Inserting)
             {
-                Machine machine = facade.NewMachine((string) ((ToolStripItem)sender).Tag);
-                guiGraph.Add(graph.GetNodeFor(machine), manipulationOffset);
+                guiGraph.CreateNode((string)((ToolStripItem)sender).Tag, manipulationOffset);
                 manipulationState = ManipulationState.None;
                 this.Invalidate();
             }
@@ -576,10 +525,7 @@ namespace Imagine.GUI
             for(int i = 0; i < inputNames.Length; i++)
                 if(inputNames[i] == chosenText)
                 {
-                    GUINode from = manipulatedNode;
-                    GUINode to = manipulationDestination;
-                    facade.Connect(from.GraphNode.Machine, choosenPort, to.GraphNode.Machine, i);
-                    guiGraph.Connect(from.GraphNode.Outports[choosenPort], to.GraphNode.Inports[i]);
+                    guiGraph.Connect(manipulatedNode, choosenPort, manipulationDestination, i);
                     
                     this.Invalidate();
                     manipulatedNode = null;
@@ -660,8 +606,7 @@ namespace Imagine.GUI
                 for (int i = 0; i < machine.InputCount; i++)
                     if (!graphNode.Inports.ContainsKey(i))
                     {
-                        facade.Connect(manipulatedNode.GraphNode.Machine, choosenPort, graphNode.Machine, i);
-                        guiGraph.Connect(manipulatedNode.GraphNode.Outports[choosenPort], graphNode.Inports[i]);
+                        guiGraph.Connect(manipulatedNode, choosenPort, manipulationDestination, i);
 
                         this.Invalidate();
                         manipulatedNode = null;
@@ -681,55 +626,18 @@ namespace Imagine.GUI
 
         public string SerializeLayout()
         {
-            List<GraphNode<Machine>> nodes = graph.GetTopologicalOrdering();
-
-            string text = "Layout {\n";
-
-            foreach (GraphNode<Machine> gNode in nodes)
-            {
-                GUINode node = guiGraph.GuiNodeFor(gNode);
-                string machineString = String.Format("\t'machine{0}' {1}, {2}\n",
-                    nodes.IndexOf(gNode),
-                    node.Position.X,
-                    node.Position.Y);
-
-                text += machineString;
-            }
-
-            text += "}";
-
-            return text;
+            return guiGraph.SerializeLayout();
         }
 
         public void DeserializeLayout(string input)
         {
-            List<GraphNode<Machine>> nodes = graph.GetTopologicalOrdering();
-
-            string data = input.Replace('\t', ' ').Replace('\n', ' ').Replace('\r', ' ');
-            Dictionary<string, string> sections = ImagineFileFormat.ExtractSections(data);
-            if (sections.ContainsKey("Layout"))
-            {
-                string layoutData = sections["Layout"];
-                Group machineGroup = Regex.Match(layoutData, "^\\s*((?<machine>'[^']+'\\s*\\d+\\s*,\\s*\\d+)\\s*)*$").Groups["machine"];
-                foreach (Capture capture in machineGroup.Captures)
-                {
-                    string machineData = capture.Value;
-                    Match machineMatch = Regex.Match(machineData, "^'machine(?<index>[^']+)'\\s*(?<x>\\d+)\\s*,\\s*(?<y>\\d+)$");
-                    int machineIndex = int.Parse(machineMatch.Groups["index"].Value);
-                    int xPos = int.Parse(machineMatch.Groups["x"].Value);
-                    int yPos = int.Parse(machineMatch.Groups["y"].Value);
-                    if (machineIndex < nodes.Count)
-                        guiGraph.GuiNodeFor(nodes[machineIndex]).Position = new Point(xPos, yPos);
-                        //machinePositions[ordering[machineIndex]] = new Point(xPos, yPos);
-                }
-            }
-
+            guiGraph.DeserializeLayout(input);
             Refresh();
         }
 
         private void breakConnectionToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            BreakConnectionForPort(manipulatedPort);
+            guiGraph.Disconnect(manipulatedPort);
             manipulatedPort = null;
             this.Invalidate();
         }
@@ -745,7 +653,7 @@ namespace Imagine.GUI
         {
             GUIPort fromPort = null;
             GUIPort toPort = null;
-            if (port.Direction == GUIPort.Directions.OUT) // Is it an output port?
+            if (port.Direction == GUIPort.Directions.OUT)
             {
                 fromPort = port;
                 toPort = port.RemotePort;
@@ -756,19 +664,16 @@ namespace Imagine.GUI
                 toPort = port;
             }
 
-            BreakConnectionForPort(port);
-            Branch4Machine brancher = new Branch4Machine();
-            GraphNode<Machine> branchNode = graph.AddNode(brancher);
+            guiGraph.Disconnect(port);
+            
             Point fromPoint = fromPort.Node.Position;
             Point toPoint = toPort.Node.Position;
-            guiGraph.Add(branchNode, new Point((fromPoint.X + toPoint.X) / 2, (fromPoint.Y + toPoint.Y) / 2));
-
-            graph.Connect(fromPort.GraphPort.Node, fromPort.GraphPort.PortNumber, branchNode, 0);
-            graph.Connect(branchNode, 0, toPort.GraphPort.Node, toPort.GraphPort.PortNumber);
-
+            Point branchPoint = new Point((fromPoint.X + toPoint.X) / 2, (fromPoint.Y + toPoint.Y) / 2);
             
-            guiGraph.Connect(fromPort.GraphPort.Node.Outports[fromPort.GraphPort.PortNumber], branchNode.Inports[0]);
-            guiGraph.Connect(branchNode.Outports[0], toPort.GraphPort.Node.Inports[toPort.GraphPort.PortNumber]);
+            GUINode branchNode = guiGraph.CreateNode("Imagine.Branch4", branchPoint);
+            
+            guiGraph.Connect(fromPort.Node, fromPort.GraphPort.PortNumber, branchNode, 0);
+            guiGraph.Connect(branchNode, 0, toPort.Node, toPort.GraphPort.PortNumber);
         }
     }
 }

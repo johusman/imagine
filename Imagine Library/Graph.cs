@@ -117,6 +117,11 @@ namespace Imagine.Library
             return ordering;
         }
 
+        public List<GraphNode<T>> GetAllNodes()
+        {
+            return new List<GraphNode<T>>(nodeMap.Values);
+        }
+
         private SortContext BuildContext(Dictionary<T, GraphNode<T>> nodeMap)
         {
             SortContext context = new SortContext();

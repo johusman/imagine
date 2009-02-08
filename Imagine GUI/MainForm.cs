@@ -39,7 +39,7 @@ namespace Imagine.GUI
         {
             facade = new ImagineFacade(workingDirectory);
             facade.GraphChanged += graphChanged;
-            graphArea1.Facade = facade;
+            graphArea1.Initialize(facade);
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -275,7 +275,7 @@ namespace Imagine.GUI
 
                 List<string> unrecognizedTypes = facade.DeserializeGraph(data);
 
-                graphArea1.Facade = facade;
+                graphArea1.Initialize(facade);
                 graphArea1.DeserializeLayout(data);
                 for (int i = 0; i < sources.Length && i < facade.Sources.Count; i++)
                     facade.Sources[i].Filename = sources[i];
