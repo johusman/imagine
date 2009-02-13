@@ -34,7 +34,7 @@ namespace Imagine.GUI
         private GUINode manipulationDestination = null;
         private GUIPort manipulatedPort = null;
         private Point manipulationOffset;
-        private int choosenPort = -1;
+        private GUIPort chosenPort = null;
 
         private bool showTooltips = true;
         private ToolTip tooltip = null;
@@ -148,7 +148,7 @@ namespace Imagine.GUI
 
             foreach (GUINode node in guiGraph.Nodes)
             {
-                foreach (GUIPort port in node.Ports.Values)
+                foreach (GUIPort port in node.UsedPorts.Values)
                     if (port.Direction == GUIPort.Directions.OUT)
                         DrawOutgoingConnection(graphics, port);
 
@@ -170,7 +170,7 @@ namespace Imagine.GUI
             if (gui.DimmedBitmap != null)
                 graphics.DrawImage(gui.DimmedBitmap, p.X - 16, p.Y - 16);
 
-            String caption = node.GraphNode.Machine.Caption; // Would be nice if this was part of the gui
+            String caption = node.Machine.Caption; // Would be nice if this was part of the gui
             SizeF textSize = graphics.MeasureString(caption, Font);
             graphics.DrawString(caption, Font, arrowbrush, p.X - textSize.Width / 2 + 1, p.Y - textSize.Height / 2);
         }
@@ -189,11 +189,11 @@ namespace Imagine.GUI
 
             DrawCenteredCircle(graphics, machinepen, Brushes.Black, Brushes.White,
                     new PointF(portPos.X, portPos.Y),
-                    GUIPort.BUBBLE_R, port.OutputCode, new Font(FontFamily.GenericMonospace, 7.0f));
+                    GUIPort.BUBBLE_R, port.Code, new Font(FontFamily.GenericMonospace, 7.0f));
 
             DrawCenteredCircle(graphics, machinepen, Brushes.White, Brushes.Black,
                     new PointF(remotePortPos.X, remotePortPos.Y),
-                    GUIPort.BUBBLE_R, remotePort.InputCode, new Font(FontFamily.GenericMonospace, 7.0f));
+                    GUIPort.BUBBLE_R, remotePort.Code, new Font(FontFamily.GenericMonospace, 7.0f));
 
             PointF unitVector = CalculateUnitVector(portPos, remotePortPos);
             if (PointDistance(portPos, remotePortPos) > GUIPort.BUBBLE_R * 2.0)
@@ -412,7 +412,7 @@ namespace Imagine.GUI
             {
                 if (tooltip == null || tooltipObject != node)
                 {
-                    Machine machine = node.GraphNode.Machine;
+                    Machine machine = node.Machine;
                     KillToolTip();
                     tooltipObject = node;
                     tooltip = new ToolTip();
@@ -452,23 +452,25 @@ namespace Imagine.GUI
                         tooltip = new ToolTip();
                         tooltip.BackColor = tooltipColor;
 
-                        GraphNode<Machine> portNode = port.Node.GraphNode;
-                        GraphNode<Machine> remoteNode = port.RemotePort.Node.GraphNode;
-                        int index = port.GraphPort.PortNumber;
-                        int remoteIndex = port.RemotePort.GraphPort.PortNumber;
+                        //GUINode portNode = port.Node;
+                        //GUINode remoteNode = port.RemotePort.Node;
+                        //int index = port.PortNumber;
+                        //int remoteIndex = port.RemotePort.PortNumber;
                         string text = null;
+                        tooltip.ToolTipTitle = port.Name;
                         if (port.Direction == GUIPort.Directions.OUT)
                         {
-                            tooltip.ToolTipTitle = portNode.Machine.OutputNames[index];
-                            text = String.Format(" (--> {0})", remoteNode.Machine.InputNames[remoteIndex]);
-                            tooltip.Show(text, this.ParentForm, new Point(port.Position.Value.X + 25, port.Position.Value.Y + 50));
+                            //tooltip.ToolTipTitle = port.Name; // portNode.Machine.OutputNames[index];
+                            text = String.Format(" (to: {0})", port.RemotePort.Name /* remoteNode.Machine.InputNames[remoteIndex]*/);
+                            //tooltip.Show(text, this.ParentForm, new Point(port.Position.Value.X + 25, port.Position.Value.Y + 50));
                         }
                         else
                         {
-                            tooltip.ToolTipTitle = portNode.Machine.InputNames[index];
-                            text = String.Format(" (<-- {0})", remoteNode.Machine.OutputNames[remoteIndex]);
-                            tooltip.Show(text, this.ParentForm, new Point(port.Position.Value.X + 25, port.Position.Value.Y + 50));
+                            //tooltip.ToolTipTitle = port.Name; // portNode.Machine.InputNames[index];
+                            text = String.Format(" (from: {0})", port.RemotePort.Name /* remoteNode.Machine.OutputNames[remoteIndex]*/);
+                            //tooltip.Show(text, this.ParentForm, new Point(port.Position.Value.X + 25, port.Position.Value.Y + 50));
                         }
+                        tooltip.Show(text, this.ParentForm, new Point(port.Position.Value.X + 25, port.Position.Value.Y + 50));
                         
                     }
                 }
@@ -505,43 +507,41 @@ namespace Imagine.GUI
             }
         }
 
+        // Come on, there has to be a better way.. using the tag for example
         private void chooseOutputToolStripMenuItem_Click(object sender, EventArgs e)
         {
             string chosenText = ((ToolStripMenuItem)sender).Text.Substring(4);
-            string[] outputNames = manipulatedNode.GraphNode.Machine.OutputNames;
-            for(int i = 0; i < outputNames.Length; i++)
-                if(outputNames[i] == chosenText)
+            foreach(GUIPort guiPort in manipulatedNode.UnusedOutports.Values)
+                if (guiPort.Name == chosenText)
                 {
-                    choosenPort = i;
+                    chosenPort = guiPort;
                     ShowInputChooser(manipulationOffset);
                     break;
                 }
         }
 
+        // Come on, there has to be a better way.. using the tag for example
         private void chooseInputToolStripMenuItem_Click(object sender, EventArgs e)
         {
             string chosenText = ((ToolStripMenuItem)sender).Text.Substring(4);
-            string[] inputNames = manipulationDestination.GraphNode.Machine.InputNames;
-            for(int i = 0; i < inputNames.Length; i++)
-                if(inputNames[i] == chosenText)
+            foreach (GUIPort guiPort in manipulationDestination.UnusedInports.Values)
+                if (guiPort.Name == chosenText)
                 {
-                    guiGraph.Connect(manipulatedNode, choosenPort, manipulationDestination, i);
-                    
+                    guiGraph.Connect(chosenPort, guiPort);
+
                     this.Invalidate();
                     manipulatedNode = null;
                     manipulationDestination = null;
                     manipulationOffset = Point.Empty;
-                    choosenPort = -1;
+                    //choosenPort = -1;
+                    chosenPort = null;
                     break;
                 }
         }
 
         private void ShowOutputChooser(Point location)
         {
-            GraphNode<Machine> graphNode = manipulatedNode.GraphNode;
-            Machine machine = graphNode.Machine;
-
-            int remainingOutputs = machine.OutputCount - graphNode.OutputCount;
+            int remainingOutputs = manipulatedNode.UnusedOutports.Count;
             if(remainingOutputs > 1)
             {
                 ContextMenuStrip contextMenu = new ContextMenuStrip();
@@ -552,23 +552,19 @@ namespace Imagine.GUI
                 header.Enabled = false;
                 contextMenu.Items.Add(header);
 
-                for(int i = 0; i < machine.OutputCount; i++)
-                    if (!graphNode.Outports.ContainsKey(i))
-                    {
-                        String text = String.Format("({1}) {0}", machine.OutputNames[i], machine.OutputCodes[i]);
-                        contextMenu.Items.Add(new ToolStripMenuItem(text, null, new System.EventHandler(this.chooseOutputToolStripMenuItem_Click)));
-                    }
+                foreach (GUIPort guiPort in manipulatedNode.UnusedOutports.Values)
+                {
+                    String text = String.Format("({1}) {0}", guiPort.Name, guiPort.Code);
+                    contextMenu.Items.Add(new ToolStripMenuItem(text, null, new System.EventHandler(this.chooseOutputToolStripMenuItem_Click)));
+                }
                 contextMenu.Show(this, Point.Subtract(location, new Size(10, 10)));
             }
             else if (remainingOutputs == 1)
             {
-                for (int i = 0; i < machine.OutputCount; i++)
-                    if (!graphNode.Outports.ContainsKey(i))
-                    {
-                        choosenPort = i;
-                        ShowInputChooser(manipulationOffset);
-                        return;
-                    }
+                foreach (GUIPort port in manipulatedNode.UnusedOutports.Values)
+                    chosenPort = port;
+                ShowInputChooser(manipulationOffset);
+                return;
             }
             else
             {
@@ -578,10 +574,7 @@ namespace Imagine.GUI
 
         private void ShowInputChooser(Point location)
         {
-            GraphNode<Machine> graphNode = manipulationDestination.GraphNode;
-            Machine machine = graphNode.Machine;
-
-            int remainingInputs = machine.InputCount - graphNode.InputCount;
+            int remainingInputs = manipulationDestination.UnusedInports.Count;
             if(remainingInputs > 1)
             {
                 ContextMenuStrip contextMenu = new ContextMenuStrip();
@@ -592,29 +585,29 @@ namespace Imagine.GUI
                 header.Enabled = false;
                 contextMenu.Items.Add(header);
 
-                for (int i = 0; i < machine.InputCount; i++)
-                    if (!graphNode.Inports.ContainsKey(i))
-                    {
-                        String text = String.Format("({1}) {0}", machine.InputNames[i], machine.InputCodes[i]);
-                        contextMenu.Items.Add(new ToolStripMenuItem(text, null, new System.EventHandler(this.chooseInputToolStripMenuItem_Click)));
-                    }
+                foreach (GUIPort guiPort in manipulationDestination.UnusedInports.Values)
+                {
+                    String text = String.Format("({1}) {0}", guiPort.Name, guiPort.Code);
+                    contextMenu.Items.Add(new ToolStripMenuItem(text, null, new System.EventHandler(this.chooseInputToolStripMenuItem_Click)));
+                }
 
                 contextMenu.Show(this, Point.Subtract(location, new Size(10, 10)));
             }
             else if (remainingInputs == 1)
             {
-                for (int i = 0; i < machine.InputCount; i++)
-                    if (!graphNode.Inports.ContainsKey(i))
-                    {
-                        guiGraph.Connect(manipulatedNode, choosenPort, manipulationDestination, i);
+                GUIPort otherPort = null;
+                foreach (GUIPort port in manipulationDestination.UnusedInports.Values)
+                    otherPort = port;
 
-                        this.Invalidate();
-                        manipulatedNode = null;
-                        manipulationDestination = null;
-                        manipulationOffset = Point.Empty;
-                        choosenPort = -1;
-                        return;
-                    }
+                guiGraph.Connect(chosenPort, otherPort);
+
+                this.Invalidate();
+                manipulatedNode = null;
+                manipulationDestination = null;
+                manipulationOffset = Point.Empty;
+                //choosenPort = -1;
+                chosenPort = null;
+                return;
             }
             else
             {
@@ -672,8 +665,8 @@ namespace Imagine.GUI
             
             GUINode branchNode = guiGraph.CreateNode("Imagine.Branch4", branchPoint);
             
-            guiGraph.Connect(fromPort.Node, fromPort.GraphPort.PortNumber, branchNode, 0);
-            guiGraph.Connect(branchNode, 0, toPort.Node, toPort.GraphPort.PortNumber);
+            guiGraph.Connect(fromPort, branchNode.UnusedInports[0]);
+            guiGraph.Connect(branchNode.UnusedOutports[0], toPort);
         }
     }
 }

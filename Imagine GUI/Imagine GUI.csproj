@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.50727</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{38E4AA38-94F2-4B73-996A-F831AB2D27F2}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -49,6 +49,7 @@
     <Compile Include="GraphArea.Designer.cs">
       <DependentUpon>GraphArea.cs</DependentUpon>
     </Compile>
+    <Compile Include="GUIGraphLayer.cs" />
     <Compile Include="MachinesGUIs.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
@@ -57,7 +58,6 @@
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="CirkularlGeometricDistributor.cs" />
-    <Compile Include="Node.cs" />
     <Compile Include="ProgressWindow.cs">
       <SubType>Form</SubType>
     </Compile>
