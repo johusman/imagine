@@ -14,16 +14,8 @@ namespace Imagine.GUI
         Dictionary<GraphNode<Machine>, GUINode>.ValueCollection Nodes { get; }
         Dictionary<GraphPort<Machine>, GUIPort>.ValueCollection Ports { get; }
 
-        GUINode GuiNodeFor(GraphNode<Machine> node);
-        GUIPort GuiPortFor(GraphPort<Machine> port);
-
         GUINode CreateNode(string type, Point position);
-
-        GUINode RegisterNode(GraphNode<Machine> node, Point position);
         void Remove(GUINode node);
-        void RegisterPort(GUIPort port);
-        void DeregisterPort(GraphPort<Machine> port);
-        void AddAll(IEnumerable<GraphNode<Machine>> list, Size size);
 
         bool HasMachineGUIFor(Type type);
         MachineGUI CreateMachineGUIFor(Type type);
@@ -38,7 +30,17 @@ namespace Imagine.GUI
         void DeserializeLayout(string input);
     }
 
-    class GUIGraph : IGUIGraph
+    interface IGUIGraphInternal : IGUIGraph
+    {
+        GUINode GuiNodeFor(GraphNode<Machine> node);
+        GUIPort GuiPortFor(GraphPort<Machine> port);
+        GUINode RegisterNode(GraphNode<Machine> node, Point position);
+        void RegisterPort(GUIPort port);
+        void DeregisterPort(GraphPort<Machine> port);
+        void AddAll(IEnumerable<GraphNode<Machine>> list, Size size);
+    }
+
+    class GUIGraph : IGUIGraphInternal
     {
         private ImagineFacade facade;
         private Dictionary<GraphNode<Machine>, GUINode> nodes;
@@ -81,12 +83,12 @@ namespace Imagine.GUI
             return RegisterNode(facade.Graph.GetNodeFor(machine), position);
         }
 
-        public GUINode RegisterNode(GraphNode<Machine> node, Point position)
+        public GUINode RegisterNode(GraphNode<Machine> graphNode, Point position)
         {
-            GUINode guiNode = new GUINode(this, node, position);
-            nodes[node] = guiNode;
-            guiNode.MachineGUI = CreateMachineGUIFor(node.Machine.GetType());
-            guiNode.MachineGUI.Node = node;
+            GUINode guiNode = new GUINode(this, graphNode, position);
+            nodes[graphNode] = guiNode;
+            guiNode.MachineGUI = CreateMachineGUIFor(graphNode.Machine.GetType());
+            guiNode.MachineGUI.Node = graphNode;
             return guiNode;
         }
 
@@ -114,10 +116,10 @@ namespace Imagine.GUI
         public void AddAll(IEnumerable<GraphNode<Machine>> list, Size size)
         {
             Random random = new Random();
-            foreach (GraphNode<Machine> gNode in list)
+            foreach (GraphNode<Machine> graphNode in list)
             {
-                Point pos = new Point(random.Next(size.Width - GUINode.MACHINE_R * 4) + GUINode.MACHINE_R * 2, random.Next(size.Height - GUINode.MACHINE_R * 4) + GUINode.MACHINE_R * 2);
-                RegisterNode(gNode, pos);
+                Point pos = new Point(random.Next(size.Width - GUINode.RADIUS * 4) + GUINode.RADIUS * 2, random.Next(size.Height - GUINode.RADIUS * 4) + GUINode.RADIUS * 2);
+                RegisterNode(graphNode, pos);
             }
         }
 
@@ -165,7 +167,7 @@ namespace Imagine.GUI
         {
             foreach (GUINode node in nodes.Values)
             {
-                if (PointDistance(point, node.Position) < GUINode.MACHINE_R)
+                if (PointDistance(point, node.Position) < GUINode.RADIUS)
                     return node;
             }
 
@@ -177,14 +179,13 @@ namespace Imagine.GUI
             foreach (GUIPort port in ports.Values)
             {
                 if (port.Position != null)
-                    if (PointDistance(point, port.Position.Value) < GUIPort.BUBBLE_R)
+                    if (PointDistance(point, port.Position.Value) < GUIPort.RADIUS)
                         return port;
             }
 
             return null;
         }
 
-        // This should take GUIPorts instead now
         public void Connect(GUIPort fromPort, GUIPort toPort)
         {
             GUINode fromNode = fromPort.Node;
@@ -192,11 +193,11 @@ namespace Imagine.GUI
 
             facade.Connect(fromNode.GraphNode.Machine, fromPort.PortNumber, toNode.GraphNode.Machine, toPort.PortNumber);
 
-            GraphPort<Machine> fromGPort = fromNode.GraphNode.Outports[fromPort.PortNumber];
-            GraphPort<Machine> toGPort = toNode.GraphNode.Inports[toPort.PortNumber];
+            GraphPort<Machine> fromGraphPort = fromNode.GraphNode.Outports[fromPort.PortNumber];
+            GraphPort<Machine> toGraphPort = toNode.GraphNode.Inports[toPort.PortNumber];
 
-            fromNode.RegisterPortAsInUse(fromPort, fromGPort);
-            toNode.RegisterPortAsInUse(toPort, toGPort);
+            fromNode.RegisterPortAsInUse(fromPort, fromGraphPort);
+            toNode.RegisterPortAsInUse(toPort, toGraphPort);
         }
 
         public void Disconnect(GUIPort port)
@@ -268,7 +269,7 @@ namespace Imagine.GUI
 
     class GUINode
     {
-        public const int MACHINE_R = 25;
+        public const int RADIUS = 25;
 
         private GraphNode<Machine> graphNode;
         internal GraphNode<Machine> GraphNode
@@ -295,12 +296,16 @@ namespace Imagine.GUI
             get { return unusedOutports; }
         }
 
-
-        private IGUIGraph graph;
+        private IGUIGraphInternal graph;
         public IGUIGraph Graph
         {
             get { return graph; }
         }
+        internal IGUIGraphInternal InternalGraph
+        {
+            get { return graph; }
+        }
+
 
         private Point position;
         public Point Position
@@ -321,7 +326,7 @@ namespace Imagine.GUI
             set { machineGUI = value; }
         }
 
-        public GUINode(IGUIGraph guiGraph, GraphNode<Machine> graphNode, Point position)
+        public GUINode(IGUIGraphInternal guiGraph, GraphNode<Machine> graphNode, Point position)
         {
             this.graph = guiGraph;
             this.graphNode = graphNode;
@@ -342,36 +347,21 @@ namespace Imagine.GUI
 
         public void UpdatePortPositions()
         {
-            int radiusToBubbleCenter = GUINode.MACHINE_R + GUIPort.BUBBLE_R;
-            float bubbleAngle = (float)(2.0 * Math.Atan2(GUIPort.BUBBLE_R, radiusToBubbleCenter));
+            int radiusToBubbleCenter = GUINode.RADIUS + GUIPort.RADIUS;
+            float bubbleAngle = (float)(2.0 * Math.Atan2(GUIPort.RADIUS, radiusToBubbleCenter));
 
             CirkularGeometricDistributor<GUIPort> distributor = new CirkularGeometricDistributor<GUIPort>(2.0 * Math.PI, bubbleAngle);
-            foreach (GraphPort<Machine> fromPort in graphNode.Outports.Values)
+            foreach (GUIPort thisPort in usedPorts.Values)
             {
-                GraphPort<Machine> toPort = fromPort.RemotePort;
-                Point from = this.position;
-                Point to = graph.GuiNodeFor(toPort.Node).Position;
-                if (from == to)
-                    usedPorts[fromPort].Position = null;
+                Point thisPoint = this.position;
+                Point remotePoint = thisPort.RemotePort.Node.Position;
+                if (thisPoint == remotePoint)
+                    thisPort.Position = null;
                 else
                 {
-                    PointF unitVector = CalculateUnitVector(from, to);
+                    PointF unitVector = CalculateUnitVector(thisPoint, remotePoint);
                     double angle = Math.Atan2(unitVector.Y, unitVector.X);
-                    distributor.AddUnit(usedPorts[fromPort], angle);
-                }
-            }
-            foreach (GraphPort<Machine> toPort in graphNode.Inports.Values)
-            {
-                GraphPort<Machine> fromPort = toPort.RemotePort;
-                Point from = graph.GuiNodeFor(fromPort.Node).Position;
-                Point to = this.position;
-                if (from == to)
-                    usedPorts[toPort].Position = null;
-                else
-                {
-                    PointF unitVector = CalculateUnitVector(to, from);
-                    double angle = Math.Atan2(unitVector.Y, unitVector.X);
-                    distributor.AddUnit(usedPorts[toPort], angle);
+                    distributor.AddUnit(thisPort, angle);
                 }
             }
 
@@ -394,12 +384,12 @@ namespace Imagine.GUI
             return unitVector;
         }
 
-        internal void RegisterPortAsInUse(GUIPort port, GraphPort<Machine> gPort)
+        internal void RegisterPortAsInUse(GUIPort port, GraphPort<Machine> graphPort)
         {
             Dictionary<int, GUIPort> portDictionary = (port.Direction == GUIPort.Directions.OUT) ? unusedOutports : unusedInports;
-                
-            port.GraphPort = gPort;
-            usedPorts[gPort] = port;
+
+            port.GraphPort = graphPort;
+            usedPorts[graphPort] = port;
             portDictionary.Remove(port.PortNumber);
 
             graph.RegisterPort(port);
@@ -420,7 +410,7 @@ namespace Imagine.GUI
 
     class GUIPort
     {
-        public const int BUBBLE_R = 7;
+        public const int RADIUS = 7;
 
         public enum Directions { IN, OUT };
 
@@ -428,7 +418,6 @@ namespace Imagine.GUI
         public GUINode Node
         {
             get { return node; }
-            set { node = value; }
         }
 
         private GraphPort<Machine> graphPort;
@@ -459,13 +448,13 @@ namespace Imagine.GUI
 
         public GUIPort RemotePort
         {
-            get { return this.node.Graph.GuiPortFor(graphPort.RemotePort); }
+            get { return node.InternalGraph.GuiPortFor(graphPort.RemotePort); }
         }
 
         public string Code
         {
             get {
-                return (direction == Directions.OUT) ? node.GraphNode.Machine.OutputCodes[portNumber].ToString() : node.GraphNode.Machine.InputCodes[portNumber].ToString();
+                return (direction == Directions.OUT) ? node.Machine.OutputCodes[portNumber].ToString() : node.Machine.InputCodes[portNumber].ToString();
             }
         }
 
@@ -473,7 +462,7 @@ namespace Imagine.GUI
         {
             get
             {
-                return (direction == Directions.OUT) ? node.GraphNode.Machine.OutputNames[portNumber].ToString() : node.GraphNode.Machine.InputNames[portNumber].ToString();
+                return (direction == Directions.OUT) ? node.Machine.OutputNames[portNumber].ToString() : node.Machine.InputNames[portNumber].ToString();
             }
         }
 

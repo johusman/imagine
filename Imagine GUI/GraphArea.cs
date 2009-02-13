@@ -163,8 +163,8 @@ namespace Imagine.GUI
             Point p = node.Position;
             MachineGUI gui = node.MachineGUI;
 
-            graphics.FillEllipse(gui.Background, p.X - GUINode.MACHINE_R, p.Y - GUINode.MACHINE_R, GUINode.MACHINE_R * 2, GUINode.MACHINE_R * 2);
-            graphics.DrawEllipse(machinepen, p.X - GUINode.MACHINE_R, p.Y - GUINode.MACHINE_R, GUINode.MACHINE_R * 2, GUINode.MACHINE_R * 2);
+            graphics.FillEllipse(gui.Background, p.X - GUINode.RADIUS, p.Y - GUINode.RADIUS, GUINode.RADIUS * 2, GUINode.RADIUS * 2);
+            graphics.DrawEllipse(machinepen, p.X - GUINode.RADIUS, p.Y - GUINode.RADIUS, GUINode.RADIUS * 2, GUINode.RADIUS * 2);
 
 
             if (gui.DimmedBitmap != null)
@@ -189,23 +189,23 @@ namespace Imagine.GUI
 
             DrawCenteredCircle(graphics, machinepen, Brushes.Black, Brushes.White,
                     new PointF(portPos.X, portPos.Y),
-                    GUIPort.BUBBLE_R, port.Code, new Font(FontFamily.GenericMonospace, 7.0f));
+                    GUIPort.RADIUS, port.Code, new Font(FontFamily.GenericMonospace, 7.0f));
 
             DrawCenteredCircle(graphics, machinepen, Brushes.White, Brushes.Black,
                     new PointF(remotePortPos.X, remotePortPos.Y),
-                    GUIPort.BUBBLE_R, remotePort.Code, new Font(FontFamily.GenericMonospace, 7.0f));
+                    GUIPort.RADIUS, remotePort.Code, new Font(FontFamily.GenericMonospace, 7.0f));
 
             PointF unitVector = CalculateUnitVector(portPos, remotePortPos);
-            if (PointDistance(portPos, remotePortPos) > GUIPort.BUBBLE_R * 2.0)
+            if (PointDistance(portPos, remotePortPos) > GUIPort.RADIUS * 2.0)
             {
-                Point lineFromPoint = new Point((int)(portPos.X + unitVector.X * GUIPort.BUBBLE_R), (int)(portPos.Y + unitVector.Y * GUIPort.BUBBLE_R));
-                Point lineToPoint = new Point((int)(remotePortPos.X - unitVector.X * GUIPort.BUBBLE_R), (int)(remotePortPos.Y - unitVector.Y * GUIPort.BUBBLE_R));
+                Point lineFromPoint = new Point((int)(portPos.X + unitVector.X * GUIPort.RADIUS), (int)(portPos.Y + unitVector.Y * GUIPort.RADIUS));
+                Point lineToPoint = new Point((int)(remotePortPos.X - unitVector.X * GUIPort.RADIUS), (int)(remotePortPos.Y - unitVector.Y * GUIPort.RADIUS));
                 graphics.DrawLine(arrowpen, lineFromPoint, lineToPoint);
 
                 Point[] arrowpoints = {
                     lineToPoint,
-                    new Point(remotePortPos.X - (int) (unitVector.X * (ARROW_L + GUIPort.BUBBLE_R) + unitVector.Y * ARROW_W), remotePortPos.Y - (int) (unitVector.Y * (ARROW_L + GUIPort.BUBBLE_R) - unitVector.X * ARROW_W)),
-                    new Point(remotePortPos.X - (int) (unitVector.X * (ARROW_L + GUIPort.BUBBLE_R) - unitVector.Y * ARROW_W), remotePortPos.Y - (int) (unitVector.Y * (ARROW_L + GUIPort.BUBBLE_R) + unitVector.X * ARROW_W))
+                    new Point(remotePortPos.X - (int) (unitVector.X * (ARROW_L + GUIPort.RADIUS) + unitVector.Y * ARROW_W), remotePortPos.Y - (int) (unitVector.Y * (ARROW_L + GUIPort.RADIUS) - unitVector.X * ARROW_W)),
+                    new Point(remotePortPos.X - (int) (unitVector.X * (ARROW_L + GUIPort.RADIUS) - unitVector.Y * ARROW_W), remotePortPos.Y - (int) (unitVector.Y * (ARROW_L + GUIPort.RADIUS) + unitVector.X * ARROW_W))
                 };
 
                 graphics.FillPolygon(arrowbrush, arrowpoints);
@@ -218,7 +218,7 @@ namespace Imagine.GUI
             Point to = toNode.Position;
 
             PointF unitVector = CalculateUnitVector(from, to);
-            int arrow_offset = GUINode.MACHINE_R + GUIPort.BUBBLE_R * 2;
+            int arrow_offset = GUINode.RADIUS + GUIPort.RADIUS * 2;
 
             graphics.DrawLine(arrowPenPotential,
                 from.X + unitVector.X * arrow_offset, from.Y + unitVector.Y * arrow_offset,
@@ -233,14 +233,14 @@ namespace Imagine.GUI
             graphics.FillPolygon(arrowBrushPotential, arrowpoints);
 
             DrawCenteredCircle(graphics, machinePenPotential, Brushes.Transparent, Brushes.Black, new PointF(
-                to.X - (unitVector.X * (GUINode.MACHINE_R + GUIPort.BUBBLE_R)),
-                to.Y - (unitVector.Y * (GUINode.MACHINE_R + GUIPort.BUBBLE_R))),
-                GUIPort.BUBBLE_R, "");
+                to.X - (unitVector.X * (GUINode.RADIUS + GUIPort.RADIUS)),
+                to.Y - (unitVector.Y * (GUINode.RADIUS + GUIPort.RADIUS))),
+                GUIPort.RADIUS, "");
 
             DrawCenteredCircle(graphics, machinePenPotential, Brushes.Transparent, Brushes.White, new PointF(
-                from.X + (unitVector.X * (GUINode.MACHINE_R + GUIPort.BUBBLE_R)),
-                from.Y + (unitVector.Y * (GUINode.MACHINE_R + GUIPort.BUBBLE_R))),
-                GUIPort.BUBBLE_R, "");
+                from.X + (unitVector.X * (GUINode.RADIUS + GUIPort.RADIUS)),
+                from.Y + (unitVector.Y * (GUINode.RADIUS + GUIPort.RADIUS))),
+                GUIPort.RADIUS, "");
         }
 
 
@@ -274,10 +274,10 @@ namespace Imagine.GUI
             {
                 Point origin = manipulatedNode.Position;
                 PointF unitVector = CalculateUnitVector(origin, manipulationOffset);
-                origin.Offset((int)(unitVector.X * GUINode.MACHINE_R), (int)(unitVector.Y * GUINode.MACHINE_R));
+                origin.Offset((int)(unitVector.X * GUINode.RADIUS), (int)(unitVector.Y * GUINode.RADIUS));
 
                 g.DrawLine(arrowPenPotential, origin, manipulationOffset);
-                g.DrawEllipse(arrowPenPotential, manipulationOffset.X - GUIPort.BUBBLE_R, manipulationOffset.Y - GUIPort.BUBBLE_R, GUIPort.BUBBLE_R * 2, GUIPort.BUBBLE_R * 2);
+                g.DrawEllipse(arrowPenPotential, manipulationOffset.X - GUIPort.RADIUS, manipulationOffset.Y - GUIPort.RADIUS, GUIPort.RADIUS * 2, GUIPort.RADIUS * 2);
             }
             else
                 DrawPotentialConnection(g, manipulatedNode, destinationNode);
@@ -452,24 +452,12 @@ namespace Imagine.GUI
                         tooltip = new ToolTip();
                         tooltip.BackColor = tooltipColor;
 
-                        //GUINode portNode = port.Node;
-                        //GUINode remoteNode = port.RemotePort.Node;
-                        //int index = port.PortNumber;
-                        //int remoteIndex = port.RemotePort.PortNumber;
                         string text = null;
                         tooltip.ToolTipTitle = port.Name;
                         if (port.Direction == GUIPort.Directions.OUT)
-                        {
-                            //tooltip.ToolTipTitle = port.Name; // portNode.Machine.OutputNames[index];
-                            text = String.Format(" (to: {0})", port.RemotePort.Name /* remoteNode.Machine.InputNames[remoteIndex]*/);
-                            //tooltip.Show(text, this.ParentForm, new Point(port.Position.Value.X + 25, port.Position.Value.Y + 50));
-                        }
+                            text = String.Format(" (to: {0})", port.RemotePort.Name);
                         else
-                        {
-                            //tooltip.ToolTipTitle = port.Name; // portNode.Machine.InputNames[index];
-                            text = String.Format(" (from: {0})", port.RemotePort.Name /* remoteNode.Machine.OutputNames[remoteIndex]*/);
-                            //tooltip.Show(text, this.ParentForm, new Point(port.Position.Value.X + 25, port.Position.Value.Y + 50));
-                        }
+                            text = String.Format(" (from: {0})", port.RemotePort.Name);
                         tooltip.Show(text, this.ParentForm, new Point(port.Position.Value.X + 25, port.Position.Value.Y + 50));
                         
                     }
@@ -507,36 +495,20 @@ namespace Imagine.GUI
             }
         }
 
-        // Come on, there has to be a better way.. using the tag for example
         private void chooseOutputToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            string chosenText = ((ToolStripMenuItem)sender).Text.Substring(4);
-            foreach(GUIPort guiPort in manipulatedNode.UnusedOutports.Values)
-                if (guiPort.Name == chosenText)
-                {
-                    chosenPort = guiPort;
-                    ShowInputChooser(manipulationOffset);
-                    break;
-                }
+            chosenPort = (GUIPort)((ToolStripMenuItem)sender).Tag;
+            ShowInputChooser(manipulationOffset);
         }
 
-        // Come on, there has to be a better way.. using the tag for example
         private void chooseInputToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            string chosenText = ((ToolStripMenuItem)sender).Text.Substring(4);
-            foreach (GUIPort guiPort in manipulationDestination.UnusedInports.Values)
-                if (guiPort.Name == chosenText)
-                {
-                    guiGraph.Connect(chosenPort, guiPort);
-
-                    this.Invalidate();
-                    manipulatedNode = null;
-                    manipulationDestination = null;
-                    manipulationOffset = Point.Empty;
-                    //choosenPort = -1;
-                    chosenPort = null;
-                    break;
-                }
+            guiGraph.Connect(chosenPort, (GUIPort)((ToolStripMenuItem)sender).Tag);
+            this.Invalidate();
+            manipulatedNode = null;
+            manipulationDestination = null;
+            manipulationOffset = Point.Empty;
+            chosenPort = null;
         }
 
         private void ShowOutputChooser(Point location)
@@ -555,7 +527,9 @@ namespace Imagine.GUI
                 foreach (GUIPort guiPort in manipulatedNode.UnusedOutports.Values)
                 {
                     String text = String.Format("({1}) {0}", guiPort.Name, guiPort.Code);
-                    contextMenu.Items.Add(new ToolStripMenuItem(text, null, new System.EventHandler(this.chooseOutputToolStripMenuItem_Click)));
+                    ToolStripMenuItem menuItem = new ToolStripMenuItem(text, null, new System.EventHandler(this.chooseOutputToolStripMenuItem_Click));
+                    menuItem.Tag = guiPort;
+                    contextMenu.Items.Add(menuItem);
                 }
                 contextMenu.Show(this, Point.Subtract(location, new Size(10, 10)));
             }
@@ -588,7 +562,9 @@ namespace Imagine.GUI
                 foreach (GUIPort guiPort in manipulationDestination.UnusedInports.Values)
                 {
                     String text = String.Format("({1}) {0}", guiPort.Name, guiPort.Code);
-                    contextMenu.Items.Add(new ToolStripMenuItem(text, null, new System.EventHandler(this.chooseInputToolStripMenuItem_Click)));
+                    ToolStripMenuItem menuItem = new ToolStripMenuItem(text, null, new System.EventHandler(this.chooseInputToolStripMenuItem_Click));
+                    menuItem.Tag = guiPort;
+                    contextMenu.Items.Add(menuItem);
                 }
 
                 contextMenu.Show(this, Point.Subtract(location, new Size(10, 10)));
@@ -605,7 +581,6 @@ namespace Imagine.GUI
                 manipulatedNode = null;
                 manipulationDestination = null;
                 manipulationOffset = Point.Empty;
-                //choosenPort = -1;
                 chosenPort = null;
                 return;
             }
@@ -614,8 +589,6 @@ namespace Imagine.GUI
                 MessageBox.Show(this.ParentForm, "There are no free inputs on the second machine", "No free inputs", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
-
-        // Yuck .. these should be in the GUIGraph
 
         public string SerializeLayout()
         {
