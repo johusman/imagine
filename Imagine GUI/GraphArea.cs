@@ -7,7 +7,7 @@ using System.Collections;
 
 namespace Imagine.GUI
 {
-    public partial class GraphArea : UserControl
+    public partial class GraphArea : UserControl, IManipulationTarget
     {
         const int ARROW_L = 10;
         const int ARROW_W = 5;
@@ -18,6 +18,7 @@ namespace Imagine.GUI
         }
 
         private IGUIGraph guiGraph;
+        private IState stateSwitch;
 
         private Pen machinepen = new Pen(Color.Gray, 1);
         private Pen machinePenPotential = new Pen(Color.Gray, 1);
@@ -28,20 +29,21 @@ namespace Imagine.GUI
         private Brush machinebrush = Brushes.Bisque;
         private Color tooltipColor = Color.OldLace;
 
-        private enum ManipulationState { None, Dragging, Inserting, Connecting };
-        private ManipulationState manipulationState = ManipulationState.None;
-        private GUINode manipulatedNode = null;
-        private GUINode manipulationDestination = null;
-        private GUIPort manipulatedPort = null;
-        private Point manipulationOffset;
-        private GUIPort chosenPort = null;
-
         private bool showTooltips = true;
         private ToolTip tooltip = null;
         private Object tooltipObject = null;
 
+        public bool ShowTooltips
+        {
+            get { return showTooltips; }
+            set { showTooltips = value; }
+        }
+
+#region Initialization
         public void Initialize(ImagineFacade facade)
         {
+            stateSwitch = new StateSwitch(this);
+
             guiGraph = new GUIGraph(facade, this.Size);
 
             List<string> uniqueNames = new List<string>(facade.MachineTypes.Keys);
@@ -130,13 +132,22 @@ namespace Imagine.GUI
             destinationItem.Click += new System.EventHandler(this.insertToolStripMenuItem_Click);
             this.contextMenu.Items.Add(destinationItem);
         }
+#endregion
 
-        public bool ShowTooltips
+#region Serialization
+        public string SerializeLayout()
         {
-            get { return showTooltips; }
-            set { showTooltips = value; }
+            return guiGraph.SerializeLayout();
         }
 
+        public void DeserializeLayout(string input)
+        {
+            guiGraph.DeserializeLayout(input);
+            Refresh();
+        }
+#endregion
+
+#region Graph Rendering
         public void DrawGraph(Graphics graphics)
         {
             graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
@@ -154,8 +165,8 @@ namespace Imagine.GUI
 
                 DrawMachine(graphics, node);
             }
-            if (manipulationState == ManipulationState.Connecting)
-                DrawConnector(graphics);
+
+            stateSwitch.Draw(graphics);
         }
 
         private void DrawMachine(Graphics graphics, GUINode node)
@@ -243,7 +254,6 @@ namespace Imagine.GUI
                 GUIPort.RADIUS, "");
         }
 
-
         private static PointF CalculateUnitVector(Point from, Point to)
         {
             PointF unitVector = new PointF(to.X - from.X, to.Y - from.Y);
@@ -267,20 +277,20 @@ namespace Imagine.GUI
             g.DrawString(text, font, textBrush, p.X - textSize.Width / 2.0f + 1, p.Y - textSize.Height / 2.0f);
         }
 
-        private void DrawConnector(Graphics g)
+        public void DrawConnector(Graphics g, Point connectorPosition, GUINode origNode)
         {
-            GUINode destinationNode = guiGraph.GetNodeAt(manipulationOffset);
+            GUINode destinationNode = guiGraph.GetNodeAt(connectorPosition);
             if (destinationNode == null)
             {
-                Point origin = manipulatedNode.Position;
-                PointF unitVector = CalculateUnitVector(origin, manipulationOffset);
+                Point origin = origNode.Position;
+                PointF unitVector = CalculateUnitVector(origin, connectorPosition);
                 origin.Offset((int)(unitVector.X * GUINode.RADIUS), (int)(unitVector.Y * GUINode.RADIUS));
 
-                g.DrawLine(arrowPenPotential, origin, manipulationOffset);
-                g.DrawEllipse(arrowPenPotential, manipulationOffset.X - GUIPort.RADIUS, manipulationOffset.Y - GUIPort.RADIUS, GUIPort.RADIUS * 2, GUIPort.RADIUS * 2);
+                g.DrawLine(arrowPenPotential, origin, connectorPosition);
+                g.DrawEllipse(arrowPenPotential, connectorPosition.X - GUIPort.RADIUS, connectorPosition.Y - GUIPort.RADIUS, GUIPort.RADIUS * 2, GUIPort.RADIUS * 2);
             }
             else
-                DrawPotentialConnection(g, manipulatedNode, destinationNode);
+                DrawPotentialConnection(g, origNode, destinationNode);
         }
 
         private void GraphArea_Paint(object sender, PaintEventArgs e)
@@ -288,121 +298,71 @@ namespace Imagine.GUI
             DrawGraph(e.Graphics);
         }
 
+        private float PointDistance(Point p1, Point p2)
+        {
+            float x = p1.X - p2.X;
+            float y = p1.Y - p2.Y;
+
+            return (float)Math.Sqrt(x * x + y * y);
+        }
+#endregion
+
+#region Mouse Event Handling
         private void GraphArea_MouseDown(object sender, MouseEventArgs e)
         {
-            manipulatedNode = guiGraph.GetNodeAt(e.Location);
-            if (manipulatedNode != null)
+            GUINode node = guiGraph.GetNodeAt(e.Location);
+            if (node != null)
             {
-                if (e.Button == MouseButtons.Left && e.Clicks == 1)
-                {
-                    manipulationState = ManipulationState.Dragging;
-                    manipulationOffset = Point.Subtract(e.Location, new Size(manipulatedNode.Position));
-                }
-                else if (e.Button == MouseButtons.Left && e.Clicks == 2)
-                {
-                    manipulatedNode.MachineGUI.LaunchSettings(this);
-                }
-                else if (e.Button == MouseButtons.Right && e.Clicks == 1)
-                {
-                    manipulationState = ManipulationState.Connecting;
-                    manipulationOffset = e.Location;
-                }
-                else if (e.Button == MouseButtons.Right && e.Clicks == 2)
-                {
-                    if (Control.ModifierKeys != Keys.Shift)
-                    {
-                        DialogResult result = MessageBox.Show(this.ParentForm, "Do you wish to delete this machine?", "Delete machine?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                        if (result == DialogResult.No)
-                            return;
-                    }
-
-                    guiGraph.Remove(manipulatedNode);
-                    this.Invalidate();
-                }
+                if (e.Button == MouseButtons.Left)
+                    stateSwitch.NodeMouseDownLeft(node, e);
+                else if (e.Button == MouseButtons.Right)
+                    stateSwitch.NodeMouseDownRight(node, e);
             }
             else
             {
                 GUIPort port = guiGraph.GetPortAt(e.Location);
                 if (port != null)
                 {
-                    if (e.Button == MouseButtons.Right)
-                    {
-                        if (e.Clicks == 1)
-                        {
-                            manipulatedPort = port;
-                            portContextMenu.Show(this, Point.Subtract(e.Location, new Size(10, -10)));
-                        }
-                        else if (e.Clicks == 2)
-                        {
-                            portContextMenu.Hide();
-                            if (Control.ModifierKeys != Keys.Shift)
-                            {
-                                DialogResult result = MessageBox.Show(this.ParentForm, "Do you wish to break this connection?", "Break connection?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                                if (result == DialogResult.No)
-                                    return;
-                            }
-
-                            guiGraph.Disconnect(port);
-                            this.Invalidate();
-                        }
-                    }
+                    if (e.Button == MouseButtons.Left)
+                        stateSwitch.PortMouseDownLeft(port, e);
+                    else if (e.Button == MouseButtons.Right)
+                        stateSwitch.PortMouseDownRight(port, e);
                 }
                 else
                 {
-                    if (e.Button == MouseButtons.Right)
-                    {
-                        manipulationState = ManipulationState.Inserting;
-                        manipulationOffset = e.Location;
-                        contextMenu.Show(this, Point.Subtract(e.Location, new Size(10, 10)));
-                    }
+                    if (e.Button == MouseButtons.Left)
+                        stateSwitch.FreeMouseDownLeft(e);
+                    else if (e.Button == MouseButtons.Right)
+                        stateSwitch.FreeMouseDownRight(e);
                 }
             }
         }
 
         private void GraphArea_MouseUp(object sender, MouseEventArgs e)
         {
-            if(manipulationState == ManipulationState.Connecting)
-            {
-                manipulationDestination = guiGraph.GetNodeAt(e.Location);
-                if(manipulationDestination != null)
-                {
-                    if(manipulationDestination != manipulatedNode)
-                    {
-                        manipulationOffset = e.Location;
-                        ShowOutputChooser(manipulationOffset);
-                    }
-                }
-            }
+            GUINode node = guiGraph.GetNodeAt(e.Location);
+            if (node != null)
+                stateSwitch.NodeMouseUp(node, e);
             else
-                manipulatedNode = null;
-
-            if(manipulationState != ManipulationState.Inserting)
-                manipulationState = ManipulationState.None;
+            {
+                GUIPort port = guiGraph.GetPortAt(e.Location);
+                if (port != null)
+                    stateSwitch.PortMouseUp(port, e);
+                else
+                    stateSwitch.FreeMouseUp(e);
+            }
 
             this.Invalidate();
         }
 
         private void GraphArea_MouseMove(object sender, MouseEventArgs e)
         {
-            if(manipulationState == ManipulationState.Dragging)
-            {
-                KillToolTip();
-                manipulatedNode.Position = Point.Subtract(e.Location, new Size(manipulationOffset));
-                this.Invalidate();
-            }
-            else if (manipulationState == ManipulationState.Connecting)
-            {
-                ManageToolTip(e.Location);
-                manipulationOffset = e.Location;
-                this.Invalidate();
-            }
-            else
-            {
-                ManageToolTip(e.Location);
-            }
+            stateSwitch.MouseMove(e);
         }
+#endregion
 
-        private void ManageToolTip(Point location)
+#region ToolTip
+        public void ManageToolTip(Point location)
         {
             if (!showTooltips)
                 return;
@@ -467,7 +427,7 @@ namespace Imagine.GUI
             }
         }
 
-        private void KillToolTip()
+        public void KillToolTip()
         {
             if (tooltip != null)
             {
@@ -476,44 +436,39 @@ namespace Imagine.GUI
                 tooltipObject = null;
             }
         }
+#endregion
 
-        private float PointDistance(Point p1, Point p2)
-        {
-            float x = p1.X - p2.X;
-            float y = p1.Y - p2.Y;
-
-            return (float) Math.Sqrt(x * x + y * y);
-        }
-
+#region Context menu handlers
         private void insertToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if(manipulationState == ManipulationState.Inserting)
-            {
-                guiGraph.CreateNode((string)((ToolStripItem)sender).Tag, manipulationOffset);
-                manipulationState = ManipulationState.None;
-                this.Invalidate();
-            }
+            stateSwitch.NewMachineTypeChosen((string)((ToolStripItem)sender).Tag);
         }
 
         private void chooseOutputToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            chosenPort = (GUIPort)((ToolStripMenuItem)sender).Tag;
-            ShowInputChooser(manipulationOffset);
+            stateSwitch.OutputPortChosen((GUIPort)((ToolStripMenuItem)sender).Tag);
         }
 
         private void chooseInputToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            guiGraph.Connect(chosenPort, (GUIPort)((ToolStripMenuItem)sender).Tag);
-            this.Invalidate();
-            manipulatedNode = null;
-            manipulationDestination = null;
-            manipulationOffset = Point.Empty;
-            chosenPort = null;
+            stateSwitch.InputPortChosen((GUIPort)((ToolStripMenuItem)sender).Tag);
         }
 
-        private void ShowOutputChooser(Point location)
+        private void breakConnectionToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            int remainingOutputs = manipulatedNode.UnusedOutports.Count;
+            stateSwitch.DisconnectPortChosen();
+        }
+
+        private void branchToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            stateSwitch.BranchPortChosen();
+        }
+#endregion
+
+#region Callback From State Machine
+        public void ShowOutputChooser(GUINode fromNode, Point menuPosition)
+        {
+            int remainingOutputs = fromNode.UnusedOutports.Count;
             if(remainingOutputs > 1)
             {
                 ContextMenuStrip contextMenu = new ContextMenuStrip();
@@ -524,31 +479,32 @@ namespace Imagine.GUI
                 header.Enabled = false;
                 contextMenu.Items.Add(header);
 
-                foreach (GUIPort guiPort in manipulatedNode.UnusedOutports.Values)
+                foreach (GUIPort guiPort in fromNode.UnusedOutports.Values)
                 {
                     String text = String.Format("({1}) {0}", guiPort.Name, guiPort.Code);
                     ToolStripMenuItem menuItem = new ToolStripMenuItem(text, null, new System.EventHandler(this.chooseOutputToolStripMenuItem_Click));
                     menuItem.Tag = guiPort;
                     contextMenu.Items.Add(menuItem);
                 }
-                contextMenu.Show(this, Point.Subtract(location, new Size(10, 10)));
+                contextMenu.Show(this, Point.Subtract(menuPosition, new Size(10, 10)));
             }
             else if (remainingOutputs == 1)
             {
-                foreach (GUIPort port in manipulatedNode.UnusedOutports.Values)
-                    chosenPort = port;
-                ShowInputChooser(manipulationOffset);
-                return;
+                GUIPort remainingPort = null;
+                foreach (GUIPort port in fromNode.UnusedOutports.Values)
+                    remainingPort = port;
+
+                stateSwitch.OutputPortChosen(remainingPort);
             }
             else
-            {
+            {   
                 MessageBox.Show(this.ParentForm, "There are no free outputs on the first machine", "No free outputs", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
-        private void ShowInputChooser(Point location)
+        public void ShowInputChooser(GUINode toNode, Point menuPosition)
         {
-            int remainingInputs = manipulationDestination.UnusedInports.Count;
+            int remainingInputs = toNode.UnusedInports.Count;
             if(remainingInputs > 1)
             {
                 ContextMenuStrip contextMenu = new ContextMenuStrip();
@@ -559,7 +515,7 @@ namespace Imagine.GUI
                 header.Enabled = false;
                 contextMenu.Items.Add(header);
 
-                foreach (GUIPort guiPort in manipulationDestination.UnusedInports.Values)
+                foreach (GUIPort guiPort in toNode.UnusedInports.Values)
                 {
                     String text = String.Format("({1}) {0}", guiPort.Name, guiPort.Code);
                     ToolStripMenuItem menuItem = new ToolStripMenuItem(text, null, new System.EventHandler(this.chooseInputToolStripMenuItem_Click));
@@ -567,55 +523,24 @@ namespace Imagine.GUI
                     contextMenu.Items.Add(menuItem);
                 }
 
-                contextMenu.Show(this, Point.Subtract(location, new Size(10, 10)));
+                contextMenu.Show(this, Point.Subtract(menuPosition, new Size(10, 10)));
             }
             else if (remainingInputs == 1)
             {
-                GUIPort otherPort = null;
-                foreach (GUIPort port in manipulationDestination.UnusedInports.Values)
-                    otherPort = port;
 
-                guiGraph.Connect(chosenPort, otherPort);
+                GUIPort remainingPort = null;
+                foreach (GUIPort port in toNode.UnusedInports.Values)
+                    remainingPort = port;
 
-                this.Invalidate();
-                manipulatedNode = null;
-                manipulationDestination = null;
-                manipulationOffset = Point.Empty;
-                chosenPort = null;
-                return;
+                stateSwitch.InputPortChosen(remainingPort);
             }
             else
-            {
+            {   
                 MessageBox.Show(this.ParentForm, "There are no free inputs on the second machine", "No free inputs", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
-        public string SerializeLayout()
-        {
-            return guiGraph.SerializeLayout();
-        }
-
-        public void DeserializeLayout(string input)
-        {
-            guiGraph.DeserializeLayout(input);
-            Refresh();
-        }
-
-        private void breakConnectionToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            guiGraph.Disconnect(manipulatedPort);
-            manipulatedPort = null;
-            this.Invalidate();
-        }
-
-        private void branchToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            InsertBranchInConnectionForPort(manipulatedPort);
-            manipulatedPort = null;
-            this.Invalidate();
-        }
-
-        private void InsertBranchInConnectionForPort(GUIPort port)
+        public void BranchPort(GUIPort port)
         {
             GUIPort fromPort = null;
             GUIPort toPort = null;
@@ -640,6 +565,73 @@ namespace Imagine.GUI
             
             guiGraph.Connect(fromPort, branchNode.UnusedInports[0]);
             guiGraph.Connect(branchNode.UnusedOutports[0], toPort);
+
+            this.Invalidate();
         }
+
+        public void LaunchSettingsForNode(GUINode node)
+        {
+            node.MachineGUI.LaunchSettings(this);
+        }
+
+        public void RemoveNode(GUINode node)
+        {
+            if (Control.ModifierKeys != Keys.Shift)
+            {
+                DialogResult result = MessageBox.Show(this.ParentForm, "Do you wish to delete this machine?", "Delete machine?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (result == DialogResult.No)
+                    return;
+            }
+
+            guiGraph.Remove(node);
+            this.Invalidate();
+        }
+
+        public void ShowPortContextMenu(Point position)
+        {
+            portContextMenu.Show(this, Point.Subtract(position, new Size(10, -10)));
+        }
+
+        public void DisconnectPort(GUIPort port)
+        {
+            portContextMenu.Hide();
+            if (Control.ModifierKeys != Keys.Shift)
+            {
+                DialogResult result = MessageBox.Show(this.ParentForm, "Do you wish to break this connection?", "Break connection?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (result == DialogResult.No)
+                    return;
+            }
+
+            guiGraph.Disconnect(port);
+            this.Invalidate();
+        }
+
+        public void ShowNewMachineContextMenu(Point menuPosition)
+        {
+            contextMenu.Show(this, Point.Subtract(menuPosition, new Size(10, 10)));
+        }
+
+        public void ConnectPorts(GUIPort fromPort, GUIPort toPort)
+        {
+            guiGraph.Connect(fromPort, toPort);
+            this.Invalidate();
+        }
+
+        public void InsertNewMachineType(string type, Point newMachinePosition)
+        {
+            guiGraph.CreateNode(type, newMachinePosition);
+            this.Invalidate();
+        }
+
+        public void Redraw()
+        {
+            this.Invalidate();
+        }
+
+        public void ShowState(Type type)
+        {
+            Console.WriteLine("State: " + type.ToString());
+        }
+#endregion
     }
 }

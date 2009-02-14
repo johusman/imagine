@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 
 namespace Imagine.GUI
 {
-    interface IGUIGraph
+    public interface IGUIGraph
     {
         Dictionary<GraphNode<Machine>, GUINode>.ValueCollection Nodes { get; }
         Dictionary<GraphPort<Machine>, GUIPort>.ValueCollection Ports { get; }
@@ -267,7 +267,7 @@ namespace Imagine.GUI
         }
     }
 
-    class GUINode
+    public class GUINode
     {
         public const int RADIUS = 25;
 
@@ -326,7 +326,7 @@ namespace Imagine.GUI
             set { machineGUI = value; }
         }
 
-        public GUINode(IGUIGraphInternal guiGraph, GraphNode<Machine> graphNode, Point position)
+        internal GUINode(IGUIGraphInternal guiGraph, GraphNode<Machine> graphNode, Point position)
         {
             this.graph = guiGraph;
             this.graphNode = graphNode;
@@ -408,7 +408,7 @@ namespace Imagine.GUI
         }
     }
 
-    class GUIPort
+    public class GUIPort
     {
         public const int RADIUS = 7;
 
