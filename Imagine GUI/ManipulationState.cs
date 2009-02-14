@@ -45,6 +45,7 @@ namespace Imagine.GUI
         void LaunchSettingsForNode(GUINode node);
         void RemoveNode(GUINode node);
 
+        void MoveViewOffset(Size offset); 
         void Redraw();
         void DrawConnector(Graphics graphics, Point cursorLocation, GUINode fromNode);
         void ShowState(Type type);
@@ -140,6 +141,9 @@ namespace Imagine.GUI
 
     class GroundState : State
     {
+        private Point freeRightLocation = Point.Empty;
+        private bool freeRightButton = false;
+
         public GroundState(IManipulationTarget target, IStateContext context) : base(target, context) { target.ShowState(this.GetType()); }
 
         public override void NodeMouseDownLeft(GUINode node, MouseEventArgs e) {
@@ -171,12 +175,42 @@ namespace Imagine.GUI
         }
 
         public override void FreeMouseDownRight(MouseEventArgs e) {
-            Transition(new InsertingState(target, context, e.Location));
-            target.ShowNewMachineContextMenu(e.Location);
+            freeRightLocation = e.Location;
+            freeRightButton = true;
+        }
+
+        public override void FreeMouseUp(MouseEventArgs e) {
+            if (e.Button == MouseButtons.Right) {
+                Transition(new InsertingState(target, context, e.Location));
+                target.ShowNewMachineContextMenu(e.Location);
+            }
         }
 
         public override void MouseMove(MouseEventArgs e) {
-            target.ManageToolTip(e.Location);
+            if(freeRightButton)
+                Transition(new TranslatingState(target, context, freeRightLocation));
+            else
+                target.ManageToolTip(e.Location);
+        }
+    }
+
+    class TranslatingState : State
+    {
+        private Point lastPosition;
+
+        public TranslatingState(IManipulationTarget target, IStateContext context, Point cursorPosition) : base(target, context) {
+            this.lastPosition = cursorPosition;
+            target.ShowState(this.GetType());
+        }
+
+        public override void MouseMove(MouseEventArgs e) {
+            target.MoveViewOffset(new Size(Point.Subtract(e.Location, new Size(lastPosition))));
+            lastPosition = e.Location;
+        }
+
+        public override void Gen_MouseUp(MouseEventArgs e) {
+            if(e.Button == MouseButtons.Right)
+                Reset();
         }
     }
 
