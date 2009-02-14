@@ -20,6 +20,8 @@ namespace Imagine.GUI
         private IGUIGraph guiGraph;
         private IState stateSwitch;
 
+        private Size viewOffset = new Size(0, 0);
+
         private Pen machinepen = new Pen(Color.Gray, 1);
         private Pen machinePenPotential = new Pen(Color.Gray, 1);
         private Pen arrowpen = new Pen(Color.Black, 1);
@@ -42,8 +44,8 @@ namespace Imagine.GUI
 #region Initialization
         public void Initialize(ImagineFacade facade)
         {
+            viewOffset = new Size(0, 0);
             stateSwitch = new StateSwitch(this);
-
             guiGraph = new GUIGraph(facade, this.Size);
 
             List<string> uniqueNames = new List<string>(facade.MachineTypes.Keys);
@@ -171,7 +173,7 @@ namespace Imagine.GUI
 
         private void DrawMachine(Graphics graphics, GUINode node)
         {
-            Point p = node.Position;
+            Point p = Point.Add(node.Position, viewOffset);
             MachineGUI gui = node.MachineGUI;
 
             graphics.FillEllipse(gui.Background, p.X - GUINode.RADIUS, p.Y - GUINode.RADIUS, GUINode.RADIUS * 2, GUINode.RADIUS * 2);
@@ -193,10 +195,10 @@ namespace Imagine.GUI
 
             GUIPort remotePort = port.RemotePort;
 
-            Point portPos = port.Position.Value;
+            Point portPos = Point.Add(port.Position.Value, viewOffset);
             GUINode node = port.Node;
             GUINode remoteNode = remotePort.Node;
-            Point remotePortPos = remotePort.Position.Value;
+            Point remotePortPos = Point.Add(remotePort.Position.Value, viewOffset);
 
             DrawCenteredCircle(graphics, machinepen, Brushes.Black, Brushes.White,
                     new PointF(portPos.X, portPos.Y),
@@ -225,8 +227,8 @@ namespace Imagine.GUI
 
         private void DrawPotentialConnection(Graphics graphics, GUINode fromNode, GUINode toNode)
         {
-            Point from = fromNode.Position;
-            Point to = toNode.Position;
+            Point from = Point.Add(fromNode.Position, viewOffset);
+            Point to = Point.Add(toNode.Position, viewOffset);
 
             PointF unitVector = CalculateUnitVector(from, to);
             int arrow_offset = GUINode.RADIUS + GUIPort.RADIUS * 2;
@@ -279,10 +281,10 @@ namespace Imagine.GUI
 
         public void DrawConnector(Graphics g, Point connectorPosition, GUINode origNode)
         {
-            GUINode destinationNode = guiGraph.GetNodeAt(connectorPosition);
+            GUINode destinationNode = guiGraph.GetNodeAt(Point.Subtract(connectorPosition, viewOffset));
             if (destinationNode == null)
             {
-                Point origin = origNode.Position;
+                Point origin = Point.Add(origNode.Position, viewOffset);
                 PointF unitVector = CalculateUnitVector(origin, connectorPosition);
                 origin.Offset((int)(unitVector.X * GUINode.RADIUS), (int)(unitVector.Y * GUINode.RADIUS));
 
@@ -310,7 +312,7 @@ namespace Imagine.GUI
 #region Mouse Event Handling
         private void GraphArea_MouseDown(object sender, MouseEventArgs e)
         {
-            GUINode node = guiGraph.GetNodeAt(e.Location);
+            GUINode node = guiGraph.GetNodeAt(Point.Subtract(e.Location, viewOffset));
             if (node != null)
             {
                 if (e.Button == MouseButtons.Left)
@@ -320,7 +322,7 @@ namespace Imagine.GUI
             }
             else
             {
-                GUIPort port = guiGraph.GetPortAt(e.Location);
+                GUIPort port = guiGraph.GetPortAt(Point.Subtract(e.Location, viewOffset));
                 if (port != null)
                 {
                     if (e.Button == MouseButtons.Left)
@@ -340,12 +342,12 @@ namespace Imagine.GUI
 
         private void GraphArea_MouseUp(object sender, MouseEventArgs e)
         {
-            GUINode node = guiGraph.GetNodeAt(e.Location);
+            GUINode node = guiGraph.GetNodeAt(Point.Subtract(e.Location, viewOffset));
             if (node != null)
                 stateSwitch.NodeMouseUp(node, e);
             else
             {
-                GUIPort port = guiGraph.GetPortAt(e.Location);
+                GUIPort port = guiGraph.GetPortAt(Point.Subtract(e.Location, viewOffset));
                 if (port != null)
                     stateSwitch.PortMouseUp(port, e);
                 else
@@ -367,9 +369,10 @@ namespace Imagine.GUI
             if (!showTooltips)
                 return;
 
-            GUINode node = guiGraph.GetNodeAt(location);
+            GUINode node = guiGraph.GetNodeAt(Point.Subtract(location, viewOffset));
             if (node != null)
             {
+                Point nodePosition = Point.Add(node.Position, viewOffset);
                 if (tooltip == null || tooltipObject != node)
                 {
                     Machine machine = node.Machine;
@@ -397,14 +400,15 @@ namespace Imagine.GUI
                         outputs = outputs.Remove(outputs.Length - 1);
 
                     string text = String.Format("{0}\n\nInputs:\n {1}\nOutputs:\n {2}", description, inputs, outputs);
-                    tooltip.Show(text, this.ParentForm, new Point(node.Position.X + 50, node.Position.Y));
+                    tooltip.Show(text, this.ParentForm, new Point(nodePosition.X + 50, nodePosition.Y));
                 }
             }
             else
             {
-                GUIPort port = guiGraph.GetPortAt(location);
+                GUIPort port = guiGraph.GetPortAt(Point.Subtract(location, viewOffset));
                 if (port != null)
                 {
+                    Point portPosition = Point.Add(port.Position.Value, viewOffset);
                     if (tooltip == null || tooltipObject != port)
                     {
                         KillToolTip();
@@ -418,7 +422,7 @@ namespace Imagine.GUI
                             text = String.Format(" (to: {0})", port.RemotePort.Name);
                         else
                             text = String.Format(" (from: {0})", port.RemotePort.Name);
-                        tooltip.Show(text, this.ParentForm, new Point(port.Position.Value.X + 25, port.Position.Value.Y + 50));
+                        tooltip.Show(text, this.ParentForm, new Point(portPosition.X + 25, portPosition.Y + 50));
                         
                     }
                 }
@@ -619,7 +623,7 @@ namespace Imagine.GUI
 
         public void InsertNewMachineType(string type, Point newMachinePosition)
         {
-            guiGraph.CreateNode(type, newMachinePosition);
+            guiGraph.CreateNode(type, Point.Subtract(newMachinePosition, viewOffset));
             this.Invalidate();
         }
 
