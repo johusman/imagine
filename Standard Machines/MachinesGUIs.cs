@@ -206,6 +206,12 @@ namespace Imagine.StandardMachines
         }
     }
 
+    [GUIForMachine("Imagine.Img.GaussianBleed")]
+    public class GaussianBleedGUI : GaussianBlurGUI
+    {
+        public GaussianBleedGUI() : base() { }
+    }
+
     [GUIForMachine("Imagine.Ctrl.ControlMultiplier4")]
     public class ControlMultiplierGUI : MachineGUI
     {
