@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using Imagine.Library;
 using System.Collections;
+using Imagine.GUI.Machines.Core;
 
 namespace Imagine.GUI
 {

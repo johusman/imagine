@@ -6,11 +6,16 @@ using IronPython.Hosting;
 using System.IO;
 using System.Windows.Forms;
 using Imagine.GUI;
-using Standard_Machines;
+using Standard_Machine_GUIs;
 
 namespace Imagine.StandardMachines
 {
     [UniqueName("Imagine.PythonScript")]
+    [InputNames("input 1", "input 2", "input 3", "input 4")]
+    [InputCodes('1', '2', '3', '4')]
+    [OutputNames("output")]
+    [OutputCodes(' ')]
+    [Description("Write your own machine in Python (slow as hell).")]
     public class PythonMachine : Machine
     {
         private PythonEngine engine = new PythonEngine();
@@ -35,12 +40,6 @@ namespace Imagine.StandardMachines
         public PythonMachine()
         {
             engine.AddToPath(Path.GetDirectoryName(Application.ExecutablePath));
-
-            inputNames = new string[] { "input 1", "input 2", "input 3", "input 4" };
-            outputNames = new string[] { "output" };
-            inputCodes = new char[] { '1', '2', '3', '4' };
-            outputCodes = new char[] { ' ' };
-            description = "Write your own machine.";
 
             script =
                 "# This is a sample script that just copies everything\r\n" +

@@ -8,17 +8,13 @@ using Imagine.Library;
 namespace Imagine.StandardMachines
 {
     [UniqueName("Imagine.Img.Inverter")]
+    [InputNames("input")]
+    [InputCodes(' ')]
+    [OutputNames("output")]
+    [OutputCodes(' ')]
+    [Description("Does an RGB invert of the image (leaves Alpha intact).")]
     public class InverterMachine : Machine
     {
-        public InverterMachine()
-        {
-            inputNames = new string[] { "input" };
-            outputNames = new string[] { "output" };
-            inputCodes = new char[] { ' ' };
-            outputCodes = new char[] { ' ' };
-            description = "Does an RGB invert of the image (leaves Alpha intact).";
-        }
-
         public override string Caption
         {
             get { return "Invert"; }
@@ -44,17 +40,13 @@ namespace Imagine.StandardMachines
     }
 
     [UniqueName("Imagine.Ctrl.ControlInverter")]
+    [InputNames("input")]
+    [InputCodes(' ')]
+    [OutputNames("output")]
+    [OutputCodes(' ')]
+    [Description("Inverts a control channel.")]
     public class ControlInverterMachine : Machine
     {
-        public ControlInverterMachine()
-        {
-            inputNames = new string[] { "input" };
-            outputNames = new string[] { "output" };
-            inputCodes = new char[] { ' ' };
-            outputCodes = new char[] { ' ' };
-            description = "Inverts a control channel.";
-        }
-
         public override string Caption
         {
             get { return "[Invert]"; }
@@ -79,17 +71,13 @@ namespace Imagine.StandardMachines
     }
 
     [UniqueName("Imagine.Img.RGBSplitter")]
+    [InputNames("input")]
+    [InputCodes(' ')]
+    [OutputNames("red (control)", "green (control)", "blue (control)")]
+    [OutputCodes('r', 'g', 'b')]
+    [Description("Deconstructs the R, G, and B channels of an image into three single-channel (control) images.")]
     public class RGBSplitterMachine : Machine
     {
-        public RGBSplitterMachine()
-        {
-            inputNames = new string[] { "input" };
-            outputNames = new string[] { "red (control)", "green (control)", "blue (control)" };
-            inputCodes = new char[] { ' ' };
-            outputCodes = new char[] { 'r', 'g', 'b' };
-            description = "Deconstructs the R, G, and B channels of an image into three single-channel (control) images.";
-        }
-
         public override string Caption
         {
             get { return "RGB Split"; }
@@ -118,17 +106,13 @@ namespace Imagine.StandardMachines
     }
     
     [UniqueName("Imagine.Adder4")]
+    [InputNames("input 1", "input 2", "input 3", "input 4")]
+    [InputCodes('1', '2', '3', '4')]
+    [OutputNames("output")]
+    [OutputCodes(' ')]
+    [Description("Adds up to four input images by adding and clipping the separate channels (A, R, G, B).")]
     public class Adder4Machine : Machine
     {
-        public Adder4Machine()
-        {
-            inputNames = new string[] { "input 1", "input 2", "input 3", "input 4" };
-            outputNames = new string[] { "output" };
-            inputCodes = new char[] { '1', '2', '3', '4' };
-            outputCodes = new char[] { ' ' };
-            description = "Adds up to four input images by adding and clipping the separate channels (A, R, G, B).";
-        }
-
         public override string Caption
         {
             get { return "Adder"; }
@@ -165,17 +149,13 @@ namespace Imagine.StandardMachines
     }
 
     [UniqueName("Imagine.Ctrl.RGBJoiner")]
+    [InputNames("red (control)", "green (control)", "blue (control)")]
+    [InputCodes('r', 'g', 'b')]
+    [OutputNames("output")]
+    [OutputCodes(' ')]
+    [Description("Constructs an image from red, green and blue channels derived from control channel of respective input (alpha of output is fully opaque).")]
     public class RGBJoinerMachine : Machine
     {
-        public RGBJoinerMachine()
-        {
-            inputNames = new string[] { "red (control)", "green (control)", "blue (control)" };
-            outputNames = new string[] { "output" };
-            inputCodes = new char[] { 'r', 'g', 'b' };
-            outputCodes = new char[] { ' ' };
-            description = "Constructs an image from red, green and blue channels derived from control channel of respective input (alpha of output is fully opaque).";
-        }
-
         public override string Caption
         {
             get { return "RGB Join"; }
@@ -208,17 +188,13 @@ namespace Imagine.StandardMachines
     }
 
     [UniqueName("Imagine.Img.HSLSplitter")]
+    [InputNames("input")]
+    [InputCodes(' ')]
+    [OutputNames("hue (control)", "saturation (control)", "lightness (control)")]
+    [OutputCodes('h', 's', 'l')]
+    [Description("Outputs the HSL (Hue/Saturation/Lightness) of each pixel, encoded in control channels.")]
     public class HSLSplitterMachine : Machine
     {
-        public HSLSplitterMachine()
-        {
-            inputNames = new string[] { "input" };
-            outputNames = new string[] { "hue (control)", "saturation (control)", "lightness (control)" };
-            inputCodes = new char[] { ' ' };
-            outputCodes = new char[] { 'h', 's', 'l' };
-            description = "Outputs the HSL (Hue/Saturation/Lightness) of each pixel, encoded in control channels.";
-        }
-
         public override string Caption
         {
             get { return "HSL Split"; }
@@ -247,17 +223,13 @@ namespace Imagine.StandardMachines
     }
 
     [UniqueName("Imagine.Ctrl.HSLJoiner")]
+    [InputNames("hue (control)", "saturation (control)", "lightness (control)")]
+    [InputCodes('h', 's', 'l')]
+    [OutputNames("output")]
+    [OutputCodes(' ')]
+    [Description("Constructs an image from HSL (Hue/Saturation/Lightness) derived from control channel of respective input (alpha of output is fully opaque).")]
     public class HSLJoinerMachine : Machine
     {
-        public HSLJoinerMachine()
-        {
-            inputNames = new string[] { "hue (control)", "saturation (control)", "lightness (control)" };
-            outputNames = new string[] { "output" };
-            inputCodes = new char[] { 'h', 's', 'l' };
-            outputCodes = new char[] { ' ' };
-            description = "Constructs an image from HSL (Hue/Saturation/Lightness) derived from control channel of respective input (alpha of output is fully opaque).";
-        }
-
         public override string Caption
         {
             get { return "HSL Join"; }
@@ -292,17 +264,13 @@ namespace Imagine.StandardMachines
     }
 
     [UniqueName("Imagine.Ctrl.ControlMultiplier4")]
+    [InputNames("input 1 (control)", "input 2 (control)", "input 3 (control)", "input 4 (control)")]
+    [InputCodes('1', '2', '3', '4')]
+    [OutputNames("output")]
+    [OutputCodes(' ')]
+    [Description("Multiplies up to four control inputs, clipping as necessary.")]
     public class ControlMultiply4Machine : Machine
     {
-        public ControlMultiply4Machine()
-        {
-            inputNames = new string[] { "input 1 (control)", "input 2 (control)", "input 3 (control)", "input 4 (control)" };
-            outputNames = new string[] { "output (control)" };
-            inputCodes = new char[] { '1', '2', '3', '4' };
-            outputCodes = new char[] { ' ' };
-            description = "Multiplies up to four control inputs, clipping as necessary.";
-        }
-
         public override string Caption
         {
             get { return "[Multiply]"; }
@@ -328,90 +296,6 @@ namespace Imagine.StandardMachines
                 }
 
                 StandardCallback(x, result.Width, callback);
-            }
-
-            return new ImagineImage[] { result };
-        }
-    }
-
-    [UniqueName("Imagine.Img.BadDynamicBlur")]
-    public class BadDynamicBlurMachine : Machine
-    {
-        private int iterations = 20;
-
-        public int Iterations
-        {
-            get { return iterations; }
-            set { iterations = value; OnMachineChanged(); }
-        }
-
-        public BadDynamicBlurMachine()
-        {
-            inputNames = new string[] { "image", "control" };
-            outputNames = new string[] { "output" };
-            inputCodes = new char[] { 'I', 'c' };
-            outputCodes = new char[] { ' ' };
-            description = "Blurs the RGB image. The amount of blur at each pixel is determined by the single channel of the control input. Alpha becomes fully opaque.";
-        }
-
-        public override string Caption
-        {
-            get { return "Dyn Blur"; }
-        }
-
-        public override void LoadSettings(string settings)
-        {
-            Dictionary<string, string> properties = ParseSettings(settings);
-            int? iterationsSetting = GetInt(properties, "iterations");
-            if (iterationsSetting != null)
-                iterations = iterationsSetting.Value;
-        }
-
-        public override string SaveSettings()
-        {
-            return CompileSettings(Set(null, "iterations", iterations));
-        }
-
-        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
-        {
-            FullImage result = NewFull(inputs);
-            if (inputs[0] == null)
-                return new ImagineImage[1];
-            if (inputs[1] == null)
-                return new ImagineImage[] { inputs[0].Copy() };
-            ImagineImage source = inputs[0];
-
-            for (int i = 0; i < iterations; i++)
-            {
-                result = NewFull(inputs[0]);
-                
-                for (int x = 1; x < result.Width - 1; x++)
-                    for (int y = 1; y < result.Height - 1; y++)
-                    {
-                        int r, g, b;
-                        
-                        ImagineColor c, n, w, s, e;
-                        c = source.GetPixel(x, y);
-                        n = source.GetPixel(x, y - 1);
-                        e = source.GetPixel(x + 1, y);
-                        w = source.GetPixel(x - 1, y);
-                        s = source.GetPixel(x, y + 1);
-
-                        double a = ((double) inputs[1].GetPixel(x, y).A) / ImagineColor.MAX;
-                        double cA = 1.0 - a * 0.8; 
-                        double vA = (1.0 - cA) / 4.0;
-
-                        r = (int) (c.R * cA + n.R * vA + w.R * vA + s.R * vA + e.R * vA);
-                        g = (int) (c.G * cA + n.G * vA + w.G * vA + s.G * vA + e.G * vA);
-                        b = (int) (c.B * cA + n.B * vA + w.B * vA + s.B * vA + e.B * vA);
-
-                        result.SetPixel(x, y, ImagineColor.MAX, r, g, b);
-                    }
-
-                source = result;
-
-                if (callback != null)
-                    callback.Invoke(5 * i);
             }
 
             return new ImagineImage[] { result };
@@ -501,6 +385,11 @@ namespace Imagine.StandardMachines
     }
 
     [UniqueName("Imagine.Img.GaussianBlur")]
+    [InputNames("input")]
+    [InputCodes(' ')]
+    [OutputNames("output")]
+    [OutputCodes(' ')]
+    [Description("Applies a gaussian blur to the input image.")]
     public class GaussianBlurMachine : Machine
     {
         protected double size = 5.0;
@@ -509,15 +398,6 @@ namespace Imagine.StandardMachines
         {
             get { return size; }
             set { size = value; OnMachineChanged(); }
-        }
-
-        public GaussianBlurMachine()
-        {
-            inputNames = new string[] { "input" };
-            outputNames = new string[] { "output" };
-            inputCodes = new char[] { ' ' };
-            outputCodes = new char[] { ' ' };
-            description = "Applies a gaussian blur to the input image.";
         }
 
         public override string Caption
@@ -578,17 +458,13 @@ namespace Imagine.StandardMachines
     }
 
     [UniqueName("Imagine.Img.GaussianBleed")]
+    [InputNames("image", "control")]
+    [InputCodes('I', 'c')]
+    [OutputNames("output")]
+    [OutputCodes(' ')]
+    [Description("Gaussian Bleed is like Gaussian Blur, but the control channel determines how much each pixel contribute to the blur.")]
     public class GaussianBleedMachine : GaussianBlurMachine
     {
-        public GaussianBleedMachine()
-        {
-            inputNames = new string[] { "image", "control" };
-            outputNames = new string[] { "output" };
-            inputCodes = new char[] { 'I', 'c' };
-            outputCodes = new char[] { ' ' };
-            description = "Gaussian Bleed is like Gaussian Blur, but the control channel determines how much each pixel contribute to the blur.";
-        }
-
         public override string Caption
         {
             get { return "GaussBleed"; }
@@ -619,6 +495,11 @@ namespace Imagine.StandardMachines
     }
 
     [UniqueName("Imagine.Ctrl.SoftControlContrast")]
+    [InputNames("input (control)")]
+    [InputCodes(' ')]
+    [OutputNames("output (control)")]
+    [OutputCodes(' ')]
+    [Description("Increases contrast in the control input by a continuous, nonclipping function.")]
     public class SoftControlContrastMachine : Machine
     {
         private double amount = 1.0;
@@ -627,15 +508,6 @@ namespace Imagine.StandardMachines
         {
             get { return amount; }
             set { amount = value; OnMachineChanged(); }
-        }
-
-        public SoftControlContrastMachine()
-        {
-            inputNames = new string[] { "input (control)" };
-            outputNames = new string[] { "output (control)" };
-            inputCodes = new char[] { ' ' };
-            outputCodes = new char[] { ' ' };
-            description = "Increases contrast in the control input by a continuous, nonclipping function.";
         }
 
         public override string Caption
@@ -678,6 +550,11 @@ namespace Imagine.StandardMachines
     }
 
     [UniqueName("Imagine.Ctrl.HardControlContrast")]
+    [InputNames("input (control)")]
+    [InputCodes(' ')]
+    [OutputNames("output (control)")]
+    [OutputCodes(' ')]
+    [Description("Increases contrast in the control input by a clipping, linear function.")]
     public class HardControlContrastMachine : Machine
     {
         private double amount = 1.0;
@@ -686,15 +563,6 @@ namespace Imagine.StandardMachines
         {
             get { return amount; }
             set { amount = value; OnMachineChanged(); }
-        }
-
-        public HardControlContrastMachine()
-        {
-            inputNames = new string[] { "input (control)" };
-            outputNames = new string[] { "output (control)" };
-            inputCodes = new char[] { ' ' };
-            outputCodes = new char[] { ' ' };
-            description = "Increases contrast in the control input by a clipping, linear function.";
         }
 
         public override string Caption
@@ -737,6 +605,11 @@ namespace Imagine.StandardMachines
     }
 
     [UniqueName("Imagine.Img.Gain")]
+    [InputNames("input")]
+    [InputCodes(' ')]
+    [OutputNames("output")]
+    [OutputCodes(' ')]
+    [Description("Applies gain (multiplication by value) to R, G, and B. 1.0 = no change. Does not affect alpha.")]
     public class GainMachine : Machine
     {
         private double gain = 1.0;
@@ -745,15 +618,6 @@ namespace Imagine.StandardMachines
         {
             get { return gain; }
             set { gain = value; OnMachineChanged(); }
-        }
-
-        public GainMachine()
-        {
-            inputNames = new string[] { "input" };
-            outputNames = new string[] { "output" };
-            inputCodes = new char[] { ' ' };
-            outputCodes = new char[] { ' ' };
-            description = "Applies gain (multiplication by value) to R, G, and B. 1.0 = no change. Does not affect alpha.";
         }
 
         public override string Caption
@@ -794,6 +658,11 @@ namespace Imagine.StandardMachines
     }
 
     [UniqueName("Imagine.Ctrl.ControlGain")]
+    [InputNames("input (control)")]
+    [InputCodes(' ')]
+    [OutputNames("output (control)")]
+    [OutputCodes(' ')]
+    [Description("Applies gain value to control input.")]
     public class ControlGainMachine : Machine
     {
         private double gain = 1.0;
@@ -802,15 +671,6 @@ namespace Imagine.StandardMachines
         {
             get { return gain; }
             set { gain = value; OnMachineChanged(); }
-        }
-
-        public ControlGainMachine()
-        {
-            inputNames = new string[] { "input (control)" };
-            outputNames = new string[] { "output (control)" };
-            inputCodes = new char[] { ' ' };
-            outputCodes = new char[] { ' ' };
-            description = "Applies gain value to control input.";
         }
 
         public override string Caption
@@ -850,6 +710,11 @@ namespace Imagine.StandardMachines
     }
 
     [UniqueName("Imagine.Img.ColorProximity")]
+    [InputNames("input")]
+    [InputCodes(' ')]
+    [OutputNames("output (control)")]
+    [OutputCodes(' ')]
+    [Description("Contructs a control imagine based on the proximity of each pixel to the given color.")]
     public class ColorProximityMachine : Machine
     {
         private ImagineColor targetColor = new ImagineColor(ImagineColor.MAX, ImagineColor.MAX, ImagineColor.MAX, ImagineColor.MAX);
@@ -858,15 +723,6 @@ namespace Imagine.StandardMachines
         {
             get { return targetColor; }
             set { targetColor = value; OnMachineChanged(); }
-        }
-
-        public ColorProximityMachine()
-        {
-            inputNames = new string[] { "input" };
-            outputNames = new string[] { "output (control)" };
-            inputCodes = new char[] { ' ' };
-            outputCodes = new char[] { ' ' };
-            description = "Contructs a control imagine based on the proximity of each pixel to the given color.";
         }
 
         public override string Caption
@@ -922,6 +778,11 @@ namespace Imagine.StandardMachines
     }
 
     [UniqueName("Imagine.Img.HueProximity")]
+    [InputNames("input")]
+    [InputCodes(' ')]
+    [OutputNames("output (control)")]
+    [OutputCodes(' ')]
+    [Description("Contructs a control imagine based on the proximity of the hue of each pixel to the hue of the given color.")]
     public class HueProximityMachine : Machine
     {
         private ImagineColor targetColor = new ImagineColor(ImagineColor.MAX, ImagineColor.MAX, ImagineColor.MAX, ImagineColor.MAX);
@@ -930,15 +791,6 @@ namespace Imagine.StandardMachines
         {
             get { return targetColor; }
             set { targetColor = value; OnMachineChanged(); }
-        }
-
-        public HueProximityMachine()
-        {
-            inputNames = new string[] { "input" };
-            outputNames = new string[] { "output (control)" };
-            inputCodes = new char[] { ' ' };
-            outputCodes = new char[] { ' ' };
-            description = "Contructs a control imagine based on the proximity of the hue of each pixel to the hue of the given color.";
         }
 
         public override string Caption
@@ -994,17 +846,13 @@ namespace Imagine.StandardMachines
     }
 
     [UniqueName("Imagine.Img.Blender")]
+    [InputNames("image 1", "image 2", "blend (control)")]
+    [InputCodes('1', '2', 'c')]
+    [OutputNames("output")]
+    [OutputCodes(' ')]
+    [Description("Blends two images; the blend input determines how much from image 1 and 2 to use at each pixel.")]
     public class BlendMachine : Machine
     {
-        public BlendMachine()
-        {
-            inputNames = new string[] { "image 1", "image 2", "blend (control)" };
-            outputNames = new string[] { "output" };
-            inputCodes = new char[] { '1', '2', 'c' };
-            outputCodes = new char[] { ' ' };
-            description = "";
-        }
-
         public override string Caption
         {
             get { return "Blend"; }
@@ -1044,6 +892,11 @@ namespace Imagine.StandardMachines
     }
 
     [UniqueName("Imagine.Img.Pixelator")]
+    [InputNames("input")]
+    [InputCodes(' ')]
+    [OutputNames("output")]
+    [OutputCodes(' ')]
+    [Description("Pixelates the image to the size in the settings.")]
     public class PixelateMachine : Machine
     {
         private int size = 1;
@@ -1052,15 +905,6 @@ namespace Imagine.StandardMachines
         {
             get { return size; }
             set { size = value; OnMachineChanged(); }
-        }
-
-        public PixelateMachine()
-        {
-            inputNames = new string[] { "input" };
-            outputNames = new string[] { "output" };
-            inputCodes = new char[] { ' ' };
-            outputCodes = new char[] { ' ' };
-            description = "";
         }
 
         public override string Caption
@@ -1106,17 +950,13 @@ namespace Imagine.StandardMachines
     }
 
     [UniqueName("Imagine.Img.Crop")]
+    [InputNames("image", "reference")]
+    [InputCodes('i', 'c')]
+    [OutputNames("output")]
+    [OutputCodes(' ')]
+    [Description("Crops the input image to the size specified by the reference image (control or full).")]
     public class CropMachine : Machine
     {
-        public CropMachine()
-        {
-            inputNames = new string[] { "image", "reference" };
-            outputNames = new string[] { "output" };
-            inputCodes = new char[] { 'i', 'c' };
-            outputCodes = new char[] { ' ' };
-            description = "Crops the input image to the size specified by the reference image (control or full)";
-        }
-
         public override string Caption
         {
             get { return "Crop"; }
@@ -1144,17 +984,13 @@ namespace Imagine.StandardMachines
     }
 
     [UniqueName("Imagine.Img.Resize")]
+    [InputNames("image", "reference")]
+    [InputCodes('i', 'c')]
+    [OutputNames("output")]
+    [OutputCodes(' ')]
+    [Description("Resizes the input image to the size specified by the reference image (control or full). Uses nearest-neighbour.")]
     public class ResizeMachine : Machine
     {
-        public ResizeMachine()
-        {
-            inputNames = new string[] { "image", "reference" };
-            outputNames = new string[] { "output" };
-            inputCodes = new char[] { 'i', 'c' };
-            outputCodes = new char[] { ' ' };
-            description = "Resizes the input image to the size specified by the reference image (control or full). Uses nearest-neighbour.";
-        }
-
         public override string Caption
         {
             get { return "Resize"; }
@@ -1185,6 +1021,11 @@ namespace Imagine.StandardMachines
     }
 
     [UniqueName("Imagine.Img.Color")]
+    [InputNames("reference")]
+    [InputCodes(' ')]
+    [OutputNames("output")]
+    [OutputCodes(' ')]
+    [Description("Produces an image filled with a single color, having the size specified by the reference image (control or full).")]
     public class ColorMachine : Machine
     {
         private ImagineColor targetColor = new ImagineColor(ImagineColor.MAX, ImagineColor.MAX, ImagineColor.MAX, ImagineColor.MAX);
@@ -1193,15 +1034,6 @@ namespace Imagine.StandardMachines
         {
             get { return targetColor; }
             set { targetColor = value; OnMachineChanged(); }
-        }
-
-        public ColorMachine()
-        {
-            inputNames = new string[] { "reference" };
-            outputNames = new string[] { "output" };
-            inputCodes = new char[] { ' ' };
-            outputCodes = new char[] { ' ' };
-            description = "Produces an image filled with a single color, having the size specified by the reference image (control or full).";
         }
 
         public override string Caption

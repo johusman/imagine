@@ -4,10 +4,10 @@ using System.Text;
 using Imagine.Library;
 using System.Windows.Forms;
 using Imagine.GUI;
-using Standard_Machines;
 using System.Drawing;
+using Standard_Machine_GUIs;
 
-namespace Imagine.StandardMachines
+namespace Imagine.StandardMachines.GUI
 {
     [GUIForMachine("Imagine.Ctrl.HardControlContrast")]
     public class HardControlContrastGUI : MachineGUI
@@ -168,15 +168,6 @@ namespace Imagine.StandardMachines
                 MyMachine.TargetColor = new ImagineColor(dialog.Color);
             }
             dialog.Dispose();
-        }
-    }
-
-    [GUIForMachine("Imagine.Img.BadDynamicBlur")]
-    public class BadDynamicBlurGUI : MachineGUI
-    {
-        public BadDynamicBlurGUI()
-        {
-            SetBitmap(Resources.Imagine_Img_Blur);
         }
     }
 

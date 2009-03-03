@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.50727</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{7332284F-8C7D-4C9F-A6D2-744E69F7AF52}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -49,9 +49,9 @@
       <Project>{CD2E4196-052F-4B8C-AB6A-029BF1A1EBF2}</Project>
       <Name>Imagine Library</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Standard Machines\Standard Machines.csproj">
-      <Project>{FD5E1A31-B576-4089-A69C-03773B7408E3}</Project>
-      <Name>Standard Machines</Name>
+    <ProjectReference Include="..\Standard Machine GUIs\Standard Machine GUIs.csproj">
+      <Project>{65FD528C-229F-484C-A95C-639B48ED3211}</Project>
+      <Name>Standard Machine GUIs</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

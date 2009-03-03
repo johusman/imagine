@@ -6,6 +6,7 @@ using System.Drawing.Imaging;
 using System.Reflection;
 using System.IO;
 using System.Text.RegularExpressions;
+using Imagine.Library.Machines.Core;
 
 namespace Imagine.Library
 {
@@ -76,9 +77,9 @@ namespace Imagine.Library
                 if (System.IO.Path.GetFileName(fileName).ToLower() != System.IO.Path.GetFileName(Assembly.GetExecutingAssembly().Location.ToLower()))
                     foreach (Type type in Assembly.LoadFile(fileName).GetTypes())
                         if (type.IsSubclassOf(typeof(Machine)))
-                            if (type.GetCustomAttributes(typeof(UniqueName), false).Length == 1)
+                            if (type.GetCustomAttributes(typeof(UniqueNameAttribute), false).Length == 1)
                             {
-                                string name = ((UniqueName)type.GetCustomAttributes(typeof(UniqueName), false)[0]).Value;
+                                string name = ((UniqueNameAttribute)type.GetCustomAttributes(typeof(UniqueNameAttribute), false)[0]).Value;
                                 machineTypes[name] = type;
                             }
 

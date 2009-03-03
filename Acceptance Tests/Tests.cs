@@ -4,6 +4,7 @@ using System.Text;
 using NUnit.Framework;
 using Imagine.Library;
 using System.Drawing;
+using Imagine.Library.Machines.Core;
 
 namespace Imagine.AcceptanceTests
 {
@@ -299,17 +300,13 @@ namespace Imagine.AcceptanceTests
     }
 
     [UniqueName("Test.Dummy")]
+    [InputNames("input")]
+    [InputCodes(' ')]
+    [OutputNames("output1")]
+    [OutputCodes(' ')]
+    [Imagine.Library.Description("Does nothing.")]
     public class DummyMachine : Machine
     {
-        public DummyMachine()
-        {
-            inputNames = new string[] { "input" };
-            outputNames = new string[] { "output1" };
-            inputCodes = new char[] { ' ' };
-            outputCodes = new char[] { ' ' };
-            description = "Does nothing.";
-        }
-
         private int dummyValue;
         public int DummyValue
         {

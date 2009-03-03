@@ -35,11 +35,23 @@ namespace Imagine.Library
 
         public event System.EventHandler MachineChanged;
         
+        public Machine()
+        {
+            inputNames = HasAttribute<InputNamesAttribute>() ? GetAttribute<InputNamesAttribute>().Values : new string[0];
+            outputNames = HasAttribute<OutputNamesAttribute>() ? GetAttribute<OutputNamesAttribute>().Values : new string[0];
+            inputCodes = HasAttribute<InputCodesAttribute>() ? GetAttribute<InputCodesAttribute>().Values : new char[0];
+            outputCodes = HasAttribute<OutputCodesAttribute>() ? GetAttribute<OutputCodesAttribute>().Values : new char[0];
+
+            if (inputNames.Length != inputCodes.Length)
+                throw new Exception("Number of input names does not match number of input codes for machine type " + ToString() + " (" + GetType().AssemblyQualifiedName + ")");
+            if (outputNames.Length != outputCodes.Length)
+                throw new Exception("Number of output names does not match number of output codes for machine type " + ToString() + " (" + GetType().AssemblyQualifiedName + ")");
+        }
+        
         protected string[] inputNames;
         protected string[] outputNames;
         protected char[] inputCodes;
         protected char[] outputCodes;
-        protected string description = "";
 
         public int InputCount
         {
@@ -73,7 +85,7 @@ namespace Imagine.Library
 
         public string Description
         {
-            get { return description; }
+            get { return HasAttribute<DescriptionAttribute>() ? GetAttribute<DescriptionAttribute>().Value : ""; }
         }
 
         public abstract string Caption
@@ -83,7 +95,17 @@ namespace Imagine.Library
 
         public override string ToString()
         {
-            return ((UniqueName) GetType().GetCustomAttributes(typeof(UniqueName), false)[0]).Value;
+            return ((UniqueNameAttribute) GetType().GetCustomAttributes(typeof(UniqueNameAttribute), false)[0]).Value;
+        }
+
+        private bool HasAttribute<T>()
+        {
+            return GetType().GetCustomAttributes(typeof(T), true).Length > 0;
+        }
+
+        private T GetAttribute<T>()
+        {
+            return (T)GetType().GetCustomAttributes(typeof(T), true)[0];
         }
 
         public virtual void LoadSettings(string settings)
@@ -270,10 +292,10 @@ namespace Imagine.Library
     }
 
     [AttributeUsage(AttributeTargets.Class)]
-    public class UniqueName : Attribute
+    public class UniqueNameAttribute : Attribute
     {
         private string value;
-        public UniqueName(string value)
+        public UniqueNameAttribute(string value)
         {
             this.value = value;
         }
@@ -284,172 +306,72 @@ namespace Imagine.Library
         }
     }
 
-    [UniqueName("Imagine.Source")]
-    public class SourceMachine : Machine
+    [AttributeUsage(AttributeTargets.Class)]
+    public class NamesAttribute : Attribute
     {
-        private string filename;
-
-        public string Filename
+        private string[] values;
+        public NamesAttribute(params string[] values)
         {
-            get { return filename; }
-            set { filename = value; OnMachineChanged(); }
+            this.values = values;
         }
 
-        private bool preview = false;
-
-        public bool Preview
+        public string[] Values
         {
-            get { return preview; }
-            set { preview = value; }
-        }
-
-        private ImagineImage lastPreviewImage;
-
-        public ImagineImage LastPreviewImage
-        {
-            get { return lastPreviewImage; }
-        }
-
-        public SourceMachine()
-        {
-            inputNames = new string[0];
-            outputNames = new string[] { "output" };
-            inputCodes = new char[0];
-            outputCodes = new char[] { ' ' };
-            description = "Provides a source image from file.";
-        }
-
-        public override string Caption
-        {
-            get { return "Source"; }
-        }
-
-        public ImagineImage Load()
-        {
-            return Load(null);
-        }
-
-        public ImagineImage Load(ProgressCallback callback)
-        {
-            ImagineImage image = null;
-            if (filename != null)
-            {
-                Bitmap bitmap = (Bitmap)Image.FromFile(filename, false);
-                if (!preview)
-                    image = new FullImage(bitmap, callback);
-                else
-                {
-                    image = FullImage.CreatePreview(bitmap);
-                    lastPreviewImage = image;
-                }
-                bitmap.Dispose();
-            }
-            
-            return image;
-        }
-
-        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
-        {
-            return new ImagineImage[] { Load(callback) };
-        }
-    }
-    
-    [UniqueName("Imagine.Destination")]
-    public class SinkMachine : Machine
-    {
-        private string filename;
-
-        public string Filename
-        {
-            get { return filename; }
-            set { filename = value; OnMachineChanged();  }
-        }
-
-        public override string Caption
-        {
-            get { return "Destination"; }
-        }
-
-        private bool preview = false;
-
-        public bool Preview
-        {
-            get { return preview; }
-            set { preview = value; }
-        }
-
-        private ImagineImage lastPreviewImage;
-
-        public ImagineImage LastPreviewImage
-        {
-            get { return lastPreviewImage; }
-        }
-
-        public SinkMachine()
-        {
-            inputNames = new string[] { "input" };
-            outputNames = new string[0];
-            inputCodes = new char[] { ' ' };
-            outputCodes = new char[0];
-            description = "Writes the input image to a file.";
-        }
-
-        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
-        {
-            if (!preview)
-            {
-                if (filename != null)
-                {
-                    Bitmap bitmap = inputs[0].GetBitmap(callback);
-                    ImageCodecInfo codec = FindPngCodec();
-                    EncoderParameters parameters = new EncoderParameters(0);
-                    bitmap.Save(filename, codec, parameters);
-                    bitmap.Dispose();
-                }
-            }
-            else
-                lastPreviewImage = inputs[0];
-
-            return new ImagineImage[0];
-        }
-
-        private ImageCodecInfo FindPngCodec()
-        {
-            ImageCodecInfo[] codecs = ImageCodecInfo.GetImageEncoders();
-            foreach(ImageCodecInfo codec in codecs)
-                foreach(String ext in codec.FilenameExtension.Split(';'))
-                    if(ext.ToLower().Equals("*.png"))
-                        return codec;
-
-            return null;
+            get { return values; }
         }
     }
 
-    [UniqueName("Imagine.Branch4")]
-    public class Branch4Machine : Machine
+    [AttributeUsage(AttributeTargets.Class)]
+    public class CodesAttribute : Attribute
     {
-        public Branch4Machine()
+        private char[] values;
+        public CodesAttribute(params char[] values)
         {
-            inputNames = new string[] { "input" };
-            outputNames = new string[] { "output1", "output2", "output3", "output4" };
-            inputCodes = new char[] { ' ' };
-            outputCodes = new char[] { '1', '2', '3', '4' };
-            description = "Outputs up for four identical copies of the input image.";
+            this.values = values;
         }
 
-        public override string Caption
+        public char[] Values
         {
-            get { return "Branch"; }
+            get { return values; }
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Class)]
+    public class InputNamesAttribute : NamesAttribute
+    {
+        public InputNamesAttribute(params string[] values) : base(values) {}
+    }
+
+    [AttributeUsage(AttributeTargets.Class)]
+    public class OutputNamesAttribute : NamesAttribute
+    {
+        public OutputNamesAttribute(params string[] values) : base(values) {}
+    }
+
+    [AttributeUsage(AttributeTargets.Class)]
+    public class InputCodesAttribute : CodesAttribute
+    {
+        public InputCodesAttribute(params char[] values) : base(values) {}
+    }
+
+    [AttributeUsage(AttributeTargets.Class)]
+    public class OutputCodesAttribute : CodesAttribute
+    {
+        public OutputCodesAttribute(params char[] values) : base(values) {}
+    }
+
+    [AttributeUsage(AttributeTargets.Class)]
+    public class DescriptionAttribute : Attribute
+    {
+        private string value;
+        public DescriptionAttribute(string value)
+        {
+            this.value = value;
         }
 
-        protected override ImagineImage[] DoProcess(ImagineImage[] inputs, ProgressCallback callback)
+        public string Value
         {
-            return new ImagineImage[] { CloneFirst(inputs), CloneFirst(inputs), CloneFirst(inputs), CloneFirst(inputs) };
-        }
-
-        private ImagineImage CloneFirst(ImagineImage[] inputs)
-        {
-            return (inputs[0] == null) ? null : inputs[0].Copy();
+            get { return value; }
         }
     }
 }

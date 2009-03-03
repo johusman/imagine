@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Imagine.Library;
 using NUnit.Framework;
+using Imagine.Library.Machines.Core;
 
 namespace Imagine.AcceptanceTests
 {

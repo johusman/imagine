@@ -4,6 +4,7 @@ using System.Text;
 using NUnit.Framework;
 using System.Drawing;
 using Imagine.StandardMachines;
+using Imagine.Library.Machines.Core;
 
 namespace Imagine.Library
 {

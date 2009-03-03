@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.IO;
 using Imagine.GUI.Properties;
 using System.Threading;
+using Imagine.Library.Machines.Core;
 
 namespace Imagine.GUI
 {

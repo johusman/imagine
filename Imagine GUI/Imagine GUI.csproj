@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CoreMachinesGUIs.cs" />
     <Compile Include="GraphArea.cs">
       <SubType>UserControl</SubType>
     </Compile>
